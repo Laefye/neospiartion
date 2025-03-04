@@ -3,10 +3,10 @@ using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using ArtSite.Core.Utilities;
 using ArtSite.VK.DTO;
 using ArtSite.VK.Exceptions;
 using ArtSite.VK.Interfaces;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace ArtSite.VK;
 
@@ -52,7 +52,7 @@ public class VKAuth : IVKAuth
             { "redirect_uri", _redirectUri },
             { "state", state }
         };
-        return _baseAuthorizationUrl + "?" + QueryBuilder.Create(query);
+        return QueryHelpers.AddQueryString(_baseAuthorizationUrl, query!);
     }
 
     private string Hash(string codeVerifier)
@@ -62,11 +62,9 @@ public class VKAuth : IVKAuth
         return Base64Url.EncodeToString(hash);
     }
 
-    private async Task<HttpResponseMessage> PostForm(string uri, string data)
+    private async Task<HttpResponseMessage> PostForm(string uri, Dictionary<string, string> data)
     {
-        var content = new StringContent(data);
-        content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-        return await _httpClient.PostAsync(uri, content);
+        return await _httpClient.PostAsync(uri, new FormUrlEncodedContent(data));
     }
 
     private async Task<T> ParseAuthResponse<T>(HttpResponseMessage response)

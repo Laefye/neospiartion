@@ -43,7 +43,7 @@ Neospiartion - это социальная сеть для художников,
 
 1. Получите URL для авторизации:
     ```sh
-    GET /VK/getAuthorizationUrl?codeVerifier=ваш_code_verifier&state=ваш_state
+    GET /VK/authorizationUrl?codeVerifier=ваш_code_verifier&state=ваш_state
     ```
 2. Аутентифицируйтесь и получите токен доступа:
     ```sh

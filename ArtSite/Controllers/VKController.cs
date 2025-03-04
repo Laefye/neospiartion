@@ -28,13 +28,13 @@ public class VKController : ControllerBase
             case VKCallMethodException vkCallMethodException:
                 return new ApiException("vk_call_method", vkCallMethodException.Message);
             case VKAuthException vkAuthException:
-                return new ApiException("vk_auth", vkAuthException.Message);
+                return new ApiException("vk_auth", vkAuthException.Error);
             default:
                 return e;
         }
     }
 
-    [HttpGet("getAuthorizationUrl")]
+    [HttpGet("authorizationUrl")]
     public ActionResult<string> GetUser([FromQuery] string codeVerifier, [FromQuery] string state)
     {
         return _vkService.GetAuthorizationUrl(codeVerifier, state);
@@ -59,7 +59,7 @@ public class VKController : ControllerBase
         }
     }
 
-    [HttpGet("getGroups")]
+    [HttpGet("groups")]
     public async Task<ActionResult<CountedList<Group>>> GetGroups([FromQuery] string accessToken,
         [FromQuery] long userId)
     {
@@ -73,7 +73,7 @@ public class VKController : ControllerBase
         }
     }
 
-    [HttpGet("getPosts")]
+    [HttpGet("posts")]
     public async Task<ActionResult<CountedList<Post>>> GetPosts([FromQuery] string accessToken,
         [FromQuery] long ownerId)
     {

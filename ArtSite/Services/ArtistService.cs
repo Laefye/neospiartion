@@ -18,7 +18,7 @@ public class ArtistService : IArtistService
     public async Task<Artist> CreateArtist(string name)
     {
         if (string.IsNullOrEmpty(name)) throw new ArgumentException("Name cannot be empty");
-        var artist = await _db.Artists.AddAsync(new Artist { Name = name, CreatedAt = DateTime.Now });
+        var artist = await _db.Artists.AddAsync(new Artist { Name = name, CreatedAt = DateTime.Now.ToUniversalTime() });
         await _db.SaveChangesAsync();
         return (Artist)artist.Entity.Clone();
     }

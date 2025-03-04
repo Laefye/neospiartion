@@ -1,6 +1,4 @@
-﻿using ArtSite.Core.Utilities;
-
-namespace ArtSite.VK.DTO;
+﻿namespace ArtSite.VK.DTO;
 
 public class MethodQuery
 {
@@ -9,7 +7,7 @@ public class MethodQuery
     public Dictionary<string, string> Arguments { get; set; } = new();
 
 
-    public string Query
+    public Dictionary<string, string> Query
     {
         get
         {
@@ -19,7 +17,7 @@ public class MethodQuery
                 { "v", Version }
             };
             foreach (var param in Arguments) query.Add(param.Key, param.Value);
-            return QueryBuilder.Create(query);
+            return query;
         }
     }
 }

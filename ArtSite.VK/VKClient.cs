@@ -3,6 +3,7 @@ using ArtSite.VK.DTO;
 using ArtSite.VK.DTO.Methods;
 using ArtSite.VK.Exceptions;
 using ArtSite.VK.Interfaces;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace ArtSite.VK;
 
@@ -42,9 +43,9 @@ public class VKClient : IVKClient
         return response;
     }
 
-    private string GetMethodUrl(string method, string query)
+    private string GetMethodUrl(string method, Dictionary<string, string> query)
     {
-        return _baseApiUrl + method + "?" + query;
+        return QueryHelpers.AddQueryString($"{_baseApiUrl}{method}", query!);
     }
 
     private async Task<T> CallMethod<T>(string method, Dictionary<string, string> arguments)
@@ -67,7 +68,7 @@ public class VKClient : IVKClient
             )
                 throw new VKCallMethodException(
                     errorCodeElement.GetInt32(),
-                    errorMsgElement.GetString() ?? "Unknown error"
+                    errorMsgElement.GetString()!
                 );
             throw new VKException("Unknown error");
         }
