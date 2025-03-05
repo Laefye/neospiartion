@@ -14,6 +14,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add controllers to the container.
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<ExceptionHandler>();
 builder.Services.AddControllers();
 
 // Add services to the container.
@@ -28,6 +30,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+app.UseExceptionHandler();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -35,8 +39,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
-app.UseMiddleware<ExceptionHandlerMiddleware>();
 
 app.UseAuthorization();
 
