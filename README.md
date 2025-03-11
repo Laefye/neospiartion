@@ -2,8 +2,7 @@
 
 Neospiartion (ArtSite "кодовое имя") - это социальная сеть для художников, где люди могут публиковать свои работы.
 
-## Функциональность
-
+## (Планируемая) Функциональность
 - [ ] Регестрировать аккаунты
 - [ ] Загружать изображанения и опублкиовать их в качестве постов
 - [ ] Создавать профиля художников
@@ -18,28 +17,23 @@ Neospiartion (ArtSite "кодовое имя") - это социальная с�
 
 ```mermaid
 erDiagram
-    ACCOUNT ||--|{ ART-OWNERS : "owns"
-    ACCOUNT {
+    ARTIST ||--|{ ART : "owns"
+    ARTIST {
         int id PK
-        string email
-        string password
         string name
-        string description
-        bool isVerified
         DateTime createdAt
     }
-    ART ||--|{ ART-OWNERS : "is owner by"
     ART {
         int id PK
-        string text
-        DateTime createdAt
+        string description
+        int artistId FK
+        DateTime uploadedAt
     }
     PICTURE }|--|| ART : added
     PICTURE {
         int id PK
         int artId FK
         string uri
-
     }
 ```
 
