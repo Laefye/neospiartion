@@ -1,92 +1,110 @@
-# Hudozhniki
 
+# Neospiartion
 
+  
 
-## Getting started
+Neospiartion (ArtSite "кодовое имя") - это социальная сеть для художников, специализирующихся на создании digital-рисунков, где они могут публиковать свои работы.
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+  
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## Планируемыый функционал
 
-## Add your files
+Функциональным назначением программы является соединение исполнителей (художников) и заказчиков.
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+К функциональному назначению относится:
 
+-  [ ] размещение художниками оригинальных изображений в личном профиле;
+    
+-  [ ] установка художником уровней доступа (тиров) к своим работам по критерию размера оплаты;
+    
+-  [ ] публикация совместных (коллаборационных) работ нескольких художников одной записью;
+    
+-  [ ] связь в формате личных сообщений между пользователями;
+    
+-  [ ] загрузка пользователями своих работ с других площадок (ВК <...>);
+    
+-  [ ] отправление пользователями пожертвований (донатов) художников;
+    
+-  [ ] оформление заказов и требований к работам клиентами с последующей процедурой оплаты, устанавливаемой художником.
+
+К функциональному назначению относится:
+
+-  [ ] размещение художниками оригинальных изображений в личном профиле;
+    
+-  [ ] установка художником уровней доступа (тиров) к своим работам по критерию размера оплаты;
+    
+-  [ ] публикация совместных (коллаборационных) работ нескольких художников одной записью;
+    
+-  [ ] связь в формате личных сообщений между пользователями;
+    
+-  [ ] загрузка пользователями своих работ с других площадок (ВК <...>);
+    
+-  [ ] отправление пользователями пожертвований (донатов) художников;
+    
+-  [ ] оформление заказов и требований к работам клиентами с последующей процедурой оплаты, устанавливаемой художником.
+
+  
+
+## Структура Базы Данных
+
+```mermaid
+erDiagram
+    ARTIST ||--|{ ART : "owns"
+    ARTIST {
+        int id PK
+        string name
+        DateTime createdAt
+    }
+    ART {
+        int id PK
+        string description
+        int artistId FK
+        DateTime uploadedAt
+    }
+    PICTURE }|--|| ART : added
+    PICTURE {
+        int id PK
+        int artId FK
+        string uri
+    }
 ```
-cd existing_repo
-git remote add origin https://git.iu7.bmstu.ru/sgn3-prog/sgn3-prog-it-2025/hudozhniki.git
-git branch -M main
-git push -uf origin main
-```
+  
 
-## Integrate with your tools
+## Команда
 
-- [ ] [Set up project integrations](https://git.iu7.bmstu.ru/sgn3-prog/sgn3-prog-it-2025/hudozhniki/-/settings/integrations)
+  
 
-## Collaborate with your team
+Ветров Дмитрий - Backend-программист, Frontend-программист
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+  
 
-## Test and Deploy
+Кривецкий Артемий - Backend-программист
 
-Use the built-in continuous integration in GitLab.
+  
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+Светова Алиса - Frontend-программист, художник
 
-***
+  
 
-# Editing this README
+## Краткое описание предметной области
+Существует потребность в создании специализированной онлайн-платформы, которая объединит художников и их поклонников, предоставляя возможность для демонстрации творчества, монетизации работ и взаимодействия с аудиторией. Художники смогут публиковать свои работы, создавать подписки для поддержки со стороны пользователей, а также продавать свои произведения или услуги. Пользователи, в свою очередь, получат доступ к уникальному контенту, возможность поддержки любимых авторов и приобретения их работ.
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Данное техническое задание определяет требования к разработке веб-платформы, ориентированной на художников и их аудиторию.
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## Существующие аналоги
 
-## Name
-Choose a self-explaining name for your project.
+Среди аналогов можно отметить сайты Patreon, Boosty и ArtStation. Основными недостатками данных проектов являются:
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+1.  **Patreon** является иностранным сайтом, с отсутствием локализации на русский язык. Также не имеется возможности работы с картами российских банков.
+    
+2.  **ArtStation** — это зарубежная онлайн-платформа для художников, предпочтение в которой отдаётся тем художникам, чьи работы с наибольшей скоростью собирают большое количество одобрительных оценок и комментариев. Из-за этого новые пользователи чаще всего остаются незамеченными.
+    
+3.  **Boosty** является отечественной платформой и преподносит себя как аналог Patreon. Однако, по сравнению с Patreon, модерация контента там гораздо жёстче, из-за чего многие художники не могут публиковать свои работы, так как они не соответствуют политике пользования платформы.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+Данный проект должен обладать следующими преимуществами перед существующими аналогами:
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
-
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
-
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
-
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
-
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
-
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
-
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+- [ ]  ориентация на аудиторию из России, что обеспечивает удобство использования, поддержку локальных платежных систем и адаптацию под потребности русскоязычных пользователей;
+- [ ]  система рекомендаций, которая помогает художникам продвигать свои работы, а пользователям — находить новых авторов, соответствующих их интересам;    
+- [ ]  возможность создания сообществ и взаимодействия между художниками и их поклонниками, что способствует развитию творческой среды.
