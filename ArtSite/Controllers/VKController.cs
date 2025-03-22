@@ -3,6 +3,7 @@ using ArtSite.Services.Interfaces;
 using ArtSite.VK;
 using ArtSite.VK.DTO.Methods;
 using ArtSite.VK.Exceptions;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -15,28 +16,17 @@ public class VkController : ControllerBase
     private readonly HttpClient _httpClient;
     private readonly IImportService _importService;
     private readonly IVKService _vkService;
+    private readonly ILogger<VkController> _logger;
 
-    public VkController(IVKService vkService, IImportService importService, HttpClient httpClient)
+    public VkController(ILogger<VkController> logger, IVKService vkService, IImportService importService, HttpClient httpClient)
     {
         _vkService = vkService;
         _importService = importService;
         _httpClient = httpClient;
+        _logger = logger;
     }
 
-    private Exception HandleException(Exception e)
-    {
-        switch (e)
-        {
-            case VKCallMethodException vkCallMethodException:
-                return new ApiException("vk_call_method", vkCallMethodException.Message, StatusCodes.Status400BadRequest);
-            case VKAuthException vkAuthException:
-                return new ApiException("vk_auth", vkAuthException.Error, StatusCodes.Status400BadRequest);
-            default:
-                return e;
-        }
-    }
-
-    private async Task<T> CallService<T>(Func<Task<T>> serviceCall)
+    private async Task<ActionResult> CallService(Func<Task<ActionResult>> serviceCall)
     {
         try
         {
@@ -44,7 +34,8 @@ public class VkController : ControllerBase
         }
         catch (Exception e)
         {
-            throw HandleException(e);
+            _logger.LogError(e, null);
+            return Problem(null, null, StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -66,7 +57,7 @@ public class VkController : ControllerBase
             var deviceId = query["device_id"];
             var state = query["state"];
             var accessToken = await _vkService.AuthenticateCode(code, codeVerifier, deviceId, state);
-            return accessToken;
+            return Ok(accessToken);
         });
     }
 
@@ -74,14 +65,14 @@ public class VkController : ControllerBase
     public async Task<ActionResult<CountedList<Group>>> GetGroups([FromQuery] string accessToken,
         [FromQuery] long userId)
     {
-        return await CallService(async () => await _vkService.GetGroups(accessToken, userId));
+        return await CallService(async () => Ok(await _vkService.GetGroups(accessToken, userId)));
     }
 
     [HttpGet("posts")]
     public async Task<ActionResult<CountedList<Post>>> GetPosts([FromQuery] string accessToken,
         [FromQuery] long ownerId)
     {
-        return await CallService(async () => await _vkService.GetPosts(accessToken, ownerId));
+        return await CallService(async () => Ok(await _vkService.GetPosts(accessToken, ownerId)));
     }
 
     [HttpGet("exportArts")]
