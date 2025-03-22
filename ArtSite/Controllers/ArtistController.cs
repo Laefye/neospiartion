@@ -21,9 +21,20 @@ public class ArtistController : ControllerBase
         return artist.Id;
     }
 
-    [HttpGet("{artistId}/arts")]
-    public async Task<ActionResult<List<Art>>> GetArts(int artistId)
+    [HttpGet("{artistId}")]
+    public async Task<ActionResult> GetArtist(int artistId)
     {
+        var artist = await _artistService.GetArtist(artistId);
+        if (artist == null)
+            return NotFound();
+        return Ok(artist);
+    }
+
+    [HttpGet("{artistId}/arts")]
+    public async Task<ActionResult> GetArts(int artistId)
+    {
+        if (await _artistService.GetArtist(artistId) == null)
+            return NotFound();
         var arts = await _artistService.GetArts(artistId);
         var result = new List<Art>();
         foreach (var art in arts)
@@ -37,8 +48,7 @@ public class ArtistController : ControllerBase
                 Pictures = pictures.Select(picture => picture.Url).ToList()
             });
         }
-
-        return result;
+        return Ok(result);
     }
 
     public class Art

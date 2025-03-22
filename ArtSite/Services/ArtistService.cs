@@ -1,69 +1,61 @@
-﻿using ArtSite.Core.Models;
-using ArtSite.Database;
-using ArtSite.Database.Models;
+﻿using ArtSite.Core.DTO;
+using ArtSite.Core.Models;
+using ArtSite.Database.Repositories;
 using ArtSite.Services.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace ArtSite.Services;
 
 public class ArtistService : IArtistService
 {
-    private readonly ApplicationDbContext _db;
+    private readonly IArtistRepository _artistRepository;
+    private readonly IArtRepository _artRepository;
+    private readonly IPictureRepository _pictureRepository;
 
-    public ArtistService(ApplicationDbContext db)
+    public ArtistService(IArtistRepository db, IArtRepository artRepository, IPictureRepository pictureRepository)
     {
-        _db = db;
+        _artistRepository = db;
+        _artRepository = artRepository;
+        _pictureRepository = pictureRepository;
     }
 
     public async Task<Artist> CreateArtist(string name)
     {
         if (string.IsNullOrEmpty(name)) throw new ArgumentException("Name cannot be empty");
-        var artist = await _db.Artists.AddAsync(new Artist { Name = name, CreatedAt = DateTime.Now.ToUniversalTime() });
-        await _db.SaveChangesAsync();
-        return (Artist)artist.Entity.Clone();
+        return await _artistRepository.CreateArtist(name);
     }
 
     public async Task<List<Art>> GetArts(int artistId)
     {
-        return await _db.Arts.Where(art => art.ArtistId == artistId).Select(art => (Art)art.Clone()).ToListAsync();
+        return await _artRepository.GetArts(artistId);
     }
 
-    public async Task<Art> CreateArt(int artistId, string? description, List<string> photos)
+    public async Task<Art> CreateArt(int artistId, string? description, List<string> pictures)
     {
-        var art = await _db.Arts.AddAsync(
-            new Art
-            {
-                ArtistId = artistId,
-                Description = description,
-                UploadedAt = DateTime.Now
-            }
-        );
-        await _db.SaveChangesAsync();
-        foreach (var photo in photos) await _db.Pictures.AddAsync(new Picture { ArtId = art.Entity.Id, Url = photo });
-        await _db.SaveChangesAsync();
-        return (Art)art.Entity.Clone();
+        var art = await _artRepository.CreateArt(description, artistId);
+        foreach (var url in pictures)
+        {
+            await _pictureRepository.AddPicture(art.Id, url);
+        }
+        return art;
     }
 
     public async Task<Art> ImportArt(int artistId, ExportedArt exportedArt)
     {
-        var art = await _db.Arts.AddAsync(
-            new Art
-            {
-                ArtistId = artistId,
-                Description = exportedArt.Description,
-                UploadedAt = exportedArt.UploadedDate
-            }
-        );
-        await _db.SaveChangesAsync();
-        foreach (var picture in exportedArt.Pictures)
-            await _db.Pictures.AddAsync(new Picture { ArtId = art.Entity.Id, Url = picture });
-        await _db.SaveChangesAsync();
-        return (Art)art.Entity.Clone();
+        var art = await _artRepository.CreateArtByDate(exportedArt.Description, artistId, exportedArt.UploadedDate);
+        foreach (var url in exportedArt.Pictures)
+        {
+            await _pictureRepository.AddPicture(art.Id, url);
+        }
+        return art;
     }
 
-    public Task<List<Picture>> GetPictures(int artId)
+    public async Task<List<Picture>> GetPictures(int artId)
     {
-        return _db.Pictures.Where(picture => picture.ArtId == artId).Select(picture => (Picture)picture.Clone())
-            .ToListAsync();
+        return await _pictureRepository.GetPictures(artId);
+    }
+
+    public async Task<Artist?> GetArtist(int id)
+    {
+        return await _artistRepository.GetArtist(id);
     }
 }

@@ -1,5 +1,6 @@
 using ArtSite.Controllers;
 using ArtSite.Database;
+using ArtSite.Database.Repositories;
 using ArtSite.Services;
 using ArtSite.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,10 @@ builder.Services.AddControllersWithViews();
 // Configure the database context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
+builder.Services.AddScoped<IArtRepository, ArtRepository>();
+builder.Services.AddScoped<IPictureRepository, PictureRepository>();
+
 
 // Add controllers to the container.
 builder.Services.AddProblemDetails();
