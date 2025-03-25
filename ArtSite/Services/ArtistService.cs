@@ -1,6 +1,7 @@
 ﻿using ArtSite.Core.DTO;
+using ArtSite.Core.Interfaces.Services;
 using ArtSite.Core.Models;
-using ArtSite.Database.Repositories;
+using ArtSite.Database.Repositories.Interfaces;
 using ArtSite.Services.Interfaces;
 
 namespace ArtSite.Services;

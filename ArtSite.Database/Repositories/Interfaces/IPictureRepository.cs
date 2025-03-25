@@ -1,6 +1,6 @@
 ﻿using ArtSite.Core.DTO;
 
-namespace ArtSite.Database.Repositories;
+namespace ArtSite.Database.Repositories.Interfaces;
 
 public interface IPictureRepository
 {

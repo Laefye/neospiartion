@@ -1,9 +1,7 @@
-using ArtSite.Exceptions;
+using ArtSite.Core.Interfaces.Services;
 using ArtSite.Services.Interfaces;
 using ArtSite.VK;
 using ArtSite.VK.DTO.Methods;
-using ArtSite.VK.Exceptions;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 
@@ -59,20 +57,6 @@ public class VkController : ControllerBase
             var accessToken = await _vkService.AuthenticateCode(code, codeVerifier, deviceId, state);
             return Ok(accessToken);
         });
-    }
-
-    [HttpGet("groups")]
-    public async Task<ActionResult<CountedList<Group>>> GetGroups([FromQuery] string accessToken,
-        [FromQuery] long userId)
-    {
-        return await CallService(async () => Ok(await _vkService.GetGroups(accessToken, userId)));
-    }
-
-    [HttpGet("posts")]
-    public async Task<ActionResult<CountedList<Post>>> GetPosts([FromQuery] string accessToken,
-        [FromQuery] long ownerId)
-    {
-        return await CallService(async () => Ok(await _vkService.GetPosts(accessToken, ownerId)));
     }
 
     [HttpGet("exportArts")]

@@ -1,3 +1,5 @@
+using ArtSite.Core.DTO;
+using ArtSite.Core.Interfaces.Services;
 using ArtSite.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,6 +24,8 @@ public class ArtistController : ControllerBase
     }
 
     [HttpGet("{artistId}")]
+    [ProducesResponseType(typeof(IEnumerable<Artist>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetArtist(int artistId)
     {
         var artist = await _artistService.GetArtist(artistId);
@@ -31,6 +35,8 @@ public class ArtistController : ControllerBase
     }
 
     [HttpGet("{artistId}/arts")]
+    [ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetArts(int artistId)
     {
         if (await _artistService.GetArtist(artistId) == null)

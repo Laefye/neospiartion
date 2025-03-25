@@ -1,7 +1,7 @@
 ﻿using ArtSite.Core.DTO;
 using ArtSite.Core.Models;
 
-namespace ArtSite.Services.Interfaces;
+namespace ArtSite.Core.Interfaces.Services;
 
 public interface IArtistService
 {
