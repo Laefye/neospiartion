@@ -26,6 +26,11 @@ public class ArtRepository : IArtRepository
         return entry.Entity.ConvertToDTO();
     }
 
+    public async Task<List<Art>> GetAllArts(int offset, int limit)
+    {
+        return await _context.Arts.Select(art => art.ConvertToDTO()).Skip(offset).Take(limit).ToListAsync();
+    }
+
     public async Task<Art?> GetArt(int id)
     {
         return (await _context.Arts.Where(art => art.Id == id).FirstOrDefaultAsync())?.ConvertToDTO();
