@@ -35,33 +35,60 @@ public class ArtistController : ControllerBase
     }
 
     [HttpGet("{artistId}/arts")]
-    [ProducesResponseType(typeof(IEnumerable<FullArt>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetArts(int artistId)
     {
         if (await _artistService.GetArtist(artistId) == null)
             return NotFound();
         var arts = await _artistService.GetArts(artistId);
-        var result = new List<FullArt>();
-        foreach (var art in arts)
-        {
-            var pictures = await _artistService.GetPictures(art.Id);
-            result.Add(new FullArt
-            {
-                Id = art.Id,
-                Description = art.Description,
-                UploadedAt = art.UploadedAt,
-                Pictures = pictures.Select(picture => picture.Url).ToList()
-            });
-        }
-        return Ok(result);
+        return Ok(arts);
     }
 
-    public class FullArt
+    [HttpGet("{artistId}/messages")]
+    [ProducesResponseType(typeof(IEnumerable<Message>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> GetMessages(int artistId)
     {
-        public int Id { get; set; }
-        public string? Description { get; set; }
-        public required DateTime UploadedAt { get; set; }
-        public required List<string> Pictures { get; set; }
+        throw new NotImplementedException();
+    }
+
+    [HttpPost("{artistId}/messages")]
+    [ProducesResponseType(typeof(Message), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> PostMessage(int artistId, [FromBody] AddingMessage addingMessage)
+    {
+        throw new NotImplementedException();
+    }
+
+    public class AddingMessage
+    {
+        public required string Text { get; set; }
+    }
+
+    [HttpGet("{artistId}/tiers")]
+    [ProducesResponseType(typeof(IEnumerable<Tier>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> GetTiers(int artistId)
+    {
+        throw new NotImplementedException();
+    }
+
+    [HttpPost("{artistId}/tiers")]
+    [ProducesResponseType(typeof(Message), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> CreateTier(int artistId, [FromBody] AddingTier addingTier)
+    {
+        throw new NotImplementedException();
+    }
+
+    public class AddingTier
+    {
+        public int? Extends { get; set; }
+        public required string Name { get; set; }
     }
 }

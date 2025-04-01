@@ -9,6 +9,13 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Remove="Exceptions\**" />
+      <Content Remove="Exceptions\**" />
+      <EmbeddedResource Remove="Exceptions\**" />
+      <None Remove="Exceptions\**" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
@@ -49,10 +56,6 @@
         <ProjectReference Include="..\ArtSite.Core\ArtSite.Core.csproj" />
         <ProjectReference Include="..\ArtSite.Database\ArtSite.Database.csproj" />
         <ProjectReference Include="..\ArtSite.VK\ArtSite.VK.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Exceptions\" />
     </ItemGroup>
 
 </Project>

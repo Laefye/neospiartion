@@ -33,6 +33,15 @@ public class ArtController : ControllerBase
         return Ok(art);
     }
 
+    [HttpDelete("{artId}")]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> DeleteArt(int artId)
+    {
+        throw new NotImplementedException();
+    }
+
+
     [HttpGet("{artId}/pictures")]
     [ProducesResponseType(typeof(IEnumerable<Picture>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -46,23 +55,40 @@ public class ArtController : ControllerBase
     }
 
     [HttpPost("{artId}/pictures")]
-    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Art), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> AddPictureToArt(int artId, [FromBody] AddingPicture addingPicture)
+    public async Task<ActionResult> AddPictureToArt(int artId, List<IFormFile> files)
     {
-        var art = await _artService.GetArt(artId);
-        if (art == null)
-            return NotFound();
-        if (addingPicture.Url == null)
-            return BadRequest();
-        await _artService.AddPictureToArt(artId, addingPicture.Url);
-        return Created();
+        throw new NotImplementedException();
+        //var art = await _artService.GetArt(artId);
+        //if (art == null)
+        //    return NotFound();
+        //if (addingPicture.Url == null)
+        //    return BadRequest();
+        //await _artService.AddPictureToArt(artId, addingPicture.Url);
+        //return Created();
     }
 
-    public class AddingPicture
+    [HttpGet("{artId}/comments")]
+    [ProducesResponseType(typeof(Comment), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> GetComments(int artId)
     {
-        public required string Url { get; set; }
+        throw new NotImplementedException();
+    }
+
+    [HttpPost("{artId}/comments")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> PostComment(int artId, [FromBody] AddingComment comment)
+    {
+        throw new NotImplementedException();
+    }
+
+    public class AddingComment
+    {
+        public required string Text { get; set; }
     }
 }
 
