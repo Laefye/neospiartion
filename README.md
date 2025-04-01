@@ -45,20 +45,46 @@ Neospiartion (ArtSite "кодовое имя") - это социальная с�
 
   
 
-## Структура Базы Данных
+## ER Диаграмма
 
 ```mermaid
 erDiagram
+    USER {
+        string id PK
+        string email
+        string password
+        string name
+    }
     ARTIST ||--|{ ART : "owns"
     ARTIST {
         int id PK
+        string userId FK
         string name
         DateTime createdAt
+    }
+    TIER {
+        int id PK
+        string title
+        int artistId FK
+        int extends FK
+    }
+    MESSAGE {
+        int id PK
+        string fromUserID FK
+        string toUserID FK
+        string text
+    }
+    COMMENT {
+        int id PK
+        string userId FK
+        string artId FK
+        string text
     }
     ART {
         int id PK
         string description
         int artistId FK
+        int tierId FK
         DateTime uploadedAt
     }
     PICTURE }|--|| ART : added
@@ -67,6 +93,13 @@ erDiagram
         int artId FK
         string uri
     }
+    ART ||--o| TIER : "set tier"
+    ARTIST ||--o{ TIER : "has tier"
+    MESSAGE }o--|| USER : "send message"
+    USER }|--|| COMMENT : "publish by"
+    ART ||--|{ COMMENT : "has"
+    USER ||--o| ARTIST : "has"
+    TIER ||--o| TIER : "extends"
 ```
   
 
