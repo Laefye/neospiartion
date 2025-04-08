@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="imageUploadProcess" name="DFD Создание арта">
-        <mxGraphModel dx="1284" dy="779" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+        <mxGraphModel dx="761" dy="545" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -109,8 +109,8 @@
                 <mxCell id="27" value="Правила заполнения:&lt;br&gt;- До 1024 символов" style="shape=note;whiteSpace=wrap;html=1;size=14;verticalAlign=top;align=left;spacingTop=-6;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
                     <mxGeometry x="220" y="130" width="150" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="28" value="Ограничения:&lt;br&gt;- Макс 10MB&lt;br&gt;- Форматы: png, webf, jpg&lt;br&gt;- Не более 10 картинок" style="shape=note;whiteSpace=wrap;html=1;size=14;verticalAlign=top;align=left;spacingTop=-6;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
-                    <mxGeometry x="160" y="440" width="150" height="60" as="geometry"/>
+                <mxCell id="28" value="Ограничения:&lt;br&gt;-&amp;nbsp;Форматы: png, webf, jpg&lt;br&gt;- Не более 10 картинок" style="shape=note;whiteSpace=wrap;html=1;size=14;verticalAlign=top;align=left;spacingTop=-6;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
+                    <mxGeometry x="190" y="450" width="150" height="60" as="geometry"/>
                 </mxCell>
             </root>
         </mxGraphModel>
