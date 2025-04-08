@@ -24,7 +24,7 @@ public class UserController : ControllerBase
         _jwtConfig = new(configuration);
     }
 
-    [HttpPost("register")]
+    [HttpPost()]
     public async Task<ActionResult> Register([FromBody] RegisterDto register)
     {
         var userExists = await _userManager.FindByEmailAsync(register.Email);
@@ -44,7 +44,7 @@ public class UserController : ControllerBase
         return Ok("Пользователь создан успешно");
     }
 
-    [HttpPost("login")]
+    [HttpPost("authorization")]
     public async Task<ActionResult> Login([FromBody] LoginDto model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);

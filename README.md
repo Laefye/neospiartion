@@ -96,7 +96,7 @@ erDiagram
     ARTIST ||--o{ TIER : "has tier"
     MESSAGE }o--|| USER : "send message"
     USER ||--o{ COMMENT : "publish by"
-    ART ||--|{ COMMENT : "has"
+    ART ||--o{ COMMENT : "has"
     USER ||--o| ARTIST : "has"
     TIER ||--o| TIER : "extends"
 ```
