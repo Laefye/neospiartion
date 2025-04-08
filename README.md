@@ -1,4 +1,3 @@
-
 # Neospiartion
 
   
@@ -96,7 +95,7 @@ erDiagram
     ART ||--o| TIER : "set tier"
     ARTIST ||--o{ TIER : "has tier"
     MESSAGE }o--|| USER : "send message"
-    USER }|--|| COMMENT : "publish by"
+    USER ||--o{ COMMENT : "publish by"
     ART ||--|{ COMMENT : "has"
     USER ||--o| ARTIST : "has"
     TIER ||--o| TIER : "extends"
