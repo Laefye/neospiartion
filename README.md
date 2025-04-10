@@ -64,6 +64,7 @@ erDiagram
     TIER {
         int id PK
         string title
+        float cost
         int artistId FK
         int extends FK
     }
@@ -92,6 +93,13 @@ erDiagram
         int artId FK
         string uri
     }
+    SUBSCRIPTION {
+        int id PK
+        string userId FK
+        int tierId FK
+        DateTime createdAt
+        DateTime expiresAt
+    }
     ART ||--o| TIER : "set tier"
     ARTIST ||--o{ TIER : "has tier"
     MESSAGE }o--|| USER : "send message"
@@ -99,6 +107,8 @@ erDiagram
     ART ||--o{ COMMENT : "has"
     USER ||--o| ARTIST : "has"
     TIER ||--o| TIER : "extends"
+    USER ||--o{ SUBSCRIPTION : "subscribed"
+    SUBSCRIPTION }o--|| TIER : "to subcribed"
 ```
   
 
