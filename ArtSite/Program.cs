@@ -1,15 +1,13 @@
 using ArtSite.Config;
-using ArtSite.Controllers;
+using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
 using ArtSite.Database;
 using ArtSite.Database.Repositories;
-using ArtSite.Database.Repositories.Interfaces;
 using ArtSite.Services;
 using ArtSite.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 

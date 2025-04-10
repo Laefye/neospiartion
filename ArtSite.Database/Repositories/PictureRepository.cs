@@ -1,6 +1,6 @@
 ﻿using ArtSite.Core.DTO;
+using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Database.Models;
-using ArtSite.Database.Repositories.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace ArtSite.Database.Repositories;

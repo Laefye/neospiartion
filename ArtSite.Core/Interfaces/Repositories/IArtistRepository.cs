@@ -1,6 +1,6 @@
 ﻿using ArtSite.Core.DTO;
 
-namespace ArtSite.Database.Repositories.Interfaces;
+namespace ArtSite.Core.Interfaces.Repositories;
 
 public interface IArtistRepository
 {
