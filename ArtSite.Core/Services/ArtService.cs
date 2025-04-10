@@ -2,7 +2,7 @@
 using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
 
-namespace ArtSite.Services;
+namespace ArtSite.Core.Services;
 
 public class ArtService : IArtService
 {

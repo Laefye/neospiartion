@@ -2,7 +2,7 @@ using ArtSite.Core.DTO;
 using ArtSite.Core.Interfaces;
 using ArtSite.Core.Interfaces.Services;
 
-namespace ArtSite.Services;
+namespace ArtSite.Core.Services;
 
 public class ImportService : IImportService
 {

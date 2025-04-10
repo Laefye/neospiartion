@@ -1,6 +1,7 @@
 using ArtSite.Config;
 using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
+using ArtSite.Core.Services;
 using ArtSite.Database;
 using ArtSite.Database.Repositories;
 using ArtSite.Services;
