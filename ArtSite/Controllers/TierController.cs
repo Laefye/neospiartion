@@ -20,9 +20,14 @@ public class TierController : ControllerBase
     [HttpDelete("{tierId}")]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> DeleteTier(int tierId)
     {
         throw new NotImplementedException();
     }
+
+    [HttpPost("{tierId}/subscriptions")]
+
 }
 
