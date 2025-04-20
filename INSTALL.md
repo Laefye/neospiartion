@@ -25,7 +25,7 @@
     ```
 3. Примените миграции для создания базы данных:
     ```sh
-    dotnet ef database update
+    dotnet ef database update --project .\ArtSite
     ```
 4. Необходимо создать своё приложение в [VK](https://id.vk.com/about/business/go)
 5. Настройте секреты пользователя для параметров VK:
@@ -33,6 +33,12 @@
     dotnet user-secrets set "VK:ClientId" "ваш_client_id"
     dotnet user-secrets set "VK:RedirectUri" "https://localhost/login"
     ```
+
+## Создание миграции
+
+```
+dotnet ef --startup-project .\ArtSite --project .\ArtSite.Database migrations add <Migration name>
+```
 
 ## Запуск
 

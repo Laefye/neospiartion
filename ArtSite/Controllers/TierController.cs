@@ -28,6 +28,9 @@ public class TierController : ControllerBase
     }
 
     [HttpPost("{tierId}/subscriptions")]
-
+    public async Task<ActionResult> SubscribeToTier(int tierId)
+    {
+        throw new NotImplementedException();
+    }
 }
 
