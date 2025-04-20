@@ -15,12 +15,20 @@
 
 ## Конфигурация
 
-1. Настройте секреты пользователя для строки подключения к базе данных:
+1. Установите пакет `dotnet-ef` для работы с миграциями:
+    ```sh
+    dotnet tool install --global dotnet-ef
+    ```
+2. Настройте секреты пользователя для строки подключения к базе данных:
     ```sh
     dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Database=ArtsWarehouseDB;Username=postgres;Password=1"
     ```
-2. Необходимо создать своё приложение в [VK](https://id.vk.com/about/business/go)
-3. Настройте секреты пользователя для параметров VK:
+3. Примените миграции для создания базы данных:
+    ```sh
+    dotnet ef database update
+    ```
+4. Необходимо создать своё приложение в [VK](https://id.vk.com/about/business/go)
+5. Настройте секреты пользователя для параметров VK:
     ```sh
     dotnet user-secrets set "VK:ClientId" "ваш_client_id"
     dotnet user-secrets set "VK:RedirectUri" "https://localhost/login"
