@@ -52,13 +52,16 @@ erDiagram
         string id PK
         string email
         string password
+    }
+    PROFILE {
+        int id PK
+        string userId FK
         string name
     }
     ARTIST ||--|{ ART : "owns"
     ARTIST {
         int id PK
-        string userId FK
-        string name
+        int profileId FK
         DateTime createdAt
     }
     TIER {
@@ -70,13 +73,13 @@ erDiagram
     }
     MESSAGE {
         int id PK
-        string fromUserID FK
-        string toUserID FK
+        int fromProfileId FK
+        int toProfileId FK
         string text
     }
     COMMENT {
         int id PK
-        string userId FK
+        int profileId FK
         string artId FK
         string text
     }
@@ -95,19 +98,20 @@ erDiagram
     }
     SUBSCRIPTION {
         int id PK
-        string userId FK
+        int profileId FK
         int tierId FK
         DateTime createdAt
         DateTime expiresAt
     }
+    USER ||--|| PROFILE : "has profile"
     ART ||--o| TIER : "set tier"
     ARTIST ||--o{ TIER : "has tier"
-    MESSAGE }o--|| USER : "send message"
-    USER ||--o{ COMMENT : "publish by"
+    MESSAGE }o--|| PROFILE : "send message"
+    PROFILE ||--o{ COMMENT : "publish by"
     ART ||--o{ COMMENT : "has"
-    USER ||--o| ARTIST : "has"
+    PROFILE ||--o| ARTIST : "is a"
     TIER ||--o| TIER : "extends"
-    USER ||--o{ SUBSCRIPTION : "subscribed"
+    PROFILE ||--o{ SUBSCRIPTION : "subscribed"
     SUBSCRIPTION }o--|| TIER : "to subcribed"
 ```
   
