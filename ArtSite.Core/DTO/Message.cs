@@ -9,8 +9,8 @@ namespace ArtSite.Core.DTO;
 public class Message
 {
     public int Id { get; set; }
-    public required string FromUserId { get; set; }
-    public int ArtistId { get; set; }
+    public int FromProfileId { get; set; }
+    public int ToProfileId { get; set; }
     public required string Text { get; set; }
 }
 
