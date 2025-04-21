@@ -16,7 +16,7 @@ public class ArtistRepository : IArtistRepository
 
     public async Task<Artist> CreateArtist(string name)
     {
-        var entry = await _context.Artists.AddAsync(new DbArtist { Name = name, CreatedAt = DateTime.UtcNow });
+        var entry = await _context.Artists.AddAsync(new DbArtist { CreatedAt = DateTime.UtcNow });
         await _context.SaveChangesAsync();
         return entry.Entity.ConvertToDTO();
     }

@@ -8,4 +8,3 @@ public interface IArtistRepository
 
     Task<Artist?> GetArtist(int id);
 }
-

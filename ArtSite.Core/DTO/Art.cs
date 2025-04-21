@@ -1,6 +1,6 @@
 ﻿namespace ArtSite.Core.DTO;
 
-public class Art
+public class Art 
 {
     public int Id { get; init; }
     public string? Description { get; init; }
