@@ -5,28 +5,21 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArtSite.Database.Repositories;
 
-public class ArtistRepository : IArtistRepository
+public class ArtistRepository(ApplicationDbContext context) : IArtistRepository
 {
-    private ApplicationDbContext _context;
-
-    public ArtistRepository(ApplicationDbContext context)
+    public async Task<Artist> CreateArtist(int profileId)
     {
-        _context = context;
-    }
-
-    public async Task<Artist> CreateArtist(string name, string profileId)
-    {
-        var entry = await _context.Artists.AddAsync(new DbArtist
+        var entry = await context.Artists.AddAsync(new DbArtist
         {
             CreatedAt = DateTime.UtcNow,
             ProfileId = profileId
         });
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return entry.Entity.ConvertToDTO();
     }
 
     public async Task<Artist?> GetArtist(int id)
     {
-        return (await _context.Artists.Where(artist => artist.Id == id).FirstOrDefaultAsync())?.ConvertToDTO();
+        return (await context.Artists.Where(artist => artist.Id == id).FirstOrDefaultAsync())?.ConvertToDTO();
     }
 }

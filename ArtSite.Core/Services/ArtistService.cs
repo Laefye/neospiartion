@@ -20,8 +20,9 @@ public class ArtistService : IArtistService
 
     public async Task<Artist> CreateArtist(string name)
     {
-        if (string.IsNullOrEmpty(name)) throw new ArgumentException("Name cannot be empty");
-        return await _artistRepository.CreateArtist(name);
+        // if (string.IsNullOrEmpty(name)) throw new ArgumentException("Name cannot be empty");
+        // return await _artistRepository.CreateArtist(name);
+        throw new NotImplementedException();
     }
 
     public async Task<List<Art>> GetArts(int artistId)

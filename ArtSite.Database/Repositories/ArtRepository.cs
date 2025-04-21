@@ -23,21 +23,21 @@ public class ArtRepository : IArtRepository
     {
         var entry = await _context.Arts.AddAsync(new DbArt { Description = description, ArtistId = artistId, UploadedAt = uploadedAt });
         await _context.SaveChangesAsync();
-        return entry.Entity.ConvertToDTO();
+        return entry.Entity.ConvertToDto();
     }
 
     public async Task<List<Art>> GetAllArts(int offset, int limit)
     {
-        return await _context.Arts.Select(art => art.ConvertToDTO()).Skip(offset).Take(limit).ToListAsync();
+        return await _context.Arts.Select(art => art.ConvertToDto()).Skip(offset).Take(limit).ToListAsync();
     }
 
     public async Task<Art?> GetArt(int id)
     {
-        return (await _context.Arts.Where(art => art.Id == id).FirstOrDefaultAsync())?.ConvertToDTO();
+        return (await _context.Arts.Where(art => art.Id == id).FirstOrDefaultAsync())?.ConvertToDto();
     }
 
     public async Task<List<Art>> GetArts(int artistId)
     {
-        return await _context.Arts.Where(art => art.ArtistId == artistId).Select(art => art.ConvertToDTO()).ToListAsync();
+        return await _context.Arts.Where(art => art.ArtistId == artistId).Select(art => art.ConvertToDto()).ToListAsync();
     }
 }

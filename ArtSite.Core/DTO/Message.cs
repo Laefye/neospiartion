@@ -8,19 +8,9 @@ namespace ArtSite.Core.DTO;
 
 public class Message
 {
-    public Message() { }
-    public int Id { get; set; }
-    public required string Content { get; set; }
-    public DateTime SentAt { get; set; }
-    public int SenderId { get; set; }
-    public int ReceiverId { get; set; }
-    public Message(int id, string content, DateTime sentAt, int senderId, int receiverId)
-    {
-        Id = id;
-        Content = content;
-        SentAt = sentAt;
-        SenderId = senderId;
-        ReceiverId = receiverId;
-    }
-
+    public int Id { get; init; }
+    public required string Text { get; init; }
+    public DateTime SentAt { get; init; }
+    public int SenderId { get; init; }
+    public int ReceiverId { get; init; }
 }

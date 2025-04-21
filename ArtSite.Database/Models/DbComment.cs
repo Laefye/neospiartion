@@ -2,23 +2,20 @@
 
 namespace ArtSite.Database.Models;
 
-class DbComment
+public class DbComment
 {
     public int Id { get; set; }
-    public required string Content { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public required string Text { get; set; }
+    public DateTime UploadedAt { get; set; }
     public int ArtId { get; set; }
-    public int ProfileID { get; set; }
-    public Comment ConvertToDTO() => new Comment
+    public int ProfileId { get; set; }
+    
+    public Comment ConvertToDto() => new()
     {
         Id = Id,
-        Content = Content,
-        UploadedAt = CreatedAt,
+        Text = Text,
+        UploadedAt = UploadedAt,
         ArtId = ArtId,
-        Profile = new Profile
-        {
-            Id = ProfileID,
-            Name = "Default Profile Name"
-        }
+        ProfileId = ProfileId,
     };
 }

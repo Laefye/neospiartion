@@ -6,11 +6,13 @@ public class DbProfile
 {
     public int Id { get; set; }
     public required string Username { get; set; }
+    public required string Name { get; set; }
     public required string UserId { get; set; }
-    public Profile ConvertToDTO() => new Profile
+    public Profile ConvertToDto() => new()
     {
         Id = Id,
         Name = Username,
-        Comments = new List<Comment>()
+        UserId = UserId,
+        Username =  Username,
     };
 }

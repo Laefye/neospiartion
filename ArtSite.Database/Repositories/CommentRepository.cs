@@ -5,40 +5,35 @@ using Microsoft.EntityFrameworkCore;
 
 namespace ArtSite.Database.Repositories;
 
-public class CommentRepository : ICommentRepository
+public class CommentRepository(ApplicationDbContext context) : ICommentRepository
 {
-    private ApplicationDbContext _context;
-    public CommentRepository(ApplicationDbContext context)
+    public async Task<Comment> CreateComment(string text, int artId, int profileId)
     {
-        _context = context;
-    }
-    public async Task<Comment> CreateComment(string? text, int artId, int userId)
-    {
-        var comment = new Comment
+        var comment = new DbComment
         {
-            Content = text ?? string.Empty,
-            Profile = new Profile { Id = userId },
+            Text = text,
+            ProfileId = profileId,
             ArtId = artId,
             UploadedAt = DateTime.UtcNow
         };
-        await _context.Comments.AddAsync(comment);
-        await _context.SaveChangesAsync();
-        return comment;
+        await context.Comments.AddAsync(comment);
+        await context.SaveChangesAsync();
+        return comment.ConvertToDto();
     }
+    
     public async Task<Comment?> GetComment(int id)
     {
-        return await _context.Comments
-            .Include(c => c.User)
-            .FirstOrDefaultAsync(c => c.Id == id);
+        return (await context.Comments.Where(comment => comment.Id == id).FirstOrDefaultAsync())?.ConvertToDto();
     }
+    
     public async Task<List<Comment>> GetComments(int artId, int offset, int limit)
     {
-        return await _context.Comments
-            .Include(c => c.User)
-            .Where(c => c.ArtId == artId)
-            .OrderByDescending(c => c.CreatedAt)
+        return await context.Comments
+            .Where(comment => comment.ArtId == artId)
+            .OrderByDescending(comment => comment.UploadedAt)
             .Skip(offset)
             .Take(limit)
+            .Select(comment => comment.ConvertToDto())
             .ToListAsync();
     }
 }

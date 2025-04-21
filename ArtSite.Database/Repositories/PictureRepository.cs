@@ -18,11 +18,11 @@ public class PictureRepository : IPictureRepository
     {
         var picture = await _context.Pictures.AddAsync(new DbPicture { ArtId = artId, Url = url });
         await _context.SaveChangesAsync();
-        return picture.Entity.ConvertToDTO();
+        return picture.Entity.ConvertToDto();
     }
 
     public async Task<List<Picture>> GetPictures(int artId)
     {
-        return await _context.Pictures.Where(p => p.ArtId == artId).Select(p => p.ConvertToDTO()).ToListAsync();
+        return await _context.Pictures.Where(p => p.ArtId == artId).Select(p => p.ConvertToDto()).ToListAsync();
     }
 }

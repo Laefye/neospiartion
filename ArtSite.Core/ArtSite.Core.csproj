@@ -7,9 +7,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="Exceptions\**" />
-      <EmbeddedResource Remove="Exceptions\**" />
-      <None Remove="Exceptions\**" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.3" />
+      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0" />
     </ItemGroup>
 
 </Project>

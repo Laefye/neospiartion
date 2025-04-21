@@ -8,6 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ArtSite.Core.DTO;
+using ArtSite.Core.Exceptions;
+using ArtSite.Core.Interfaces.Services;
 
 namespace ArtSite.Controllers;
 
@@ -15,82 +18,62 @@ namespace ArtSite.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly JwtConfig _jwtConfig;
+    private readonly IUserService _userService;
 
-    public UserController(UserManager<IdentityUser> userManager, IConfiguration configuration)
+    public UserController(IUserService userService)
     {
-        _userManager = userManager;
-        _jwtConfig = new(configuration);
+        _userService = userService;
     }
 
     [HttpPost()]
     public async Task<ActionResult> Register([FromBody] RegisterDto register)
     {
-        var userExists = await _userManager.FindByEmailAsync(register.Email);
-        if (userExists != null)
-            return BadRequest("Пользователь с таким email уже существует");
-
-        var user = new IdentityUser()
+        try
         {
-            Email = register.Email,
-            UserName = register.Email,
-            SecurityStamp = Guid.NewGuid().ToString()
-        };
-
-        var result = await _userManager.CreateAsync(user, register.Password);
-        if (!result.Succeeded)
-            return BadRequest(result.Errors);
-        return Ok("Пользователь создан успешно");
+            var user = await _userService.CreateUser(register.Email, register.Password);
+            return Created();
+        }
+        catch (UserException e)
+        {
+            if (e is { ErrorType: UserException.UserError.FieldError, Errors: not null })
+            {
+                return BadRequest(e.Errors);
+            }
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpPost("authorization")]
+    [ProducesResponseType(typeof(Token), StatusCodes.Status200OK)]
     public async Task<ActionResult> Login([FromBody] LoginDto model)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
-        if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-            return Unauthorized();
-
-        var authClaims = new List<Claim>
+        try
         {
-            new(ClaimTypes.NameIdentifier, user.Id),
-        };
-
-        var token = GetToken(authClaims);
-
-        return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+            var token = await _userService.Login(model.Email, model.Password);
+            return Ok(token);
+        }
+        catch (UserException e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet("me")]
+    [ProducesResponseType(typeof(IdentityUser), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetMe()
     {
-       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrEmpty(userId))
-            return Unauthorized("User ID not found in claims");
-
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
-            return NotFound("User not found in database");
-
-        return Ok(new
+        IdentityUser user;
+        try
         {
-            UserId = userId,
-            Email = user.Email,
-        });
-    }
+           user = await _userService.GetUserByClaims(User);
+        }
+        catch (UserException e)
+        {
+           return BadRequest(e.Message);
+        }
 
-    private JwtSecurityToken GetToken(List<Claim> authClaims)
-    {
-        var token = new JwtSecurityToken(
-            issuer: _jwtConfig.Issuer,
-            audience: _jwtConfig.Audience,
-            expires: DateTime.Now.AddDays(7),
-            claims: authClaims,
-            signingCredentials: new SigningCredentials(_jwtConfig.SymmetricSecurityKey, SecurityAlgorithms.HmacSha256)
-        );
-        return token;
+        return Ok(user);
     }
 }
 

@@ -9,7 +9,7 @@ public class DbPicture
     public required int ArtId { get; set; }
     public required string Url { get; set; }
 
-    public Picture ConvertToDTO() => new Picture
+    public Picture ConvertToDto() => new()
     {
         Id = Id,
         ArtId = ArtId,

@@ -9,7 +9,7 @@ public class DbArt
     public DateTime UploadedAt { get; set; }
     public int ArtistId { get; set; }
 
-    public Art ConvertToDTO() => new Art
+    public Art ConvertToDto() => new()
     {
         Id = Id,
         Description = Description,

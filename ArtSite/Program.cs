@@ -21,6 +21,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
 builder.Services.AddScoped<IArtRepository, ArtRepository>();
 builder.Services.AddScoped<IPictureRepository, PictureRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Configure the identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -52,6 +53,7 @@ builder.Services.AddControllers();
 builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<IArtService, ArtService>();
 builder.Services.AddScoped<IPictureRepository, PictureRepository>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 
 builder.Services.AddHttpClient<VKService>();
 builder.Services.AddScoped<IVKService, VKService>(VKService.CreateFactory(builder.Configuration));
