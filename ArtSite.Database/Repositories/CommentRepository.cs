@@ -12,25 +12,33 @@ public class CommentRepository : ICommentRepository
     {
         _context = context;
     }
-    public async Task<Comment> AddComment(Comment comment)
+    public async Task<Comment> CreateComment(string? text, int artId, int userId)
     {
-        var dbComment = new DbComment
+        var comment = new Comment
         {
-            Content = comment.Text,
-            CreatedAt = DateTime.UtcNow,
-            ArtId = comment.ArtId,
-            ProfileID = comment.ProfileId
+            Content = text ?? string.Empty,
+            Profile = new Profile { Id = userId },
+            ArtId = artId,
+            UploadedAt = DateTime.UtcNow
         };
-        await _context.Comments.AddAsync(dbComment);
+        await _context.Comments.AddAsync(comment);
         await _context.SaveChangesAsync();
-        return dbComment.ConvertToDTO();
+        return comment;
     }
-    public async Task<List<Comment>> GetComments(int artId)
+    public async Task<Comment?> GetComment(int id)
     {
-        var comments = await _context.Comments
+        return await _context.Comments
+            .Include(c => c.User)
+            .FirstOrDefaultAsync(c => c.Id == id);
+    }
+    public async Task<List<Comment>> GetComments(int artId, int offset, int limit)
+    {
+        return await _context.Comments
+            .Include(c => c.User)
             .Where(c => c.ArtId == artId)
-            .Include(c => c.Profile)
+            .OrderByDescending(c => c.CreatedAt)
+            .Skip(offset)
+            .Take(limit)
             .ToListAsync();
-        return comments.Select(c => c.ConvertToDTO()).ToList();
     }
 }

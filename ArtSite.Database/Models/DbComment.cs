@@ -12,9 +12,13 @@ class DbComment
     public Comment ConvertToDTO() => new Comment
     {
         Id = Id,
-        Text = Content,
+        Content = Content,
         UploadedAt = CreatedAt,
         ArtId = ArtId,
-        ProfileId = ProfileID,
+        Profile = new Profile
+        {
+            Id = ProfileID,
+            Name = "Default Profile Name"
+        }
     };
 }

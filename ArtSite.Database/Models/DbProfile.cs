@@ -11,6 +11,6 @@ public class DbProfile
     {
         Id = Id,
         Name = Username,
-        UserId = UserId
+        Comments = new List<Comment>()
     };
 }

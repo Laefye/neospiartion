@@ -11,7 +11,13 @@ public class DbArtist
     public Artist ConvertToDTO() => new Artist
     {
         Id = Id,
-        ProfileId = ProfileId,
-        CreatedAt = CreatedAt,
+        Profile = new Profile
+        {
+            Id = int.Parse(ProfileId),
+            Name = string.Empty,
+            Comments = new List<Comment>(),
+            Artists = new List<Artist>()
+        },
+        CreatedAt = CreatedAt
     };
 }
