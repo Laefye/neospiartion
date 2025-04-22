@@ -1,7 +1,6 @@
-using ArtSite.Core.Interfaces;
-using ArtSite.Database.Models;
+using ArtSite.Core.DTO;
 
-namespace ArtSite.Services.Interfaces;
+namespace ArtSite.Core.Interfaces.Services;
 
 public interface IImportService
 {
