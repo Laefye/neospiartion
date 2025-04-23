@@ -1,13 +1,8 @@
-﻿using ArtSite.Config;
-using ArtSite.DTO;
+﻿using ArtSite.DTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using ArtSite.Core.DTO;
 using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Services;
@@ -25,26 +20,41 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
-    [HttpPost()]
+    [HttpPost]
+    [ProducesResponseType(typeof(SafeUserDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Register([FromBody] RegisterDto register)
     {
         try
         {
             var user = await _userService.CreateUser(register.UserName, register.DisplayName, register.Email, register.Password);
-            return Created();
+            return CreatedAtAction(nameof(GetMe), null, new SafeUserDto
+            {
+                Id =  user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+            });
         }
         catch (UserException e)
         {
             if (e is { ErrorType: UserException.UserError.FieldError, Errors: not null })
             {
-                return BadRequest(e.Errors);
+                return BadRequest(new ProblemDetails
+                {
+                    Detail = e.Errors.First().Description
+                });
             }
-            return BadRequest(e.Message);
+            return BadRequest(new ProblemDetails
+            {
+                Detail = e.Message,
+            });
         }
     }
 
-    [HttpPost("authorization")]
+    [HttpPost("authentication")]
     [ProducesResponseType(typeof(Token), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult> Login([FromBody] LoginDto model)
     {
         try
@@ -54,7 +64,17 @@ public class UserController : ControllerBase
         }
         catch (UserException e)
         {
-            return BadRequest(e.Message);
+            if (e is { ErrorType: UserException.UserError.InvalidCredentials })
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Detail = "Invalid email or password",
+                });
+            }
+            return BadRequest(new ProblemDetails
+            { 
+                Detail = e.Message,
+            });
         }
     }
 
@@ -70,10 +90,34 @@ public class UserController : ControllerBase
         }
         catch (UserException e)
         {
-           return BadRequest(e.Message);
+           return BadRequest(new ProblemDetails
+           {
+               Detail = e.Message,
+           });
         }
 
         return Ok(user);
+    }
+    
+    [HttpGet("profile")]
+    [Authorize]
+    [ProducesResponseType(typeof(Profile), StatusCodes.Status200OK)]
+    public async Task<ActionResult> GetProfile()
+    {
+        IdentityUser user;
+        try
+        {
+            user = await _userService.GetUserByClaims(User);
+        }
+        catch (UserException e)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Detail = e.Message,
+            });
+        }
+        var profile = await _userService.GetProfile(user.Id);
+        return Ok(profile);
     }
 }
 

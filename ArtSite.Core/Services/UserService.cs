@@ -6,6 +6,7 @@ using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -21,22 +22,22 @@ public class UserService : IUserService
     public UserService(
         UserManager<IdentityUser> userManager,
         IProfileRepository profileRepository,
-        IOptions<JwtConfig> jwtConfig
+        IConfiguration configuration
     )
     {
         _userManager = userManager;
         _profileRepository = profileRepository;
-        _jwtConfig = jwtConfig.Value;
+        _jwtConfig = new JwtConfig(configuration);
     }
 
     public async Task<IdentityUser> CreateUser(string username, string displayName, string email, string password)
     {
-        var existingUser = await _userManager.FindByEmailAsync(email);
-        if (existingUser != null)
+        var existingUserByEmail = await _userManager.FindByEmailAsync(email);
+        var existingUserByUsername = await _userManager.FindByNameAsync(username);
+        if (existingUserByEmail != null || existingUserByUsername != null)
         {
             throw new UserException(UserException.UserError.AlreadyExists);
         }
-
         var user = new IdentityUser
         {
             UserName = username,
@@ -47,16 +48,12 @@ public class UserService : IUserService
         {
             throw new UserException(UserException.UserError.FieldError, result.Errors);
         }
+        var profile = await _profileRepository.CreateProfile(user.Id, displayName);
         return user;
     }
 
     public async Task<Token> Login(string email, string password)
     {
-        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
-        {
-            throw new UserException(UserException.UserError.InvalidCredentials);
-        }
-
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null || !await _userManager.CheckPasswordAsync(user, password))
         {
@@ -90,8 +87,12 @@ public class UserService : IUserService
 
     public async Task<Profile> GetProfile(string userId)
     {
-        // Реализуйте метод с учетом проверки существования профиля
-        throw new NotImplementedException();
+        var profile = await _profileRepository.GetProfileByUserId(userId);
+        if (profile == null)
+        {
+            throw new UserException(UserException.UserError.NotFound);
+        }
+        return profile;
     }
 
     public async Task<IdentityUser> GetUser(string userId)
