@@ -80,7 +80,7 @@ public class UserService : IUserService
 
         return new Token
         {
-            AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+            AccessToken = "Bearer " + new JwtSecurityTokenHandler().WriteToken(token),
             ExpiresAt = token.ValidTo,
         };
     }
@@ -114,5 +114,15 @@ public class UserService : IUserService
             throw new UserException(UserException.UserError.NotFound);
         }
         return await GetUser(userId);
+    }
+
+    public async Task<Profile> GetProfileByClaims(ClaimsPrincipal claims)
+    {
+        var userId = claims.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrEmpty(userId))
+        {
+            throw new UserException(UserException.UserError.NotFound);
+        }
+        return await GetProfile(userId);
     }
 }

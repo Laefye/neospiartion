@@ -1,6 +1,8 @@
 using ArtSite.Core.DTO;
+using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Services;
 using ArtSite.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArtSite.Controllers;
@@ -10,17 +12,45 @@ namespace ArtSite.Controllers;
 public class ArtistController : ControllerBase
 {
     private readonly IArtistService _artistService;
+    private readonly IUserService _userService;
 
-    public ArtistController(IArtistService artistService)
+    public ArtistController(IArtistService artistService, IUserService userService)
     {
         _artistService = artistService;
+        _userService = userService;
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateArtist([FromBody] string name)
+    [Authorize]
+    [ProducesResponseType(typeof(Artist), StatusCodes.Status201Created)]
+    public async Task<ActionResult> CreateArtist()
     {
-        var artist = await _artistService.CreateArtist(name);
-        return Ok(artist.Id);
+        Artist artist;
+        try
+        {
+            var profile = await _userService.GetProfileByClaims(User);
+            artist = await _artistService.CreateArtist(profile.Id);
+        }
+        catch (UserException ex)
+        {
+            if (ex is { ErrorType: UserException.UserError.NotFound })
+            {
+                return Unauthorized();
+            }
+
+            return BadRequest(new ProblemDetails
+            {
+                Detail = ex.Message
+            });
+        }
+        catch (ArtistException ex)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Detail = ex.Message
+            });
+        }
+        return CreatedAtAction(nameof(GetArtist), new { artistId = artist.Id }, artist);
     }
 
     [HttpGet("{artistId}")]

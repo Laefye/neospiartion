@@ -17,6 +17,12 @@ public class ArtistRepository(ApplicationDbContext context) : IArtistRepository
         return entry.Entity.ConvertToDTO();
     }
 
+    public async Task<Artist?> FindArtistByProfileId(int profileId)
+    {
+        return (await context.Artists.Where(artist => artist.ProfileId == profileId).FirstOrDefaultAsync())
+            ?.ConvertToDTO();
+    }
+
     public async Task<Artist?> GetArtist(int id)
     {
         return (await context.Artists.Where(artist => artist.Id == id).FirstOrDefaultAsync())?.ConvertToDTO();

@@ -15,4 +15,6 @@ public interface IUserService
     Task<IdentityUser> GetUser(string userId);
 
     Task<IdentityUser> GetUserByClaims(ClaimsPrincipal claims);
+    
+    Task<Profile> GetProfileByClaims(ClaimsPrincipal claims);
 }

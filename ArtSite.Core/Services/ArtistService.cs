@@ -1,4 +1,5 @@
 ﻿using ArtSite.Core.DTO;
+using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
 using ArtSite.Core.Models;
@@ -18,11 +19,13 @@ public class ArtistService : IArtistService
         _pictureRepository = pictureRepository;
     }
 
-    public async Task<Artist> CreateArtist(string name)
+    public async Task<Artist> CreateArtist(int profileId)
     {
-        // if (string.IsNullOrEmpty(name)) throw new ArgumentException("Name cannot be empty");
-        // return await _artistRepository.CreateArtist(name);
-        throw new NotImplementedException();
+        var existingArtist = await _artistRepository.FindArtistByProfileId(profileId);
+        if (existingArtist != null)
+            throw new ArtistException("Artist already exists");
+        var artist = await _artistRepository.CreateArtist(profileId);
+        return artist;
     }
 
     public async Task<List<Art>> GetArts(int artistId)
