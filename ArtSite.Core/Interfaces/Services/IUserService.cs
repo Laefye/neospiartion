@@ -6,7 +6,7 @@ namespace ArtSite.Core.Interfaces.Services;
 
 public interface IUserService
 {
-    Task<IdentityUser> CreateUser(string email, string password);
+    Task<IdentityUser> CreateUser(string username, string displayName, string email, string password);
     
     Task<Token> Login(string email, string password);
     

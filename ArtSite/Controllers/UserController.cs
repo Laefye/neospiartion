@@ -30,7 +30,7 @@ public class UserController : ControllerBase
     {
         try
         {
-            var user = await _userService.CreateUser(register.Email, register.Password);
+            var user = await _userService.CreateUser(register.UserName, register.DisplayName, register.Email, register.Password);
             return Created();
         }
         catch (UserException e)

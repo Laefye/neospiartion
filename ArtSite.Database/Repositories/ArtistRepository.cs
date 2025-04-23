@@ -11,7 +11,6 @@ public class ArtistRepository(ApplicationDbContext context) : IArtistRepository
     {
         var entry = await context.Artists.AddAsync(new DbArtist
         {
-            CreatedAt = DateTime.UtcNow,
             ProfileId = profileId
         });
         await context.SaveChangesAsync();

@@ -6,7 +6,8 @@ using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ArtSite.Core.Services;
@@ -16,29 +17,29 @@ public class UserService : IUserService
     private readonly JwtConfig _jwtConfig;
     private readonly UserManager<IdentityUser> _userManager;
     private readonly IProfileRepository _profileRepository;
-    
+
     public UserService(
         UserManager<IdentityUser> userManager,
         IProfileRepository profileRepository,
-        IConfiguration configuration
+        IOptions<JwtConfig> jwtConfig
     )
     {
         _userManager = userManager;
         _profileRepository = profileRepository;
-        _jwtConfig = new(configuration);
+        _jwtConfig = jwtConfig.Value;
     }
-    
-    public async Task<IdentityUser> CreateUser(string email, string password)
+
+    public async Task<IdentityUser> CreateUser(string username, string displayName, string email, string password)
     {
         var existingUser = await _userManager.FindByEmailAsync(email);
         if (existingUser != null)
         {
             throw new UserException(UserException.UserError.AlreadyExists);
         }
-        
+
         var user = new IdentityUser
         {
-            UserName = email,
+            UserName = username,
             Email = email
         };
         var result = await _userManager.CreateAsync(user, password);
@@ -51,15 +52,21 @@ public class UserService : IUserService
 
     public async Task<Token> Login(string email, string password)
     {
+        if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
+        {
+            throw new UserException(UserException.UserError.InvalidCredentials);
+        }
+
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null || !await _userManager.CheckPasswordAsync(user, password))
         {
             throw new UserException(UserException.UserError.InvalidCredentials);
         }
+
         var token = GenerateJwtToken(user);
         return token;
     }
-    
+
     private Token GenerateJwtToken(IdentityUser user)
     {
         var authClaims = new List<Claim>
@@ -69,11 +76,12 @@ public class UserService : IUserService
         var token = new JwtSecurityToken(
             issuer: _jwtConfig.Issuer,
             audience: _jwtConfig.Audience,
-            expires: DateTime.Now.AddDays(7),
+            expires: DateTime.UtcNow.AddDays(7),
             claims: authClaims,
             signingCredentials: new SigningCredentials(_jwtConfig.SymmetricSecurityKey, SecurityAlgorithms.HmacSha256)
         );
-        return new()
+
+        return new Token
         {
             AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
             ExpiresAt = token.ValidTo,
@@ -82,6 +90,7 @@ public class UserService : IUserService
 
     public async Task<Profile> GetProfile(string userId)
     {
+        // Реализуйте метод с учетом проверки существования профиля
         throw new NotImplementedException();
     }
 
@@ -92,6 +101,7 @@ public class UserService : IUserService
         {
             throw new UserException(UserException.UserError.NotFound);
         }
+
         return user;
     }
 

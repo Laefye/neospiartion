@@ -23,13 +23,12 @@ public class ProfileRepository(ApplicationDbContext context) : IProfileRepositor
             .FirstOrDefaultAsync();
     }
 
-    public async Task<Profile> CreateProfile(string userId, string username, string name)
+    public async Task<Profile> CreateProfile(string userId, string displayName)
     {
         var entry = await context.Profiles.AddAsync(new DbProfile
         {
-            Username = username,
+            DisplayName = displayName,
             UserId = userId,
-            Name = name,
         });
         await context.SaveChangesAsync();
         return entry.Entity.ConvertToDto();
@@ -40,9 +39,8 @@ public class ProfileRepository(ApplicationDbContext context) : IProfileRepositor
         var dbProfile = new DbProfile
         {
             Id = profile.Id,
-            Username = profile.Username,
+            DisplayName = profile.DisplayName,
             UserId = profile.UserId,
-            Name = profile.Name,
         };
         context.Profiles.Update(dbProfile);
         return context.SaveChangesAsync();

@@ -9,31 +9,34 @@ public class CommentRepository(ApplicationDbContext context) : ICommentRepositor
 {
     public async Task<Comment> CreateComment(string text, int artId, int profileId)
     {
-        var comment = new DbComment
-        {
-            Text = text,
-            ProfileId = profileId,
-            ArtId = artId,
-            UploadedAt = DateTime.UtcNow
-        };
-        await context.Comments.AddAsync(comment);
-        await context.SaveChangesAsync();
-        return comment.ConvertToDto();
+        throw new NotImplementedException();
+        // var comment = new DbComment
+        // {
+        //     Text = text,
+        //     ProfileId = profileId,
+        //     ArtId = artId,
+        //     UploadedAt = DateTime.UtcNow
+        // };
+        // await context.Comments.AddAsync(comment);
+        // await context.SaveChangesAsync();
+        // return comment.ConvertToDto();
     }
     
     public async Task<Comment?> GetComment(int id)
     {
-        return (await context.Comments.Where(comment => comment.Id == id).FirstOrDefaultAsync())?.ConvertToDto();
+        throw new NotImplementedException();
+        // return (await context.Comments.Where(comment => comment.Id == id).FirstOrDefaultAsync())?.ConvertToDto();
     }
     
     public async Task<List<Comment>> GetComments(int artId, int offset, int limit)
     {
-        return await context.Comments
-            .Where(comment => comment.ArtId == artId)
-            .OrderByDescending(comment => comment.UploadedAt)
-            .Skip(offset)
-            .Take(limit)
-            .Select(comment => comment.ConvertToDto())
-            .ToListAsync();
+        throw new NotImplementedException();
+        // return await context.Comments
+        //     .Where(comment => comment.ArtId == artId)
+        //     .OrderByDescending(comment => comment.UploadedAt)
+        //     .Skip(offset)
+        //     .Take(limit)
+        //     .Select(comment => comment.ConvertToDto())
+        //     .ToListAsync();
     }
 }
