@@ -2,21 +2,16 @@
 using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
-using ArtSite.Core.Models;
 
 namespace ArtSite.Core.Services;
 
 public class ArtistService : IArtistService
 {
     private readonly IArtistRepository _artistRepository;
-    private readonly IArtRepository _artRepository;
-    private readonly IPictureRepository _pictureRepository;
 
-    public ArtistService(IArtistRepository db, IArtRepository artRepository, IPictureRepository pictureRepository)
+    public ArtistService(IArtistRepository artistRepository)
     {
-        _artistRepository = db;
-        _artRepository = artRepository;
-        _pictureRepository = pictureRepository;
+        _artistRepository = artistRepository;
     }
 
     public async Task<Artist> CreateArtist(int profileId)
@@ -28,38 +23,11 @@ public class ArtistService : IArtistService
         return artist;
     }
 
-    public async Task<List<Art>> GetArts(int artistId)
-    {
-        return await _artRepository.GetArts(artistId);
-    }
-
-    public async Task<Art> CreateArt(int artistId, string? description, List<string> pictures)
-    {
-        var art = await _artRepository.CreateArt(description, artistId);
-        foreach (var url in pictures)
-        {
-            await _pictureRepository.AddPicture(art.Id, url);
-        }
-        return art;
-    }
-
-    public async Task<Art> ImportArt(int artistId, ExportedArt exportedArt)
-    {
-        var art = await _artRepository.CreateArtByDate(exportedArt.Description, artistId, exportedArt.UploadedDate);
-        foreach (var url in exportedArt.Pictures)
-        {
-            await _pictureRepository.AddPicture(art.Id, url);
-        }
-        return art;
-    }
-
-    public async Task<List<Picture>> GetPictures(int artId)
-    {
-        return await _pictureRepository.GetPictures(artId);
-    }
-
     public async Task<Artist?> GetArtist(int id)
     {
         return await _artistRepository.GetArtist(id);
     }
+
+    // Add methods for editing artist profile if needed
+    // public async Task<Artist> UpdateArtistProfile(int id, ArtistProfileUpdate update) { ... }
 }
