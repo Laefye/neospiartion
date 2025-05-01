@@ -67,11 +67,11 @@ public class ArtistController : ControllerBase
     [HttpGet("{artistId}/arts")]
     [ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetArts(int artistId)
+    public async Task<ActionResult> GetArts(int profileId)
     {
-        if (await _artistService.GetArtist(artistId) == null)
+        var arts = await _artistService.GetArts(profileId);
+        if (arts == null)
             return NotFound();
-        var arts = await _artistService.GetArts(artistId);
         return Ok(arts);
     }
 

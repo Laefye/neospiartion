@@ -28,6 +28,11 @@ public class ArtistService : IArtistService
         return await _artistRepository.GetArtist(id);
     }
 
-    // Add methods for editing artist profile if needed
-    // public async Task<Artist> UpdateArtistProfile(int id, ArtistProfileUpdate update) { ... }
+    public async Task<Artist?> GetArts(int profileId)
+    {
+        var artist = await _artistRepository.FindArtistByProfileId(profileId);
+        if (artist == null)
+            throw new ArtistException("Artist not found");
+        return artist;
+    }
 }
