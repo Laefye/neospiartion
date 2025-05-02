@@ -28,6 +28,14 @@ public class ArtistService : IArtistService
         return await _artistRepository.GetArtist(id);
     }
 
+    public async Task<Artist?> GetArts(int profileId)
+    {
+        var artist = await _artistRepository.FindArtistByProfileId(profileId);
+        if (artist == null)
+            throw new ArtistException("Artist not found");
+        return artist;
+    }
+
     public async Task<Artist?> GetArtistByProfileId(int profileId)
     {
         return await _artistRepository.FindArtistByProfileId(profileId);

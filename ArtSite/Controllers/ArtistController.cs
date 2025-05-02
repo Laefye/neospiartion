@@ -70,7 +70,7 @@ public class ArtistController : ControllerBase
     //[ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status401Unauthorized)]
     //[ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetArts(int artistId)
+    public async Task<ActionResult> GetArts(int profileId)
     {
         //if (await _artistService.GetArtist(artistId) == null)
         //return NotFound();
