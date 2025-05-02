@@ -7,4 +7,5 @@ public interface IArtistService
 {
     public Task<Artist> CreateArtist(int profileId);
     public Task<Artist?> GetArtist(int id);
+    public Task<Artist?> GetArtistByProfileId(int profileId);
 }

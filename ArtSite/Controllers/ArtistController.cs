@@ -64,15 +64,20 @@ public class ArtistController : ControllerBase
         return Ok(artist);
     }
 
+    //[Authorize(Policy = "Artist")]
     [HttpGet("{artistId}/arts")]
     [ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status200OK)]
+    //[ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status401Unauthorized)]
+    //[ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetArts(int artistId)
     {
-        if (await _artistService.GetArtist(artistId) == null)
-            return NotFound();
-        var arts = await _artistService.GetArts(artistId);
-        return Ok(arts);
+        //if (await _artistService.GetArtist(artistId) == null)
+        //return NotFound();
+        //var arts = await _artistService.GetArts(artistId);
+        //return Ok(arts);
+        // TODO: Исправить ошибку
+        throw new NotImplementedException();
     }
 
     [HttpGet("{artistId}/messages")]

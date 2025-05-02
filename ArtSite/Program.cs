@@ -4,9 +4,11 @@ using ArtSite.Core.Interfaces.Services;
 using ArtSite.Core.Services;
 using ArtSite.Database;
 using ArtSite.Database.Repositories;
+using ArtSite.Policy;
 using ArtSite.Services;
 using ArtSite.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,10 +20,12 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure the database context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
-builder.Services.AddScoped<IArtRepository, ArtRepository>();
+
 builder.Services.AddScoped<IPictureRepository, PictureRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IArtRepository, ArtRepository>();
+builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
+
 
 // Configure the identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -56,8 +60,7 @@ builder.Services.AddControllers();
 // Add services to the container.
 builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<IArtService, ArtService>();
-builder.Services.AddScoped<IPictureRepository, PictureRepository>();
-builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddHttpClient<VKService>();
 builder.Services.AddScoped<IVKService, VKService>(VKService.CreateFactory(builder.Configuration));
@@ -88,6 +91,14 @@ builder.Services.AddSwaggerGen(c =>
     }
     });
 });
+
+// Policy
+builder.Services.AddAuthorization((options) =>
+{
+    options.AddPolicy("Artist", policy => policy.AddRequirements(new ArtistRoleRequirement()));
+});
+builder.Services.AddScoped<IAuthorizationHandler, ArtistRoleHandler>();
+
 
 var app = builder.Build();
 
