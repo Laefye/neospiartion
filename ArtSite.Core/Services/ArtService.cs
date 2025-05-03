@@ -21,7 +21,8 @@ public class ArtService : IArtService
         var art = await _artRepository.CreateArt(description, artistId);
         foreach (var url in pictures)
         {
-            await _pictureRepository.AddPicture(art.Id, url);
+            throw new NotImplementedException();
+            await _pictureRepository.AddPicture(art.Id, url, "");
         }
         return art;
     }
@@ -31,14 +32,15 @@ public class ArtService : IArtService
         var art = await _artRepository.CreateArtByDate(exportedArt.Description, artistId, exportedArt.UploadedDate);
         foreach (var url in exportedArt.Pictures)
         {
-            await _pictureRepository.AddPicture(art.Id, url);
+            throw new NotImplementedException();
+            await _pictureRepository.AddPicture(art.Id, url, "");
         }
         return art;
     }
 
-    public async Task<Picture> AddPictureToArt(int artId, string url)
+    public async Task<Picture> AddPictureToArt(int artId, string url, string mimeType)
     {
-        return await _pictureRepository.AddPicture(artId, url);
+        return await _pictureRepository.AddPicture(artId, url, mimeType);
     }
 
     public async Task<List<Art>> GetAllArts(int offset, int limit)
@@ -59,5 +61,16 @@ public class ArtService : IArtService
     public async Task<List<Picture>> GetPicturesByArt(int artId)
     {
         return await _pictureRepository.GetPictures(artId);
+    }
+
+    public async Task<Art> CreateArt(int artistId, string? description)
+    {
+        var art = await _artRepository.CreateArt(description, artistId);
+        return art;
+    }
+
+    public Task<Picture?> GetPicture(int pictureId)
+    {
+        return _pictureRepository.GetPicture(pictureId);
     }
 }

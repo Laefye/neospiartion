@@ -1,4 +1,5 @@
-﻿using ArtSite.Core.DTO;
+﻿using System.IO;
+using ArtSite.Core.DTO;
 using ArtSite.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,10 +10,12 @@ namespace ArtSite.Controllers;
 public class ArtController : ControllerBase
 {
     private readonly IArtService _artService;
+    private readonly IStorageService _storageService;
 
-    public ArtController(IArtService artService)
+    public ArtController(IArtService artService, IStorageService storageService)
     {
         _artService = artService;
+        _storageService = storageService;
     }
 
     [HttpGet]
@@ -55,19 +58,21 @@ public class ArtController : ControllerBase
     }
 
     [HttpPost("{artId}/pictures")]
-    [ProducesResponseType(typeof(Art), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(Picture), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> AddPictureToArt(int artId, List<IFormFile> files)
+    public async Task<ActionResult> AddPictureToArt(int artId, IFormFile file)
     {
-        throw new NotImplementedException();
-        //var art = await _artService.GetArt(artId);
-        //if (art == null)
-        //    return NotFound();
-        //if (addingPicture.Url == null)
-        //    return BadRequest();
-        //await _artService.AddPictureToArt(artId, addingPicture.Url);
-        //return Created();
+        var art = await _artService.GetArt(artId);
+        if (art == null)
+            return NotFound();
+        var uri = await _storageService.CreateFile();
+        using (var stream = await _storageService.OpenFile(uri, FileAccess.Write))
+        {
+            await file.CopyToAsync(stream);
+        }
+        await _artService.AddPictureToArt(artId, uri, file.ContentType);
+        return Created();
     }
 
     [HttpGet("{artId}/comments")]

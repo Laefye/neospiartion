@@ -1,6 +1,7 @@
 using ArtSite.Core.DTO;
 using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Services;
+using ArtSite.DTO;
 using ArtSite.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,11 +14,13 @@ public class ArtistController : ControllerBase
 {
     private readonly IArtistService _artistService;
     private readonly IUserService _userService;
+    private readonly IArtService _artService;
 
-    public ArtistController(IArtistService artistService, IUserService userService)
+    public ArtistController(IArtistService artistService, IUserService userService, IArtService artService)
     {
         _artistService = artistService;
         _userService = userService;
+        _artService = artService;
     }
 
     [HttpPost]
@@ -78,6 +81,22 @@ public class ArtistController : ControllerBase
         //return Ok(arts);
         // TODO: Исправить ошибку
         throw new NotImplementedException();
+    }
+
+    [Authorize(Policy = "Artist")]
+    [HttpPost("{artistId}/arts")]
+    [ProducesResponseType(typeof(Art), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> PostArt(int artistId, [FromBody] ArtDto body)
+    {
+        var profile = await _userService.GetProfileByClaims(User);
+        var artist = await _artistService.GetArtistByProfileId(profile.Id);
+        if (artist?.Id != artistId)
+        {
+            return Unauthorized();
+        }
+        var art = await _artService.CreateArt(artistId, body.Description);
+        return CreatedAtAction(nameof(ArtController.GetArt), "Art", new { artId = art.Id }, art);
     }
 
     [HttpGet("{artistId}/messages")]
