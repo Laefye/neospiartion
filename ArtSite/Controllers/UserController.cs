@@ -80,7 +80,7 @@ public class UserController : ControllerBase
         }
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize()]
     [HttpGet("me")]
     [ProducesResponseType(typeof(MeDto), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetMe()

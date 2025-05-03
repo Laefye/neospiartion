@@ -1,11 +1,5 @@
 ﻿using ArtSite.Core.DTO;
-using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Services;
-using ArtSite.DTO;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArtSite.Controllers;
@@ -15,10 +9,12 @@ namespace ArtSite.Controllers;
 public class ProfileController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IArtistService _artistService;
 
-    public ProfileController(IUserService userService)
+    public ProfileController(IUserService userService, IArtistService artistService)
     {
         _userService = userService;
+        _artistService = artistService;
     }
 
     [HttpGet("{profileId}")]
@@ -32,5 +28,23 @@ public class ProfileController : ControllerBase
             return NotFound();
         }
         return Ok(profile);
+    }
+
+    [HttpGet("{profileId}/artist")]
+    [ProducesResponseType(typeof(Artist), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> GetArtist(int profileId)
+    {
+        var profile = await _userService.GetProfile(profileId);
+        if (profile == null)
+        {
+            return NotFound();
+        }
+        var artist = await _artistService.GetArtistByProfileId(profileId);
+        if (artist == null)
+        {
+            return NotFound();
+        }
+        return Ok(artist);
     }
 }
