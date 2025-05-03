@@ -32,7 +32,7 @@ public class ArtistRoleHandler : AuthorizationHandler<ArtistRoleRequirement>
             context.Fail();
             return;
         }
-        Profile profile = await _userService.GetProfile(user.Id);
+        Profile profile = await _userService.FindProfile(user.Id);
         var artist = await _artistService.GetArtistByProfileId(profile.Id);
         if (artist == null)
         {

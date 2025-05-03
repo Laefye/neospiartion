@@ -14,10 +14,12 @@ namespace ArtSite.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IArtistService _artistService;
 
-    public UserController(IUserService userService)
+    public UserController(IUserService userService, IArtistService artistService)
     {
         _userService = userService;
+        _artistService = artistService;
     }
 
     [HttpPost]
@@ -78,9 +80,9 @@ public class UserController : ControllerBase
         }
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize()]
     [HttpGet("me")]
-    [ProducesResponseType(typeof(IdentityUser), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(MeDto), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetMe()
     {
         IdentityUser user;
@@ -95,8 +97,16 @@ public class UserController : ControllerBase
                Detail = e.Message,
            });
         }
-
-        return Ok(user);
+        Profile profile = await _userService.FindProfile(user.Id);
+        Artist? artist = await _artistService.GetArtistByProfileId(profile.Id);
+        return Ok(new MeDto()
+        {
+            UserId = user.Id,
+            Email = user.Email!,
+            ProfileId = profile.Id,
+            ArtistId = artist?.Id ?? null,
+            
+        });
     }
     
     [HttpGet("profile")]
@@ -116,7 +126,7 @@ public class UserController : ControllerBase
                 Detail = e.Message,
             });
         }
-        var profile = await _userService.GetProfile(user.Id);
+        var profile = await _userService.FindProfile(user.Id);
         return Ok(profile);
     }
 }
