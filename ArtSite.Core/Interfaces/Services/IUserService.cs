@@ -10,8 +10,10 @@ public interface IUserService
     
     Task<Token> Login(string email, string password);
     
-    Task<Profile> GetProfile(string userId);
+    Task<Profile> FindProfile(string userId);
     
+    Task<Profile?> GetProfile(int profileId);
+
     Task<IdentityUser> GetUser(string userId);
 
     Task<IdentityUser> GetUserByClaims(ClaimsPrincipal claims);

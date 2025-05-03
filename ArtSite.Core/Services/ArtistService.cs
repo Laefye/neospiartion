@@ -8,10 +8,12 @@ namespace ArtSite.Core.Services;
 public class ArtistService : IArtistService
 {
     private readonly IArtistRepository _artistRepository;
+    private readonly IArtRepository _artRepository;
 
-    public ArtistService(IArtistRepository artistRepository)
+    public ArtistService(IArtistRepository artistRepository, IArtRepository artRepository)
     {
         _artistRepository = artistRepository;
+        _artRepository = artRepository;
     }
 
     public async Task<Artist> CreateArtist(int profileId)
@@ -28,11 +30,16 @@ public class ArtistService : IArtistService
         return await _artistRepository.GetArtist(id);
     }
 
-    public async Task<Artist?> GetArts(int profileId)
+    public Task<Artist?> GetArtistByProfileId(int profileId)
     {
-        var artist = await _artistRepository.FindArtistByProfileId(profileId);
+        return _artistRepository.FindArtistByProfileId(profileId);
+    }
+
+    public async Task<List<Art>> GetArts(int artistId)
+    {
+        var artist = _artistRepository.GetArtist(artistId);
         if (artist == null)
             throw new ArtistException("Artist not found");
-        return artist;
+        return await _artRepository.GetArts(artistId);
     }
 }

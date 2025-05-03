@@ -7,8 +7,6 @@ using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace ArtSite.Core.Services;
@@ -85,7 +83,7 @@ public class UserService : IUserService
         };
     }
 
-    public async Task<Profile> GetProfile(string userId)
+    public async Task<Profile> FindProfile(string userId)
     {
         var profile = await _profileRepository.GetProfileByUserId(userId);
         if (profile == null)
@@ -123,6 +121,11 @@ public class UserService : IUserService
         {
             throw new UserException(UserException.UserError.NotFound);
         }
-        return await GetProfile(userId);
+        return await FindProfile(userId);
+    }
+
+    public Task<Profile?> GetProfile(int profileId)
+    {
+        return _profileRepository.GetProfile(profileId);
     }
 }
