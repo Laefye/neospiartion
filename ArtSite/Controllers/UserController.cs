@@ -103,9 +103,9 @@ public class UserController : ControllerBase
         {
             UserId = user.Id,
             Email = user.Email!,
+            UserName = user.UserName!,
             ProfileId = profile.Id,
             ArtistId = artist?.Id ?? null,
-            
         });
     }
     

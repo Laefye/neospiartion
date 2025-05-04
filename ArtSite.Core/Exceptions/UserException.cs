@@ -38,4 +38,15 @@ public class UserException : Exception
         ErrorType = errorType;
         Errors = errors;
     }
+
+    public UserException(string message) : base(message)
+    {
+    }
+
+    public class NotAllowedException : UserException
+    {
+        public NotAllowedException() : base("Not allowed")
+        {
+        }
+    }
 }

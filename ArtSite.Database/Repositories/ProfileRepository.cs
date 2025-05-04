@@ -34,16 +34,14 @@ public class ProfileRepository(ApplicationDbContext context) : IProfileRepositor
         return entry.Entity.ConvertToDto();
     }
 
-    public Task UpdateProfile(Profile profile)
+    public async Task UpdateProfile(Profile profile)
     {
-        var dbProfile = new DbProfile
-        {
-            Id = profile.Id,
-            DisplayName = profile.DisplayName,
-            UserId = profile.UserId,
-        };
+        var dbProfile = await context.Profiles.FindAsync(profile.Id);
+        if (dbProfile == null)
+            return;
+        dbProfile.DisplayName = profile.DisplayName;
         context.Profiles.Update(dbProfile);
-        return context.SaveChangesAsync();
+        await context.SaveChangesAsync();
     }
 
     public async Task DeleteProfile(int id)

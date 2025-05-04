@@ -1,6 +1,8 @@
-﻿using ArtSite.Core.DTO;
+﻿using System.Security.Claims;
+using ArtSite.Core.DTO;
 using ArtSite.Core.Interfaces.Services;
 using ArtSite.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArtSite.Controllers;
@@ -49,26 +51,21 @@ public class ProfileController : ControllerBase
         return Ok(artist);
     }
 
-    [HttpPut("{userId}")]
+    [HttpPut("{profileId}")]
+    [Authorize()]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> UpdateProfile(string userId, [FromBody] RegisterDto updateDto)
+    public async Task<ActionResult> UpdateProfile(int profileId, [FromBody] UpdateProfileDto updateDto)
     {
+        string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
         if (updateDto == null || string.IsNullOrEmpty(updateDto.DisplayName) || string.IsNullOrEmpty(updateDto.UserName))
         {
             return BadRequest("DisplayName and UserName are required.");
         }
+        await _userService.UpdateProfile(userId, profileId, updateDto.DisplayName, updateDto.UserName);
 
-        var profile = await _userService.FindProfile(userId);
-        if (profile == null)
-        {
-            return NotFound("Profile not found.");
-        }
-
-        await _userService.UpdateProfile(userId, updateDto.DisplayName, updateDto.UserName);
-
-        return NoContent();
+        return Accepted();
     }
 
 }

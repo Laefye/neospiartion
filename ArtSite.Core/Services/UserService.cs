@@ -141,26 +141,23 @@ public class UserService : IUserService
         }
     }
 
-    public async Task UpdateProfile(string userId, string displayName, string userName)
+    public async Task UpdateProfile(string userId, int profileId, string displayName, string userName)
     {
-        var profile = await _profileRepository.GetProfileByUserId(userId);
-        if (profile != null)
+        Profile? profile = await _profileRepository.GetProfile(profileId);
+        IdentityUser? user = await _userManager.FindByIdAsync(userId);
+        if (profile == null || profile.UserId != userId || user == null)
         {
-            var updatedProfile = new Profile
-            {
-                Id = profile.Id,
-                DisplayName = displayName,
-                UserId = profile.UserId
-            };
-            await _profileRepository.UpdateProfile(updatedProfile);
+            throw new UserException.NotAllowedException();
         }
 
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user != null)
-        {
-            user.UserName = userName;
-            await _userManager.UpdateAsync(user);
-        }
+        await _profileRepository.UpdateProfile(new Profile {
+            Id = profile.Id,
+            DisplayName = displayName,
+            UserId = profile.UserId
+        });
+
+        user.UserName = userName;
+        await _userManager.UpdateAsync(user);
     }
 
 }
