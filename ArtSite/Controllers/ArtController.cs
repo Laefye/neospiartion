@@ -41,7 +41,11 @@ public class ArtController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> DeleteArt(int artId)
     {
-        throw new NotImplementedException();
+        var art = await _artService.GetArt(artId);
+        if (art == null)
+            return NotFound();
+        await _artService.DeleteArt(artId);
+        return Accepted();
     }
 
 
@@ -66,13 +70,8 @@ public class ArtController : ControllerBase
         var art = await _artService.GetArt(artId);
         if (art == null)
             return NotFound();
-        var uri = await _storageService.CreateFile();
-        using (var stream = await _storageService.OpenFile(uri, FileAccess.Write))
-        {
-            await file.CopyToAsync(stream);
-        }
-        await _artService.AddPictureToArt(artId, uri, file.ContentType);
-        return Created();
+        var picture = await _artService.AddPictureToArt(artId, file, file.ContentType);
+        return CreatedAtAction(nameof(PictureController.GetPicture), "Picture", new { pictureId = picture.Id }, picture);
     }
 
     [HttpGet("{artId}/comments")]

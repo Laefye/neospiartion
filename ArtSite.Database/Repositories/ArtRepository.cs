@@ -26,6 +26,14 @@ public class ArtRepository : IArtRepository
         return entry.Entity.ConvertToDto();
     }
 
+    public async Task DeleteArt(int artId)
+    {
+        var art = await _context.Arts.FindAsync(artId);
+        if (art != null)
+            _context.Arts.Remove(art);
+        await _context.SaveChangesAsync();
+    }
+
     public async Task<List<Art>> GetAllArts(int offset, int limit)
     {
         return await _context.Arts.Select(art => art.ConvertToDto()).Skip(offset).Take(limit).ToListAsync();

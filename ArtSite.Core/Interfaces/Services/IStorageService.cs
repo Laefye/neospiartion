@@ -11,4 +11,6 @@ public interface IStorageService
     Task<string> CreateFile();
 
     Task<Stream> OpenFile(string uri, FileAccess fileMode);
+
+    void DeleteFile(string uri);
 }

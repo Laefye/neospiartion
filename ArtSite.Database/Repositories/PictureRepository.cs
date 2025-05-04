@@ -30,4 +30,12 @@ public class PictureRepository : IPictureRepository
     {
         return await _context.Pictures.Where(p => p.ArtId == artId).Select(p => p.ConvertToDto()).ToListAsync();
     }
+
+    public async Task DeletePicture(int pictureId)
+    {
+        var picture = await _context.Pictures.FindAsync(pictureId);
+        if (picture == null) return;
+        _context.Pictures.Remove(picture);
+        await _context.SaveChangesAsync();
+    }
 }

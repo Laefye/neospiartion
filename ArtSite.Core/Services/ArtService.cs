@@ -1,7 +1,9 @@
 ﻿using ArtSite.Core.DTO;
+using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
 using ArtSite.Core.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace ArtSite.Core.Services;
 
@@ -9,11 +11,13 @@ public class ArtService : IArtService
 {
     private readonly IArtRepository _artRepository;
     private readonly IPictureRepository _pictureRepository;
+    private readonly IStorageService _storageService;
 
-    public ArtService(IArtRepository artRepository, IPictureRepository pictureRepository)
+    public ArtService(IArtRepository artRepository, IPictureRepository pictureRepository, IStorageService storageService)
     {
         _artRepository = artRepository;
         _pictureRepository = pictureRepository;
+        _storageService = storageService;
     }
 
     public async Task<Art> CreateArt(int artistId, string? description, List<string> pictures)
@@ -38,9 +42,18 @@ public class ArtService : IArtService
         return art;
     }
 
-    public async Task<Picture> AddPictureToArt(int artId, string url, string mimeType)
+    public async Task<Picture> AddPictureToArt(int artId, IFormFile file, string mimeType)
     {
-        return await _pictureRepository.AddPicture(artId, url, mimeType);
+        var art = await _artRepository.GetArt(artId);
+        if (art == null)
+            throw new ArtException("Art not found");
+        var url = await _storageService.CreateFile();
+        using (var stream = await _storageService.OpenFile(url, FileAccess.Write))
+        {
+            await file.CopyToAsync(stream);
+        }
+        var picture = await _pictureRepository.AddPicture(artId, url, mimeType);
+        return picture;
     }
 
     public async Task<List<Art>> GetAllArts(int offset, int limit)
@@ -72,5 +85,19 @@ public class ArtService : IArtService
     public Task<Picture?> GetPicture(int pictureId)
     {
         return _pictureRepository.GetPicture(pictureId);
+    }
+
+    public async Task DeleteArt(int artId)
+    {
+        var art = await _artRepository.GetArt(artId);
+        if (art == null)
+            return;
+        var pictures = await _pictureRepository.GetPictures(artId);
+        foreach (var picture in pictures)
+        {
+            await _pictureRepository.DeletePicture(picture.Id);
+            _storageService.DeleteFile(picture.Url);
+        }
+        await _artRepository.DeleteArt(artId);
     }
 }

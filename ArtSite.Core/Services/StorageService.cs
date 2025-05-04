@@ -22,6 +22,18 @@ public class StorageService : IStorageService
         return "fs://local/" + guid;
     }
 
+    public void DeleteFile(string uri)
+    {
+        if (!uri.StartsWith("fs://local/"))
+            throw new ArgumentException("Invalid URI format", nameof(uri));
+
+        var guid = uri.Substring("fs://local/".Length);
+        var filePath = Path.Combine("Uploads", guid);
+
+        if (File.Exists(filePath))
+            File.Delete(filePath);
+    }
+
     public async Task<Stream> OpenFile(string uri, FileAccess fileAccess)
     {
         if (!uri.StartsWith("fs://local/"))

@@ -9,4 +9,6 @@ public interface IPictureRepository
     Task<List<Picture>> GetPictures(int artId);
 
     Task<Picture?> GetPicture(int pictureId);
+
+    Task DeletePicture(int artId);
 }

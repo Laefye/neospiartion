@@ -13,4 +13,6 @@ public interface IArtRepository
     Task<List<Art>> GetArts(int artistId);
 
     Task<List<Art>> GetAllArts(int offset, int limit);
+
+    Task DeleteArt(int artId);
 }
