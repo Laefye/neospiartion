@@ -1,5 +1,6 @@
 ﻿using ArtSite.Core.DTO;
 using ArtSite.Core.Interfaces.Services;
+using ArtSite.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArtSite.Controllers;
@@ -47,4 +48,27 @@ public class ProfileController : ControllerBase
         }
         return Ok(artist);
     }
+
+    [HttpPut("{userId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> UpdateProfile(string userId, [FromBody] RegisterDto updateDto)
+    {
+        if (updateDto == null || string.IsNullOrEmpty(updateDto.DisplayName) || string.IsNullOrEmpty(updateDto.UserName))
+        {
+            return BadRequest("DisplayName and UserName are required.");
+        }
+
+        var profile = await _userService.FindProfile(userId);
+        if (profile == null)
+        {
+            return NotFound("Profile not found.");
+        }
+
+        await _userService.UpdateProfile(userId, updateDto.DisplayName, updateDto.UserName);
+
+        return NoContent();
+    }
+
 }

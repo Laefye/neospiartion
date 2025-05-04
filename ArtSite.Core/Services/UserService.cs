@@ -140,4 +140,27 @@ public class UserService : IUserService
             return null;
         }
     }
+
+    public async Task UpdateProfile(string userId, string displayName, string userName)
+    {
+        var profile = await _profileRepository.GetProfileByUserId(userId);
+        if (profile != null)
+        {
+            var updatedProfile = new Profile
+            {
+                Id = profile.Id,
+                DisplayName = displayName,
+                UserId = profile.UserId
+            };
+            await _profileRepository.UpdateProfile(updatedProfile);
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user != null)
+        {
+            user.UserName = userName;
+            await _userManager.UpdateAsync(user);
+        }
+    }
+
 }

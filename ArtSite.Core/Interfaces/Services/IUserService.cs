@@ -21,4 +21,6 @@ public interface IUserService
     Task<Profile> GetProfileByClaims(ClaimsPrincipal claims);
 
     Task<Profile?> GetPossibleProfile(ClaimsPrincipal claims);
+
+    Task UpdateProfile(string userId, string displayName, string userName);
 }
