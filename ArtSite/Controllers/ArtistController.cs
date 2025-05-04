@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using ArtSite.Core.DTO;
 using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Services;
@@ -87,14 +88,14 @@ public class ArtistController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> PostArt(int artistId, [FromBody] ArtDto body)
     {
-        var profile = await _userService.GetPossibleProfile(User) ?? throw new UnauthorizedAccessException("User not found");
-        var artist = await _artistService.GetArtistByProfileId(profile.Id);
-        if (artist?.Id != artistId)
-        {
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            return Ok(await _artService.CreateArt(userId, artistId, body.Description, body.TierId));
+        } catch (ArtException.UnauthorizedArtistAccess) {
             return Forbid();
+        } catch (UserException) {
+            return Unauthorized();
         }
-        var art = await _artService.CreateArt(artistId, body.Description);
-        return CreatedAtAction(nameof(ArtController.GetArt), "Art", new { artId = art.Id }, art);
     }
 
     [HttpGet("{artistId}/messages")]

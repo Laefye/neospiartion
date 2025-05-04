@@ -1,6 +1,6 @@
-﻿using ArtSite.Core.DTO;
+﻿using System.Security.Claims;
+using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Services;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArtSite.Controllers;
@@ -23,12 +23,23 @@ public class PictureController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetPicture(int pictureId)
     {
-        var picture = await _artService.GetPicture(pictureId);
-        if (picture == null)
+        try
         {
-            return NotFound();
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var picture = await _artService.GetPicture(userId, pictureId);
+            HttpContext.Response.Headers.Append("Content-Type", picture.MimeType);
+            return Ok(await _storageService.OpenFile(picture.Url, FileAccess.Read));
         }
-        HttpContext.Response.Headers.Append("Content-Type", picture.MimeType);
-        return Ok(await _storageService.OpenFile(picture.Url, FileAccess.Read));
+        catch (ArtException.NotFoundPicture e)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 }

@@ -8,6 +8,7 @@ public class DbArt
     public string? Description { get; set; }
     public DateTime UploadedAt { get; set; }
     public int ArtistId { get; set; }
+    public int? TierId { get; set; }
 
     public List<DbPicture> Pictures { get; set; } = new();
 
@@ -18,5 +19,6 @@ public class DbArt
         Description = Description,
         UploadedAt = UploadedAt,
         ArtistId = ArtistId,
+        TierId = TierId,
     };
 }

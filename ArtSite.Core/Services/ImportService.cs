@@ -15,9 +15,10 @@ public class ImportService : IImportService
 
     public async Task<List<Art>> Import(int artistId, IPlatformArtExporter exporter)
     {
-        var exportedArts = await exporter.ExportArts();
-        var arts = new List<Art>();
-        foreach (var exportedArt in exportedArts) arts.Add(await _artService.ImportArt(artistId, exportedArt));
-        return arts;
+        // var exportedArts = await exporter.ExportArts();
+        // var arts = new List<Art>();
+        // foreach (var exportedArt in exportedArts) arts.Add(await _artService.ImportArt(artistId, exportedArt));
+        // return arts;
+        throw new NotImplementedException("Import is not implemented yet");
     }
 }

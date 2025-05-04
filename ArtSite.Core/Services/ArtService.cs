@@ -1,98 +1,105 @@
-﻿using ArtSite.Core.DTO;
+using System;
+using ArtSite.Core.DTO;
 using ArtSite.Core.Exceptions;
+using ArtSite.Core.Interfaces;
 using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
-using ArtSite.Core.Models;
-using Microsoft.AspNetCore.Http;
 
 namespace ArtSite.Core.Services;
 
 public class ArtService : IArtService
 {
+    private readonly IUserService _userService;
     private readonly IArtRepository _artRepository;
     private readonly IPictureRepository _pictureRepository;
+    private readonly IArtistService _artistService;
     private readonly IStorageService _storageService;
-
-    public ArtService(IArtRepository artRepository, IPictureRepository pictureRepository, IStorageService storageService)
+    
+    public ArtService(IArtRepository artRepository, IArtistService artistService, IStorageService storageService, IUserService userService, IPictureRepository pictureRepository)
     {
         _artRepository = artRepository;
-        _pictureRepository = pictureRepository;
         _storageService = storageService;
+        _userService = userService;
+        _artistService = artistService;
+        _pictureRepository = pictureRepository;
     }
 
-    public async Task<Art> CreateArt(int artistId, string? description, List<string> pictures)
+    public async Task<Art> CreateArt(string userId, int artistId, string? description, int? tierId)
     {
-        var art = await _artRepository.CreateArt(description, artistId);
-        foreach (var url in pictures)
-        {
-            throw new NotImplementedException();
-            await _pictureRepository.AddPicture(art.Id, url, "");
-        }
+        var profile = await _userService.FindProfile(userId);
+        var artist = await _artistService.GetArtistByProfileId(profile.Id);
+        if (artist == null || artist.Id != artistId)
+            throw new ArtException.UnauthorizedArtistAccess();
+        if (tierId != null)
+            throw new NotImplementedException("TierId is not implemented yet");
+        var art = await _artRepository.CreateArt(description, artistId, tierId);
         return art;
     }
 
-    public async Task<Art> ImportArt(int artistId, ExportedArt exportedArt)
+    public async Task DeleteArt(string userId, int artId)
     {
-        var art = await _artRepository.CreateArtByDate(exportedArt.Description, artistId, exportedArt.UploadedDate);
-        foreach (var url in exportedArt.Pictures)
-        {
-            throw new NotImplementedException();
-            await _pictureRepository.AddPicture(art.Id, url, "");
-        }
-        return art;
-    }
-
-    public async Task<Picture> AddPictureToArt(int artId, IFormFile file, string mimeType)
-    {
+        var profile = await _userService.FindProfile(userId);
+        var artist = await _artistService.GetArtistByProfileId(profile.Id);
+        if (artist == null)
+            throw new ArtException.UnauthorizedArtistAccess();
         var art = await _artRepository.GetArt(artId);
         if (art == null)
-            throw new ArtException("Art not found");
-        var url = await _storageService.CreateFile();
-        using (var stream = await _storageService.OpenFile(url, FileAccess.Write))
+            throw new ArtException.NotFoundArt();
+        if (art.ArtistId != artist.Id)
+            throw new ArtException.UnauthorizedArtistAccess();
+        var pictures = await _pictureRepository.GetPictures(art.Id);
+        foreach (var picture in pictures)
         {
-            await file.CopyToAsync(stream);
+            _storageService.DeleteFile(picture.Url);
+            await _pictureRepository.DeletePicture(picture.Id);
         }
-        var picture = await _pictureRepository.AddPicture(artId, url, mimeType);
-        return picture;
+        await _artRepository.DeleteArt(art.Id);
     }
 
-    public async Task<List<Art>> GetAllArts(int offset, int limit)
+    public async Task<List<Art>> GetAllArts(string userId, int offset, int limit)
     {
+        var profile = await _userService.FindProfile(userId);
         return await _artRepository.GetAllArtsWithPictures(offset, limit);
     }
 
-    public async Task<Art?> GetArt(int id)
-    {
-        return await _artRepository.GetArt(id);
-    }
-
-    public async Task<List<Picture>> GetPicturesByArt(int artId)
-    {
-        return await _pictureRepository.GetPictures(artId);
-    }
-
-    public async Task<Art> CreateArt(int artistId, string? description)
-    {
-        var art = await _artRepository.CreateArt(description, artistId);
-        return art;
-    }
-
-    public Task<Picture?> GetPicture(int pictureId)
-    {
-        return _pictureRepository.GetPicture(pictureId);
-    }
-
-    public async Task DeleteArt(int artId)
+    public async Task<Art> GetArt(string? userId, int artId)
     {
         var art = await _artRepository.GetArt(artId);
         if (art == null)
-            return;
-        var pictures = await _pictureRepository.GetPictures(artId);
-        foreach (var picture in pictures)
-        {
-            await _pictureRepository.DeletePicture(picture.Id);
-            _storageService.DeleteFile(picture.Url);
-        }
-        await _artRepository.DeleteArt(artId);
+            throw new ArtException.NotFoundArt();
+        return art;
+    }
+
+    public async Task<Picture> GetPicture(string? userId, int pictureId)
+    {
+        var picture = await _pictureRepository.GetPicture(pictureId);
+        if (picture == null)
+            throw new ArtException.NotFoundPicture();
+        return picture;
+    }
+
+    public async Task<List<Picture>> GetPictures(string? userId, int artId)
+    {
+        var art = await GetArt(userId, artId);
+        var pictures = await _pictureRepository.GetPictures(art.Id);
+        return pictures;
+    }
+
+    public async Task<Picture> UploadPicture(string userId, int artId, IPictureUploader pictureUploader)
+    {
+        var profile = await _userService.FindProfile(userId);
+        var artist = await _artistService.GetArtistByProfileId(profile.Id);
+        if (artist == null)
+            throw new ArtException.UnauthorizedArtistAccess();
+        var art = await _artRepository.GetArt(artId);
+        if (art == null)
+            throw new ArtException.NotFoundArt();
+        if (art.ArtistId != artist.Id)
+            throw new ArtException.UnauthorizedArtistAccess();
+        var fileUri = await _storageService.CreateFile();
+        var fileStream = await _storageService.OpenFile(fileUri, FileAccess.Write);
+        pictureUploader.Upload(fileStream);
+        fileStream.Close();
+        return await _pictureRepository.AddPicture(art.Id, fileUri, pictureUploader.MimeType);
     }
 }

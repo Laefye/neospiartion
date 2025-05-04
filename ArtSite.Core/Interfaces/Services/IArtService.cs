@@ -1,18 +1,67 @@
-﻿using ArtSite.Core.DTO;
-using ArtSite.Core.Models;
-using Microsoft.AspNetCore.Http;
+using System;
+using ArtSite.Core.DTO;
 
 namespace ArtSite.Core.Interfaces.Services;
 
 public interface IArtService
 {
-    Task<Art> CreateArt(int artistId, string? description, List<string> pictures);
-    Task<Art> CreateArt(int artistId, string? description);
-    Task<Art> ImportArt(int artistId, ExportedArt exportedArt);
-    Task<Picture> AddPictureToArt(int artId, IFormFile file, string mimeType);
-    Task<List<Art>> GetAllArts(int offset, int limit);
-    Task<Art?> GetArt(int id);
-    Task<List<Picture>> GetPicturesByArt(int artId);
-    Task<Picture?> GetPicture(int pictureId);
-    Task DeleteArt(int artId);
+    /// <summary>
+    /// Создание нового произведения искусства.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя который вызывает.</param>
+    /// <param name="artistId">Идентификатор художника.</param>
+    /// <param name="description">Описание произведения искусства.</param>
+    /// <param name="tierId">Идентификатор уровня доступа.</param>
+    /// <returns>Созданное произведение искусства.</returns>
+    Task<Art> CreateArt(string userId, int artistId, string? description, int? tierId);
+
+    /// <summary>
+    /// Возвращает все произведения искусства с заданным смещением и лимитом. (Систсема рекомендаций)
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="offset">Смещение.</param>
+    /// <param name="limit">Лимит.</param>
+    /// <returns>Список произведений искусства.</returns>
+    Task<List<Art>> GetAllArts(string userId, int offset, int limit);
+
+    /// <summary>
+    /// Возвращает произведение искусства по идентификатору.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="artId">Идентификатор произведения искусства.</param>
+    /// <returns>Произведение искусства.</returns>
+    Task<Art> GetArt(string? userId, int artId);
+
+    /// <summary>
+    /// Возвращает список изображений для произведения искусства.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="artId">Идентификатор произведения искусства.</param>
+    /// <returns>Список изображений.</returns>
+    Task<List<Picture>> GetPictures(string? userId, int artId);
+
+    /// <summary>
+    /// Загружает изображение для произведения искусства.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="artId">Идентификатор произведения искусства.</param>
+    /// <param name="pictureUploader">Загрузчик изображения.</param>
+    /// <returns>Загруженное изображение.</returns>
+    Task<Picture> UploadPicture(string userId, int artId, IPictureUploader pictureUploader);
+
+    /// <summary>
+    /// Удаляет произведения искусства.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="artId">Идентификатор произведения искусства.</param>
+    /// <returns>Удаленное изображение.</returns>
+    Task DeleteArt(string userId, int artId);
+
+    /// <summary>
+    /// Получает изображение из произведения искусства.
+    /// </summary>
+    /// <param name="userId">Идентификатор пользователя.</param>
+    /// <param name="pictureId">Идентификатор изображения.</param>
+    /// <returns>Изображение.</returns>
+    Task<Picture> GetPicture(string? userId, int pictureId);
 }
