@@ -4,9 +4,9 @@ namespace ArtSite.Core.Interfaces.Repositories;
 
 public interface IArtRepository
 {
-    Task<Art> CreateArt(string? description, int artistId);
+    Task<Art> CreateArt(string? description, int artistId, int? tierId);
 
-    Task<Art> CreateArtByDate(string? description, int artistId, DateTime uploadedAt);
+    Task<Art> CreateArtByDate(string? description, int artistId, int? tierId, DateTime uploadedAt);
 
     Task<Art?> GetArt(int id);
 

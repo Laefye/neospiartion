@@ -14,12 +14,12 @@ public class ArtRepository : IArtRepository
         _context = context;
     }
 
-    public Task<Art> CreateArt(string? description, int artistId)
+    public Task<Art> CreateArt(string? description, int artistId, int? tierId)
     {
-        return CreateArtByDate(description, artistId, DateTime.UtcNow);
+        return CreateArtByDate(description, artistId, tierId, DateTime.UtcNow);
     }
 
-    public async Task<Art> CreateArtByDate(string? description, int artistId, DateTime uploadedAt)
+    public async Task<Art> CreateArtByDate(string? description, int artistId, int? tierId, DateTime uploadedAt)
     {
         var entry = await _context.Arts.AddAsync(new DbArt { Description = description, ArtistId = artistId, UploadedAt = uploadedAt });
         await _context.SaveChangesAsync();

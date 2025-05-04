@@ -1,6 +1,9 @@
 ﻿using System.IO;
+using System.Security.Claims;
 using ArtSite.Core.DTO;
+using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Services;
+using ArtSite.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,12 +13,12 @@ namespace ArtSite.Controllers;
 [ApiController]
 public class ArtController : ControllerBase
 {
-    private readonly IOldArtService _artService;
+    private readonly IArtService _artService;
     private readonly IArtistService _artistService;
     private readonly IStorageService _storageService;
     private readonly IUserService _userService;
 
-    public ArtController(IOldArtService artService, IStorageService storageService, IArtistService artistService, IUserService userService)
+    public ArtController(IArtService artService, IStorageService storageService, IArtistService artistService, IUserService userService)
     {
         _artService = artService;
         _storageService = storageService;
@@ -24,10 +27,16 @@ public class ArtController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     [ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAllArts([FromQuery] int offset = 0, [FromQuery] int limit = 10)
     {
-        return Ok(await _artService.GetAllArts(offset, limit));
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            return Ok(await _artService.GetAllArts(userId, offset, limit));
+        } catch (Exception) {
+            throw;
+        }
     }
 
     [HttpGet("{artId}")]
@@ -35,10 +44,17 @@ public class ArtController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetArt(int artId)
     {
-        var art = await _artService.GetArt(artId);
-        if (art == null)
-            return NotFound();
-        return Ok(art);
+        try {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Ok(await _artService.GetArt(userId, artId));
+        } catch (ArtException.NotFoundArt e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }
     }
 
     [HttpDelete("{artId}")]
@@ -49,17 +65,20 @@ public class ArtController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> DeleteArt(int artId)
     {
-        var profile = await _userService.GetPossibleProfile(User) ?? throw new UnauthorizedAccessException("User not found");
-        var artist = await _artistService.GetArtistByProfileId(profile.Id);
-        if (artist == null)
-            return Unauthorized();
-        var art = await _artService.GetArt(artId);
-        if (art == null)
-            return NotFound();
-        if (art.ArtistId != artist.Id)
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            await _artService.DeleteArt(userId, artId);
+            return Accepted();
+        } catch (ArtException.NotFoundArt e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (ArtException.UnauthorizedArtistAccess) {
             return Forbid();
-        await _artService.DeleteArt(artId);
-        return Accepted();
+        } catch (Exception) {
+            throw;
+        }
     }
 
 
@@ -68,11 +87,17 @@ public class ArtController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetPicturesByArt(int artId)
     {
-        var art = await _artService.GetArt(artId);
-        if (art == null)
-            return NotFound();
-        var pictures = await _artService.GetPicturesByArt(artId);
-        return Ok(pictures);
+        try {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Ok(await _artService.GetPictures(userId, artId));
+        } catch (ArtException.NotFoundArt e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }
     }
 
     [HttpPost("{artId}/pictures")]
@@ -84,17 +109,20 @@ public class ArtController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> AddPictureToArt(int artId, IFormFile file)
     {
-        var profile = await _userService.GetPossibleProfile(User) ?? throw new UnauthorizedAccessException("User not found");
-        var artist = await _artistService.GetArtistByProfileId(profile.Id);
-        if (artist == null)
-            return Unauthorized();
-        var art = await _artService.GetArt(artId);
-        if (art == null)
-            return NotFound();
-        if (art.ArtistId != artist.Id)
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var picture = await _artService.UploadPicture(userId, artId, new PictureUploader(file));
+            return CreatedAtAction(nameof(PictureController.GetPicture), "Picture", new { pictureId = picture.Id }, picture);
+        } catch (ArtException.NotFoundArt e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (ArtException.UnauthorizedArtistAccess) {
             return Forbid();
-        var picture = await _artService.AddPictureToArt(artId, file, file.ContentType);
-        return CreatedAtAction(nameof(PictureController.GetPicture), "Picture", new { pictureId = picture.Id }, picture);
+        } catch (Exception) {
+            throw;
+        }
     }
 
     [HttpGet("{artId}/comments")]
