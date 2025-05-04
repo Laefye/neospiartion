@@ -21,7 +21,7 @@ public class ArtRepository : IArtRepository
 
     public async Task<Art> CreateArtByDate(string? description, int artistId, int? tierId, DateTime uploadedAt)
     {
-        var entry = await _context.Arts.AddAsync(new DbArt { Description = description, ArtistId = artistId, UploadedAt = uploadedAt });
+        var entry = await _context.Arts.AddAsync(new DbArt { Description = description, ArtistId = artistId, TierId = tierId, UploadedAt = uploadedAt });
         await _context.SaveChangesAsync();
         return entry.Entity.ConvertToDto();
     }

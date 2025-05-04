@@ -14,6 +14,8 @@ public class ArtService : IArtService
     private readonly IPictureRepository _pictureRepository;
     private readonly IArtistService _artistService;
     private readonly IStorageService _storageService;
+    private ITierService? _tierService = null;
+    private ICommentService? _commentService = null;
     
     public ArtService(IArtRepository artRepository, IArtistService artistService, IStorageService storageService, IUserService userService, IPictureRepository pictureRepository)
     {
@@ -24,20 +26,38 @@ public class ArtService : IArtService
         _pictureRepository = pictureRepository;
     }
 
+    public IArtService Apply(ITierService tierService)
+    {
+        _tierService = tierService;
+        return this;
+    }
+
+    public IArtService Apply(ICommentService commentService)
+    {
+        _commentService = commentService;
+        return this;
+    }
+
     public async Task<Art> CreateArt(string userId, int artistId, string? description, int? tierId)
     {
+        if (_tierService == null)
+            throw new NotAppliedException("TierService");
         var profile = await _userService.FindProfile(userId);
         var artist = await _artistService.GetArtistByProfileId(profile.Id);
         if (artist == null || artist.Id != artistId)
             throw new ArtException.UnauthorizedArtistAccess();
         if (tierId != null)
-            throw new NotImplementedException("TierId is not implemented yet");
+        {
+            var tier = await _tierService.GetMyTier(userId, tierId.Value);
+        }
         var art = await _artRepository.CreateArt(description, artistId, tierId);
         return art;
     }
 
     public async Task DeleteArt(string userId, int artId)
     {
+        if (_commentService == null)
+            throw new NotAppliedException("CommentService");
         var profile = await _userService.FindProfile(userId);
         var artist = await _artistService.GetArtistByProfileId(profile.Id);
         if (artist == null)
@@ -53,6 +73,7 @@ public class ArtService : IArtService
             _storageService.DeleteFile(picture.Url);
             await _pictureRepository.DeletePicture(picture.Id);
         }
+        await _commentService.ForceDeleteAllComments(art.Id);
         await _artRepository.DeleteArt(art.Id);
     }
 

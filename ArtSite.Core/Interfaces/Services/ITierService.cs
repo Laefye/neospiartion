@@ -9,4 +9,5 @@ public interface ITierService
     Task<Tier> GetTier(int id);
     Task<List<Tier>> GetTiers(int artistId);
     Task DeleteTier(string userId, int id);
+    Task<Tier> GetMyTier(string userId, int tierId);
 }

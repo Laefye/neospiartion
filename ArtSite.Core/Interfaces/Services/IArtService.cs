@@ -5,6 +5,9 @@ namespace ArtSite.Core.Interfaces.Services;
 
 public interface IArtService
 {
+    IArtService Apply(ITierService tierService);
+    IArtService Apply(ICommentService commentService);
+
     /// <summary>
     /// Создание нового произведения искусства.
     /// </summary>

@@ -50,6 +50,18 @@ public class TierService : ITierService
         await _tierRepository.DeleteTier(tier.Id);
     }
 
+    public async Task<Tier> GetMyTier(string userId, int tierId)
+    {
+        var profile = await _userService.FindProfile(userId);
+        var artist = await _artistService.GetArtistAnywayByProfileId(profile.Id);
+        var tier = await _tierRepository.GetTier(tierId);
+        if (tier == null)
+            throw new TierException.NotFoundTier();
+        if (tier.ArtistId != artist.Id)
+            throw new TierException.NotOwnerTier();
+        return tier;
+    }
+
     public async Task<Tier> GetTier(int id)
     {
         var tier = await _tierRepository.GetTier(id);

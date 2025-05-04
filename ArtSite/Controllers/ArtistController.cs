@@ -2,6 +2,7 @@ using System.Security.Claims;
 using ArtSite.Core.DTO;
 using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Services;
+using ArtSite.Core.Services;
 using ArtSite.DTO;
 using ArtSite.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -89,11 +90,19 @@ public class ArtistController : ControllerBase
     {
         try {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            return Ok(await _artService.CreateArt(userId, artistId, body.Description, body.TierId));
+            var art = await _artService.Apply(_tierService).CreateArt(userId, artistId, body.Description, body.TierId);
+            return CreatedAtAction(nameof(ArtController.GetArt), "Art", new { artId = art.Id }, art);
         } catch (ArtException.UnauthorizedArtistAccess) {
             return Forbid();
-        } catch (UserException) {
-            return Unauthorized();
+        } catch (TierException.NotFoundTier e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (TierException.NotOwnerTier) {
+            return Forbid();
+        } catch (Exception) {
+            throw;
         }
     }
 

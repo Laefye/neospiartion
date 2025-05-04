@@ -65,8 +65,7 @@ public class ArtController : ControllerBase
     {
         try {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            await _artService.DeleteArt(userId, artId);
-            await _commentService.ForceDeleteAllComments(artId);
+            await _artService.Apply(_commentService).DeleteArt(userId, artId);
             return Accepted();
         } catch (ArtException.NotFoundArt e) {
             return NotFound(new ProblemDetails
