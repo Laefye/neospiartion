@@ -18,6 +18,6 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     //public DbSet<DbMessage> Messages { get; set; }
     public DbSet<DbComment> Comments { get; set; }
     public DbSet<DbProfile> Profiles { get; set; }
-    //public DbSet<DbTier> Tiers { get; set; }
+    public DbSet<DbTier> Tiers { get; set; }
     
 }

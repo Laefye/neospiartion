@@ -7,59 +7,52 @@ namespace ArtSite.Database.Repositories;
 
 public class TierRepository(ApplicationDbContext context) : ITierRepository
 {
-    public async Task<Tier> CreateTier(string name, int artistId, int? extends)
+    public async Task<Tier> CreateTier(string name, string description, int artistId, int? extends)
     {
-        throw new NotImplementedException();
-        // var entry = await context.Tiers.AddAsync(new DbTier
-        // {
-        //     Name = name,
-        //     ArtistId = artistId,
-        //     Extends = extends
-        // });
-        // await context.SaveChangesAsync();
-        // return entry.Entity.ConvertToDto();
+        var entry = await context.Tiers.AddAsync(new DbTier
+        {
+            Name = name,
+            Description = description,
+            ArtistId = artistId,
+            Extends = extends
+        });
+        await context.SaveChangesAsync();
+        return entry.Entity.ConvertToDto();
     }
 
-    public Task<Tier?> GetTier(int id)
+    public async Task<Tier?> GetTier(int id)
     {
-        throw new NotImplementedException();
-        // return context.Tiers
-        //     .Where(tier => tier.Id == id)
-        //     .Select(tier => tier.ConvertToDto())
-        //     .FirstOrDefaultAsync();
+        var tier = await context.Tiers.FindAsync(id);
+        return tier?.ConvertToDto();
     }
 
-    public Task<List<Tier>> GetTiersByArtist(int artistId)
+    public async Task<List<Tier>> GetTiersByArtist(int artistId)
     {
-        throw new NotImplementedException();
-        // return context.Tiers
-        //     .Where(tier => tier.ArtistId == artistId)
-        //     .Select(tier => tier.ConvertToDto())
-        //     .ToListAsync();
+        var tiers = await context.Tiers
+            .Where(t => t.ArtistId == artistId)
+            .ToListAsync();
+        return tiers.Select(t => t.ConvertToDto()).ToList();
     }
 
     public async Task UpdateTier(Tier tier)
     {
-        throw new NotImplementedException();
-        // var dbTier = new DbTier
-        // {
-        //     Id = tier.Id,
-        //     Name = tier.Name,
-        //     ArtistId = tier.ArtistId,
-        //     Extends = tier.Extends
-        // };
-        // context.Tiers.Update(dbTier);
-        // await context.SaveChangesAsync();
+        var dbTier = await context.Tiers.FindAsync(tier.Id);
+        if (dbTier != null)
+        {
+            dbTier.Name = tier.Name;
+            dbTier.Description = tier.Description;
+            dbTier.Extends = tier.Extends;
+            await context.SaveChangesAsync();
+        }
     }
 
     public async Task DeleteTier(int id)
     {
-        throw new NotImplementedException();
-        // var tier = await context.Tiers.FindAsync(id);
-        // if (tier != null)
-        // {
-        //     context.Tiers.Remove(tier);
-        //     await context.SaveChangesAsync();
-        // }
+        var tier = await context.Tiers.FindAsync(id);
+        if (tier != null)
+        {
+            context.Tiers.Remove(tier);
+            await context.SaveChangesAsync();
+        }
     }
 }
