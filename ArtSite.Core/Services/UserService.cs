@@ -128,4 +128,16 @@ public class UserService : IUserService
     {
         return _profileRepository.GetProfile(profileId);
     }
+
+    public async Task<Profile?> GetPossibleProfile(ClaimsPrincipal claims)
+    {
+        try
+        {
+            return await GetProfileByClaims(claims);
+        }
+        catch (UserException)
+        {
+            return null;
+        }
+    }
 }

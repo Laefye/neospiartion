@@ -25,9 +25,9 @@ public class ArtistService : IArtistService
         return artist;
     }
 
-    public async Task<Artist?> GetArtist(int id)
+    public async Task<Artist?> GetArtist(int artistId)
     {
-        return await _artistRepository.GetArtist(id);
+        return await _artistRepository.GetArtist(artistId);
     }
 
     public Task<Artist?> GetArtistByProfileId(int profileId)
@@ -37,7 +37,7 @@ public class ArtistService : IArtistService
 
     public async Task<List<Art>> GetArts(int artistId)
     {
-        var artist = _artistRepository.GetArtist(artistId);
+        var artist = await _artistRepository.GetArtist(artistId);
         if (artist == null)
             throw new ArtistException("Artist not found");
         return await _artRepository.GetArts(artistId);

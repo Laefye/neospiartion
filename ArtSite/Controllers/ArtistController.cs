@@ -73,14 +73,12 @@ public class ArtistController : ControllerBase
     //[ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status401Unauthorized)]
     //[ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetArts(int profileId)
+    public async Task<ActionResult> GetArts(int artistId)
     {
-        //if (await _artistService.GetArtist(artistId) == null)
-        //return NotFound();
-        //var arts = await _artistService.GetArts(artistId);
-        //return Ok(arts);
-        // TODO: Исправить ошибку
-        throw new NotImplementedException();
+        if (await _artistService.GetArtist(artistId) == null)
+            return NotFound();
+        var arts = await _artistService.GetArts(artistId);
+        return Ok(arts);
     }
 
     [Authorize(Policy = "Artist")]
@@ -89,11 +87,11 @@ public class ArtistController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> PostArt(int artistId, [FromBody] ArtDto body)
     {
-        var profile = await _userService.GetProfileByClaims(User);
+        var profile = await _userService.GetPossibleProfile(User) ?? throw new UnauthorizedAccessException("User not found");
         var artist = await _artistService.GetArtistByProfileId(profile.Id);
         if (artist?.Id != artistId)
         {
-            return Unauthorized();
+            return Forbid();
         }
         var art = await _artService.CreateArt(artistId, body.Description);
         return CreatedAtAction(nameof(ArtController.GetArt), "Art", new { artId = art.Id }, art);

@@ -19,4 +19,6 @@ public interface IUserService
     Task<IdentityUser> GetUserByClaims(ClaimsPrincipal claims);
     
     Task<Profile> GetProfileByClaims(ClaimsPrincipal claims);
+
+    Task<Profile?> GetPossibleProfile(ClaimsPrincipal claims);
 }

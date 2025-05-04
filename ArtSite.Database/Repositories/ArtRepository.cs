@@ -36,7 +36,24 @@ public class ArtRepository : IArtRepository
 
     public async Task<List<Art>> GetAllArts(int offset, int limit)
     {
-        return await _context.Arts.Select(art => art.ConvertToDto()).Skip(offset).Take(limit).ToListAsync();
+        return await _context.Arts
+            .OrderByDescending(art => art.UploadedAt)
+            .Select(art => art.ConvertToDto())
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<List<Art>> GetAllArtsWithPictures(int offset, int limit)
+    {
+        return await _context.Arts
+            .Include(art => art.Pictures)
+            .Where(art => art.Pictures.Count > 0)
+            .OrderByDescending(art => art.UploadedAt)
+            .Select(art => art.ConvertToDto())
+            .Skip(offset)
+            .Take(limit)
+            .ToListAsync();
     }
 
     public async Task<Art?> GetArt(int id)

@@ -12,7 +12,6 @@ public interface IArtService
     Task<Picture> AddPictureToArt(int artId, IFormFile file, string mimeType);
     Task<List<Art>> GetAllArts(int offset, int limit);
     Task<Art?> GetArt(int id);
-    Task<List<Art>> GetArtsByArtist(int artistId);
     Task<List<Picture>> GetPicturesByArt(int artId);
     Task<Picture?> GetPicture(int pictureId);
     Task DeleteArt(int artId);

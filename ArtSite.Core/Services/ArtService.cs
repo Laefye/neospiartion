@@ -58,17 +58,12 @@ public class ArtService : IArtService
 
     public async Task<List<Art>> GetAllArts(int offset, int limit)
     {
-        return await _artRepository.GetAllArts(offset, limit);
+        return await _artRepository.GetAllArtsWithPictures(offset, limit);
     }
 
     public async Task<Art?> GetArt(int id)
     {
         return await _artRepository.GetArt(id);
-    }
-
-    public async Task<List<Art>> GetArtsByArtist(int artistId)
-    {
-        return await _artRepository.GetArts(artistId);
     }
 
     public async Task<List<Picture>> GetPicturesByArt(int artId)

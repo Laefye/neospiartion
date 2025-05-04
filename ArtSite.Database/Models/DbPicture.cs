@@ -10,6 +10,8 @@ public class DbPicture
     public required string MimeType { get; set; }
     public required string Url { get; set; }
 
+    public DbArt Art { get; set; } = null!;
+
     public Picture ConvertToDto() => new()
     {
         Id = Id,

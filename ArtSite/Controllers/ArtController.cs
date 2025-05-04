@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using ArtSite.Core.DTO;
 using ArtSite.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ArtSite.Controllers;
@@ -10,12 +11,16 @@ namespace ArtSite.Controllers;
 public class ArtController : ControllerBase
 {
     private readonly IArtService _artService;
+    private readonly IArtistService _artistService;
     private readonly IStorageService _storageService;
+    private readonly IUserService _userService;
 
-    public ArtController(IArtService artService, IStorageService storageService)
+    public ArtController(IArtService artService, IStorageService storageService, IArtistService artistService, IUserService userService)
     {
         _artService = artService;
         _storageService = storageService;
+        _userService = userService;
+        _artistService = artistService;
     }
 
     [HttpGet]
@@ -37,13 +42,22 @@ public class ArtController : ControllerBase
     }
 
     [HttpDelete("{artId}")]
+    [Authorize(Policy = "Artist")]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> DeleteArt(int artId)
     {
+        var profile = await _userService.GetPossibleProfile(User) ?? throw new UnauthorizedAccessException("User not found");
+        var artist = await _artistService.GetArtistByProfileId(profile.Id);
+        if (artist == null)
+            return Unauthorized();
         var art = await _artService.GetArt(artId);
         if (art == null)
             return NotFound();
+        if (art.ArtistId != artist.Id)
+            return Forbid();
         await _artService.DeleteArt(artId);
         return Accepted();
     }
@@ -62,14 +76,23 @@ public class ArtController : ControllerBase
     }
 
     [HttpPost("{artId}/pictures")]
+    [Authorize(Policy = "Artist")]
     [ProducesResponseType(typeof(Picture), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> AddPictureToArt(int artId, IFormFile file)
     {
+        var profile = await _userService.GetPossibleProfile(User) ?? throw new UnauthorizedAccessException("User not found");
+        var artist = await _artistService.GetArtistByProfileId(profile.Id);
+        if (artist == null)
+            return Unauthorized();
         var art = await _artService.GetArt(artId);
         if (art == null)
             return NotFound();
+        if (art.ArtistId != artist.Id)
+            return Forbid();
         var picture = await _artService.AddPictureToArt(artId, file, file.ContentType);
         return CreatedAtAction(nameof(PictureController.GetPicture), "Picture", new { pictureId = picture.Id }, picture);
     }

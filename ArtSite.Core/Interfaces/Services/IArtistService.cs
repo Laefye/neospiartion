@@ -5,8 +5,8 @@ namespace ArtSite.Core.Interfaces.Services;
 
 public interface IArtistService
 {
-    public Task<Artist> CreateArtist(int profileId);
-    public Task<Artist?> GetArtistByProfileId(int profileId);
-    public Task<Artist?> GetArtist(int id);
-    public Task<List<Art>> GetArts(int artistId);
+    Task<Artist> CreateArtist(int profileId);
+    Task<Artist?> GetArtistByProfileId(int profileId);
+    Task<Artist?> GetArtist(int id);
+    Task<List<Art>> GetArts(int artistId);
 }

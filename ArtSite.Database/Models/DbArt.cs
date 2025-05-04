@@ -9,6 +9,9 @@ public class DbArt
     public DateTime UploadedAt { get; set; }
     public int ArtistId { get; set; }
 
+    public List<DbPicture> Pictures { get; set; } = new();
+
+
     public Art ConvertToDto() => new()
     {
         Id = Id,
