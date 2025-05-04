@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace ArtSite.Core.Interfaces.Services;
 
-public interface IArtService
+public interface IOldArtService
 {
     Task<Art> CreateArt(int artistId, string? description, List<string> pictures);
     Task<Art> CreateArt(int artistId, string? description);

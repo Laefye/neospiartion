@@ -9,10 +9,10 @@ namespace ArtSite.Controllers;
 [ApiController]
 public class PictureController : ControllerBase
 {
-    private readonly IArtService _artService;
+    private readonly IOldArtService _artService;
     private readonly IStorageService _storageService;
 
-    public PictureController(IArtService artService, IStorageService storageService)
+    public PictureController(IOldArtService artService, IStorageService storageService)
     {
         _artService = artService;
         _storageService = storageService;

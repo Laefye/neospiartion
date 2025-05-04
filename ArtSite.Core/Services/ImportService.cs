@@ -6,9 +6,9 @@ namespace ArtSite.Core.Services;
 
 public class ImportService : IImportService
 {
-    private readonly IArtService _artService;
+    private readonly IOldArtService _artService;
 
-    public ImportService(IArtService artService)
+    public ImportService(IOldArtService artService)
     {
         _artService = artService;
     }

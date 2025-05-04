@@ -59,7 +59,7 @@ builder.Services.AddControllers();
 
 // Add services to the container.
 builder.Services.AddScoped<IArtistService, ArtistService>();
-builder.Services.AddScoped<IArtService, ArtService>();
+builder.Services.AddScoped<IOldArtService, OldArtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStorageService, StorageService>();
 

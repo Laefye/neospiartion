@@ -14,9 +14,9 @@ public class ArtistController : ControllerBase
 {
     private readonly IArtistService _artistService;
     private readonly IUserService _userService;
-    private readonly IArtService _artService;
+    private readonly IOldArtService _artService;
 
-    public ArtistController(IArtistService artistService, IUserService userService, IArtService artService)
+    public ArtistController(IArtistService artistService, IUserService userService, IOldArtService artService)
     {
         _artistService = artistService;
         _userService = userService;

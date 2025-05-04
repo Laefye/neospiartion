@@ -10,12 +10,12 @@ namespace ArtSite.Controllers;
 [ApiController]
 public class ArtController : ControllerBase
 {
-    private readonly IArtService _artService;
+    private readonly IOldArtService _artService;
     private readonly IArtistService _artistService;
     private readonly IStorageService _storageService;
     private readonly IUserService _userService;
 
-    public ArtController(IArtService artService, IStorageService storageService, IArtistService artistService, IUserService userService)
+    public ArtController(IOldArtService artService, IStorageService storageService, IArtistService artistService, IUserService userService)
     {
         _artService = artService;
         _storageService = storageService;

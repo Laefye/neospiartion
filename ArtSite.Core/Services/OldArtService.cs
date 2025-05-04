@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Http;
 
 namespace ArtSite.Core.Services;
 
-public class ArtService : IArtService
+public class OldArtService : IOldArtService
 {
     private readonly IArtRepository _artRepository;
     private readonly IPictureRepository _pictureRepository;
     private readonly IStorageService _storageService;
 
-    public ArtService(IArtRepository artRepository, IPictureRepository pictureRepository, IStorageService storageService)
+    public OldArtService(IArtRepository artRepository, IPictureRepository pictureRepository, IStorageService storageService)
     {
         _artRepository = artRepository;
         _pictureRepository = pictureRepository;
