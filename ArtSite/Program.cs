@@ -65,6 +65,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStorageService, StorageService>();
 builder.Services.AddScoped<IArtService, ArtService>();
 builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ITierService, TierService>();
 
 builder.Services.AddHttpClient<VKService>();
 builder.Services.AddScoped<IVKService, VKService>(VKService.CreateFactory(builder.Configuration));

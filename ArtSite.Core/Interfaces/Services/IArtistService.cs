@@ -9,4 +9,7 @@ public interface IArtistService
     Task<Artist?> GetArtistByProfileId(int profileId);
     Task<Artist?> GetArtist(int id);
     Task<List<Art>> GetArts(int artistId);
+
+
+    Task<Artist> GetArtistAnywayByProfileId(int profileId, bool toCheckHasMeRole = false);
 }

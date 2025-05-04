@@ -16,9 +16,11 @@ public class ArtistController : ControllerBase
     private readonly IArtistService _artistService;
     private readonly IUserService _userService;
     private readonly IArtService _artService;
+    private readonly ITierService _tierService;
 
-    public ArtistController(IArtistService artistService, IUserService userService, IArtService artService)
+    public ArtistController(IArtistService artistService, IUserService userService, IArtService artService, ITierService tierService)
     {
+        _tierService = tierService;
         _artistService = artistService;
         _userService = userService;
         _artService = artService;
@@ -68,11 +70,8 @@ public class ArtistController : ControllerBase
         return Ok(artist);
     }
 
-    //[Authorize(Policy = "Artist")]
     [HttpGet("{artistId}/arts")]
     [ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status200OK)]
-    //[ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status401Unauthorized)]
-    //[ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetArts(int artistId)
     {
@@ -126,22 +125,53 @@ public class ArtistController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetTiers(int artistId)
     {
-        throw new NotImplementedException();
+        try {
+            var tiers = await _tierService.GetTiers(artistId);
+            return Ok(tiers);
+        } catch (ArtistException.NotFoundArtist e) { // Но пока что она в любом случае не пойдет в Exception
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }
     }
 
     [HttpPost("{artistId}/tiers")]
+    [Authorize(Policy = "Artist")]
     [ProducesResponseType(typeof(Message), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> CreateTier(int artistId, [FromBody] AddingTier addingTier)
     {
-        throw new NotImplementedException();
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var tier = await _tierService.CreateTier(userId, addingTier.Name, addingTier.Description, artistId, addingTier.Price, addingTier.Extends);
+            return CreatedAtAction(nameof(GetTiers), new { artistId }, tier);
+        } catch (ArtistException.NotFoundArtist e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (TierException.NotOwnerTier) {
+            return Forbid();
+        } catch (TierException.NotFoundTier e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }
     }
 
     public class AddingTier
     {
         public int? Extends { get; set; }
         public required string Name { get; set; }
+        public required string Description { get; set; }
+        public required int Price { get; set; }
     }
 }

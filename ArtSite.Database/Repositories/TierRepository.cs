@@ -7,12 +7,13 @@ namespace ArtSite.Database.Repositories;
 
 public class TierRepository(ApplicationDbContext context) : ITierRepository
 {
-    public async Task<Tier> CreateTier(string name, string description, int artistId, int? extends)
+    public async Task<Tier> CreateTier(string name, string description, int artistId, int price, int? extends)
     {
         var entry = await context.Tiers.AddAsync(new DbTier
         {
             Name = name,
             Description = description,
+            Price = price,
             ArtistId = artistId,
             Extends = extends
         });
@@ -41,6 +42,7 @@ public class TierRepository(ApplicationDbContext context) : ITierRepository
         {
             dbTier.Name = tier.Name;
             dbTier.Description = tier.Description;
+            dbTier.Price = tier.Price;
             dbTier.Extends = tier.Extends;
             await context.SaveChangesAsync();
         }

@@ -12,6 +12,7 @@ public class Tier
     public int ArtistId { get; init; }
     public required string Name { get; init; }
     public required string Description { get; init; }
+    public required int Price { get; init; }
     public int? Extends { get; init; }
 }
 

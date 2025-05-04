@@ -30,6 +30,17 @@ public class ArtistService : IArtistService
         return await _artistRepository.GetArtist(artistId);
     }
 
+    public async Task<Artist> GetArtistAnywayByProfileId(int profileId, bool toCheckHasMeRole = false)
+    {
+        var artist = await _artistRepository.FindArtistByProfileId(profileId);
+        if (artist == null)
+            if (toCheckHasMeRole)
+                throw new ArtistException.NotArtist();
+            else
+                throw new ArtistException.NotFoundArtist();
+        return artist;
+    }
+
     public Task<Artist?> GetArtistByProfileId(int profileId)
     {
         return _artistRepository.FindArtistByProfileId(profileId);

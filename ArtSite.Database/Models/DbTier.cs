@@ -8,6 +8,7 @@ public class DbTier
     public int ArtistId { get; set; }
     public required string Name { get; set; }
     public required string Description { get; set; }
+    public int Price { get; set; }
     public int? Extends { get; set; }
     
     public Tier ConvertToDto() => new()
@@ -16,6 +17,7 @@ public class DbTier
         Name = Name,
         ArtistId = ArtistId,
         Description = Description,
+        Price = Price,
         Extends = Extends,
     };
 }
