@@ -16,7 +16,7 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     public DbSet<DbArt> Arts { get; set; }
     public DbSet<DbPicture> Pictures { get; set; }
     //public DbSet<DbMessage> Messages { get; set; }
-    //public DbSet<DbComment> Comments { get; set; }
+    public DbSet<DbComment> Comments { get; set; }
     public DbSet<DbProfile> Profiles { get; set; }
     //public DbSet<DbTier> Tiers { get; set; }
     

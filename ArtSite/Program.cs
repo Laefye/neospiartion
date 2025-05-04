@@ -25,6 +25,7 @@ builder.Services.AddScoped<IPictureRepository, PictureRepository>();
 builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
 builder.Services.AddScoped<IArtRepository, ArtRepository>();
 builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
 
 // Configure the identity
@@ -62,6 +63,7 @@ builder.Services.AddScoped<IArtistService, ArtistService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStorageService, StorageService>();
 builder.Services.AddScoped<IArtService, ArtService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
 
 builder.Services.AddHttpClient<VKService>();
 builder.Services.AddScoped<IVKService, VKService>(VKService.CreateFactory(builder.Configuration));

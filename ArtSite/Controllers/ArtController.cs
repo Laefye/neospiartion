@@ -15,15 +15,13 @@ public class ArtController : ControllerBase
 {
     private readonly IArtService _artService;
     private readonly IArtistService _artistService;
-    private readonly IStorageService _storageService;
-    private readonly IUserService _userService;
+    private readonly ICommentService _commentService;
 
-    public ArtController(IArtService artService, IStorageService storageService, IArtistService artistService, IUserService userService)
+    public ArtController(IArtService artService, IArtistService artistService, ICommentService commentService)
     {
         _artService = artService;
-        _storageService = storageService;
-        _userService = userService;
         _artistService = artistService;
+        _commentService = commentService;
     }
 
     [HttpGet]
@@ -68,6 +66,7 @@ public class ArtController : ControllerBase
         try {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             await _artService.DeleteArt(userId, artId);
+            await _commentService.ForceDeleteAllComments(artId);
             return Accepted();
         } catch (ArtException.NotFoundArt e) {
             return NotFound(new ProblemDetails
@@ -126,19 +125,42 @@ public class ArtController : ControllerBase
     }
 
     [HttpGet("{artId}/comments")]
-    [ProducesResponseType(typeof(Comment), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<Comment>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetComments(int artId)
+    public async Task<ActionResult> GetComments(int artId, [FromQuery] int offset = 0, [FromQuery] int limit = 10)
     {
-        throw new NotImplementedException();
+        try {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Ok(await _commentService.GetComments(userId, artId, offset, limit));
+        } catch (ArtException.NotFoundArt e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }   
     }
 
     [HttpPost("{artId}/comments")]
+    [Authorize]
+    [ProducesResponseType(typeof(Comment), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> PostComment(int artId, [FromBody] AddingComment comment)
     {
-        throw new NotImplementedException();
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var createdComment = await _commentService.CreateComment(userId, artId, comment.Text);
+            return CreatedAtAction(nameof(CommentController.GetComment), "Comment", new { commentId = createdComment.Id }, createdComment);
+        } catch (ArtException.NotFoundArt e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }
     }
 
     public class AddingComment
