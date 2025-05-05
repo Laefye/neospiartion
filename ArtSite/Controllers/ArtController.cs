@@ -16,12 +16,14 @@ public class ArtController : ControllerBase
     private readonly IArtService _artService;
     private readonly IArtistService _artistService;
     private readonly ICommentService _commentService;
+    private readonly ISubscriptionService _subscriptionService;
 
-    public ArtController(IArtService artService, IArtistService artistService, ICommentService commentService)
+    public ArtController(IArtService artService, IArtistService artistService, ICommentService commentService, ISubscriptionService subscriptionService)
     {
         _artService = artService;
         _artistService = artistService;
         _commentService = commentService;
+        _subscriptionService = subscriptionService;
     }
 
     [HttpGet]
@@ -87,13 +89,19 @@ public class ArtController : ControllerBase
     {
         try {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return Ok(await _artService.GetPictures(userId, artId));
+            return Ok(await _artService.Apply(_subscriptionService).GetPictures(userId, artId));
         } catch (ArtException.NotFoundArt e) {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (Exception) {
+        }
+        catch (ArtException.UnauthorizedArtistAccess)
+        {
+            return Forbid();
+        }
+        catch (Exception)
+        {
             throw;
         }
     }

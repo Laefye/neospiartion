@@ -1,6 +1,7 @@
 using System;
 using ArtSite.Core.DTO;
 using ArtSite.Core.Exceptions;
+using ArtSite.Core.Interfaces;
 using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
 
@@ -20,7 +21,7 @@ public class TierService : ITierService
         _tierRepository = tierRepository;
         _userService = userService;
     }
-    
+
     public async Task<Tier> CreateTier(string userId, string name, string description, int artistId, int price, int? extends)
     {
         var profile = await _userService.FindProfile(userId);

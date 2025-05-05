@@ -10,6 +10,10 @@ public class DbTier
     public required string Description { get; set; }
     public int Price { get; set; }
     public int? Extends { get; set; }
+
+
+
+    public List<DbSubscription> Subscribers = new();
     
     public Tier ConvertToDto() => new()
     {

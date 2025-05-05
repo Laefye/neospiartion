@@ -12,5 +12,7 @@ public interface ISubscriptionRepository
     Task<Subscription> CreateSubscription(int profileId, int tierId, DateTime createdAt, DateTime expiresAt);
 
     Task<List<Subscription>> GetSubscriptions(int profileId);
+
+    Task<Subscription?> GetSubscriptionOfProfileIdInArtist(int profileId, int artistId);
 }
 

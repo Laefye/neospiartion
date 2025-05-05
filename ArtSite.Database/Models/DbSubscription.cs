@@ -15,6 +15,8 @@ public class DbSubscription
     public DateTime CreatedAt { get; set; }
     public DateTime ExpiresAt { get; set; }
 
+    public DbTier Tier { get; set; } = null!;
+
     public Subscription ConvertToDto() => new Subscription
     {
         Id = Id,

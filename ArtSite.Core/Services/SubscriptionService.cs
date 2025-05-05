@@ -1,5 +1,6 @@
 ﻿using ArtSite.Core.DTO;
 using ArtSite.Core.Exceptions;
+using ArtSite.Core.Interfaces;
 using ArtSite.Core.Interfaces.Repositories;
 using ArtSite.Core.Interfaces.Services;
 using System;
@@ -52,6 +53,54 @@ public class SubscriptionService : ISubscriptionService
             throw new SubscriptionException.ItsYou();
         }
         return await _subscriptionRepository.CreateSubscription(profile.Id, tierId, DateTime.Now.ToUniversalTime(), DateTime.Now.AddDays(30).ToUniversalTime());
+    }
+
+    public async Task<Artist?> GetArtist(int profileId)
+    {
+        try
+        {
+            return await _artistService.GetArtistAnywayByProfileId(profileId, true);
+        }
+        catch (ArtistException.NotArtist)
+        {
+            return null;
+        }
+    }
+
+    private async Task<bool> InTreeTier(int targetTierId, Tier? current)
+    {
+        while (current != null)
+        {
+            if (current.Id == targetTierId)
+            {
+                return true;
+            }
+            if (current.Extends == null)
+            {
+                current = null;
+            }
+            else
+            {
+                current = await _tierService.GetTier(current.Extends.Value);
+            }
+        }
+        return false;
+    }
+
+    public async Task<bool> CanView(string? userId, Art art)
+    {
+        if (art.TierId == null)
+            return true;
+        if (userId == null)
+            return false;
+        var profile = await _userService.FindProfile(userId);
+        var thisArtist = await GetArtist(profile.Id);
+        if (art.ArtistId == thisArtist?.Id)
+            return true;
+        var subscription = await _subscriptionRepository.GetSubscriptionOfProfileIdInArtist(profile.Id, art.ArtistId);
+        if (subscription == null)
+            return false;
+        return await InTreeTier(art.TierId.Value, await _tierService.GetTier(subscription.TierId));
     }
 }
 

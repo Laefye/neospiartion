@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ArtSite.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250505101607_Subscription")]
+    [Migration("20250505115421_Subscription")]
     partial class Subscription
     {
         /// <inheritdoc />
@@ -160,6 +160,8 @@ namespace ArtSite.Database.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("TierId");
 
                     b.ToTable("Subscriptions");
                 });
@@ -399,6 +401,17 @@ namespace ArtSite.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("Art");
+                });
+
+            modelBuilder.Entity("ArtSite.Database.Models.DbSubscription", b =>
+                {
+                    b.HasOne("ArtSite.Database.Models.DbTier", "Tier")
+                        .WithMany()
+                        .HasForeignKey("TierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tier");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

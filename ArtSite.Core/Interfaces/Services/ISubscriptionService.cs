@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ArtSite.Core.Interfaces.Services;
 
-public interface ISubscriptionService
+public interface ISubscriptionService: IView
 {
     Task<List<Subscription>> GetSubscriptions(string userId);
 

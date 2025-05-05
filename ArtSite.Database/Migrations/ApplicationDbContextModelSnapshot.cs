@@ -158,6 +158,8 @@ namespace ArtSite.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("TierId");
+
                     b.ToTable("Subscriptions");
                 });
 
@@ -396,6 +398,17 @@ namespace ArtSite.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("Art");
+                });
+
+            modelBuilder.Entity("ArtSite.Database.Models.DbSubscription", b =>
+                {
+                    b.HasOne("ArtSite.Database.Models.DbTier", "Tier")
+                        .WithMany()
+                        .HasForeignKey("TierId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Tier");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

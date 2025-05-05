@@ -16,6 +16,7 @@ public class ArtService : IArtService
     private readonly IStorageService _storageService;
     private ITierService? _tierService = null;
     private ICommentService? _commentService = null;
+    private IView? _view = null;
     
     public ArtService(IArtRepository artRepository, IArtistService artistService, IStorageService storageService, IUserService userService, IPictureRepository pictureRepository)
     {
@@ -35,6 +36,12 @@ public class ArtService : IArtService
     public IArtService Apply(ICommentService commentService)
     {
         _commentService = commentService;
+        return this;
+    }
+
+    public IArtService Apply(IView view)
+    {
+        _view = view;
         return this;
     }
 
@@ -101,7 +108,11 @@ public class ArtService : IArtService
 
     public async Task<List<Picture>> GetPictures(string? userId, int artId)
     {
+        if (_view == null)
+            throw new NotAppliedException("View");
         var art = await GetArt(userId, artId);
+        if (!await _view.CanView(userId, art))
+            throw new ArtException.UnauthorizedArtistAccess();
         var pictures = await _pictureRepository.GetPictures(art.Id);
         return pictures;
     }

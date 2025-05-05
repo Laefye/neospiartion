@@ -26,7 +26,18 @@ namespace ArtSite.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Subscriptions", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Subscriptions_Tiers_TierId",
+                        column: x => x.TierId,
+                        principalTable: "Tiers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Subscriptions_TierId",
+                table: "Subscriptions",
+                column: "TierId");
         }
 
         /// <inheritdoc />
