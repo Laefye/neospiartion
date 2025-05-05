@@ -19,5 +19,5 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     public DbSet<DbComment> Comments { get; set; }
     public DbSet<DbProfile> Profiles { get; set; }
     public DbSet<DbTier> Tiers { get; set; }
-    
+    public DbSet<DbSubscription> Subscriptions { get; set; }
 }

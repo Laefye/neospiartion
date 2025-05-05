@@ -13,10 +13,12 @@ namespace ArtSite.Controllers;
 public class TierController : ControllerBase
 {
     private readonly ITierService _tierService;
+    private readonly ISubscriptionService _subscriptionService;
 
-    public TierController(ITierService tierService)
+    public TierController(ITierService tierService, ISubscriptionService subscriptionService)
     {
         _tierService = tierService;
+        _subscriptionService = subscriptionService;
     }
 
     [HttpGet("{tierId}")]
@@ -74,9 +76,41 @@ public class TierController : ControllerBase
     }
 
     [HttpPost("{tierId}/subscriptions")]
+    [Authorize]
+    [ProducesResponseType(typeof(Subscription), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult> SubscribeToTier(int tierId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var subscription = await _subscriptionService.Subscribe(userId, tierId);
+            return CreatedAtAction(nameof(SubscriptionController.GetSubscription), "Subscription", new { subscriptionId = subscription.Id }, subscription);
+        }
+        catch (TierException.NotFoundTier e)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        }
+        catch (TierException.NotOwnerTier)
+        {
+            return Forbid();
+        }
+        catch (SubscriptionException.ItsYou e)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Detail = e.Message,
+            });
+        }
+        catch (Exception)
+        {
+            throw;
+        }
     }
 }
 
