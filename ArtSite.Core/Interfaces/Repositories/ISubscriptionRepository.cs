@@ -13,6 +13,8 @@ public interface ISubscriptionRepository
 
     Task<List<Subscription>> GetSubscriptions(int profileId);
 
+    Task<Subscription?> GetSubscription(int subscriptionId);
+
     Task<Subscription?> GetSubscriptionOfProfileIdInArtist(int profileId, int artistId);
 }
 

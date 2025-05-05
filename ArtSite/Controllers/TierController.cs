@@ -81,6 +81,7 @@ public class TierController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> SubscribeToTier(int tierId)
     {
         try
@@ -101,6 +102,13 @@ public class TierController : ControllerBase
             return Forbid();
         }
         catch (SubscriptionException.ItsYou e)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Detail = e.Message,
+            });
+        }
+        catch (SubscriptionException.AlreadySubscribed e)
         {
             return BadRequest(new ProblemDetails
             {

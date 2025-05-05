@@ -11,6 +11,8 @@ public interface ISubscriptionService: IView
 {
     Task<List<Subscription>> GetSubscriptions(string userId);
 
+    Task<Subscription> GetSubscription(string userId, int subscriptionId);
+
     Task<Subscription> Subscribe(string userId, int tierId);
 }
 

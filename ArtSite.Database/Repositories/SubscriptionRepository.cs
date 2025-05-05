@@ -20,6 +20,14 @@ public class SubscriptionRepository(ApplicationDbContext _context) : ISubscripti
         return element.Entity.ConvertToDto();
     }
 
+    public async Task<Subscription?> GetSubscription(int subscriptionId)
+    {
+        return await _context.Subscriptions
+            .Where(x => x.Id == subscriptionId)
+            .Select(x => x.ConvertToDto())
+            .FirstOrDefaultAsync();
+    }
+
     public async Task<Subscription?> GetSubscriptionOfProfileIdInArtist(int profileId, int artistId)
     {
         return await _context.Subscriptions

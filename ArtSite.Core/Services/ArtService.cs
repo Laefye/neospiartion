@@ -100,9 +100,14 @@ public class ArtService : IArtService
 
     public async Task<Picture> GetPicture(string? userId, int pictureId)
     {
+        if (_view == null)
+            throw new NotAppliedException("View");
         var picture = await _pictureRepository.GetPicture(pictureId);
         if (picture == null)
             throw new ArtException.NotFoundPicture();
+        var art = await GetArt(userId, picture.ArtId);
+        if (!await _view.CanView(userId, art))
+            throw new ArtException.UnauthorizedArtistAccess();
         return picture;
     }
 

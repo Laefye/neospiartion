@@ -13,5 +13,17 @@ public class SubscriptionException(string message) : Exception(message)
         public ItsYou()
             : base("Can't subscribe on you") { }
     }
+
+    public class AlreadySubscribed : SubscriptionException
+    {
+        public AlreadySubscribed()
+            : base("Already subscribed") { }
+    }
+
+    public class NotFound : SubscriptionException
+    {
+        public NotFound()
+            : base("Not found subscription") { }
+    }
 }
 
