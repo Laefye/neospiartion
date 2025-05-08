@@ -6,9 +6,8 @@ namespace ArtSite.Database.Models;
 public class DbPicture
 {
     public int Id { get; set; }
-    public required int ArtId { get; set; }
-    public required string MimeType { get; set; }
-    public required string Url { get; set; }
+    public int ArtId { get; set; }
+    public int StoragedFileId { get; set; } 
 
     public DbArt Art { get; set; } = null!;
 
@@ -16,7 +15,6 @@ public class DbPicture
     {
         Id = Id,
         ArtId = ArtId,
-        MimeType = MimeType,
-        Url = Url,
+        StoragedFileId = StoragedFileId,
     };
 }

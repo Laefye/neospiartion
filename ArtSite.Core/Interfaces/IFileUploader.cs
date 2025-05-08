@@ -2,7 +2,7 @@ using System;
 
 namespace ArtSite.Core.Interfaces;
 
-public interface IPictureUploader
+public interface IFileUploader
 {
     string MimeType { get; }
 

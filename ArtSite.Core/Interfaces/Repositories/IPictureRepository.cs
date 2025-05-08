@@ -4,7 +4,7 @@ namespace ArtSite.Core.Interfaces.Repositories;
 
 public interface IPictureRepository
 {
-    Task<Picture> AddPicture(int artId, string url, string mimeType);
+    Task<Picture> AddPicture(int artId, int storagedFileId);
 
     Task<List<Picture>> GetPictures(int artId);
 

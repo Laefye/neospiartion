@@ -3,7 +3,7 @@ using ArtSite.Core.Interfaces;
 
 namespace ArtSite.Utils;
 
-public class PictureUploader : IPictureUploader
+public class PictureUploader : IFileUploader
 {
     private readonly IFormFile _file;
 
