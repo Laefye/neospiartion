@@ -6,16 +6,16 @@ public class RegisterDto
 {
     [Required]
     [EmailAddress]
-    public string Email { get; set; }
+    public required string Email { get; set; }
 
     [Required]
     [DataType(DataType.Password)]
-    public string Password { get; set; }
+    public required string Password { get; set; }
     
     [Required]
-    public string UserName { get; set; }
+    public required string UserName { get; set; }
 
     [Required]
-    public string DisplayName { get; set; }
+    public required string DisplayName { get; set; }
 }
 
