@@ -43,22 +43,4 @@ public class SubscriptionController : ControllerBase
             throw;
         }
     }
-
-    [HttpGet]
-    [Authorize]
-    [ProducesResponseType(typeof(IEnumerable<Subscription>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult> GetSubscriptions()
-    {
-        try
-        {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            return Ok(await _subscriptionService.GetSubscriptions(userId));
-        }
-        catch (Exception)
-        {
-            throw;
-        }
-    }
 }

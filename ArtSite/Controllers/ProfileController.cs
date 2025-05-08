@@ -17,12 +17,14 @@ public class ProfileController : ControllerBase
     private readonly IProfileService _profileService;
     private readonly IArtService _artService;
     private readonly ITierService _tierService;
+    private readonly ISubscriptionService _subscriptionService;
 
-    public ProfileController(IProfileService artistService, IArtService artService, ITierService tierService)
+    public ProfileController(IProfileService artistService, IArtService artService, ITierService tierService, ISubscriptionService subscriptionService)
     {
-        _tierService = tierService;
-        _artService = artService;
         _profileService = artistService;
+        _artService = artService;
+        _tierService = tierService;
+        _subscriptionService = subscriptionService;
     }
 
     [HttpGet("{profileId}")]
@@ -253,6 +255,28 @@ public class ProfileController : ControllerBase
                 Detail = e.Message
             });
         } catch (ProfileException.NotOwnerProfile) {
+            return Forbid();
+        } catch (Exception) {
+            throw;
+        }
+    }
+
+    [HttpGet("{profileId}/subscriptions")]
+    [Authorize]
+    [ProducesResponseType(typeof(IEnumerable<Subscription>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> GetSubscriptions(int profileId)
+    {
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var subscriptions = await _subscriptionService.GetSubscriptions(userId, profileId);
+            return Ok(subscriptions);
+        } catch (ProfileException.NotFoundProfile e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (SubscriptionException.NotOwned) {
             return Forbid();
         } catch (Exception) {
             throw;

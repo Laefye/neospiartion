@@ -84,12 +84,6 @@ public class SubscriptionService : ISubscriptionService
         return await InTreeTier(art.TierId.Value, await _tierService.GetTier(subscription.TierId));
     }
 
-    public async Task<List<Subscription>> GetSubscriptions(string userId)
-    {
-        var profile = await _profileService.GetProfileByUserId(userId);
-        return await _subscriptionRepository.GetSubscriptions(profile.Id);
-    }
-
     public async Task<Subscription> GetSubscription(string userId, int subscriptionId)
     {
         var profile = await _profileService.GetProfileByUserId(userId);
@@ -97,6 +91,14 @@ public class SubscriptionService : ISubscriptionService
         if (subscription == null || subscription.ProfileId != profile.Id)
             throw new SubscriptionException.NotFound();
         return subscription;
+    }
+
+    public async Task<List<Subscription>> GetSubscriptions(string userId, int profileId)
+    {
+        var profile = await _profileService.GetProfileByUserId(userId);
+        if (profile.Id != profileId)
+            throw new SubscriptionException.NotOwned();
+        return await _subscriptionRepository.GetSubscriptions(profileId);
     }
 }
 

@@ -25,5 +25,11 @@ public class SubscriptionException(string message) : Exception(message)
         public NotFound()
             : base("Not found subscription") { }
     }
+
+    public class NotOwned : SubscriptionException
+    {
+        public NotOwned()
+            : base("Not owned subscription") { }
+    }
 }
 
