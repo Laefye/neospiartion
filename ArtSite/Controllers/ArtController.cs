@@ -14,14 +14,14 @@ namespace ArtSite.Controllers;
 public class ArtController : ControllerBase
 {
     private readonly IArtService _artService;
-    private readonly IArtistService _artistService;
+    private readonly IProfileService _profileService;
     private readonly ICommentService _commentService;
     private readonly ISubscriptionService _subscriptionService;
 
-    public ArtController(IArtService artService, IArtistService artistService, ICommentService commentService, ISubscriptionService subscriptionService)
+    public ArtController(IArtService artService, IProfileService profileService, ICommentService commentService, ISubscriptionService subscriptionService)
     {
         _artService = artService;
-        _artistService = artistService;
+        _profileService = profileService;
         _commentService = commentService;
         _subscriptionService = subscriptionService;
     }
@@ -107,7 +107,7 @@ public class ArtController : ControllerBase
     }
 
     [HttpPost("{artId}/pictures")]
-    [Authorize(Policy = "Artist")]
+    [Authorize]
     [ProducesResponseType(typeof(Picture), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

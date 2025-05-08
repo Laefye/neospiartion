@@ -9,21 +9,19 @@ namespace ArtSite.Core.Services;
 
 public class ArtService : IArtService
 {
-    private readonly IUserService _userService;
     private readonly IArtRepository _artRepository;
     private readonly IPictureRepository _pictureRepository;
-    private readonly IArtistService _artistService;
+    private readonly IProfileService _profileService;
     private readonly IStorageService _storageService;
     private ITierService? _tierService = null;
     private ICommentService? _commentService = null;
     private IView? _view = null;
     
-    public ArtService(IArtRepository artRepository, IArtistService artistService, IStorageService storageService, IUserService userService, IPictureRepository pictureRepository)
+    public ArtService(IArtRepository artRepository, IProfileService profileService, IStorageService storageService, IPictureRepository pictureRepository)
     {
         _artRepository = artRepository;
         _storageService = storageService;
-        _userService = userService;
-        _artistService = artistService;
+        _profileService = profileService;
         _pictureRepository = pictureRepository;
     }
 
@@ -45,19 +43,18 @@ public class ArtService : IArtService
         return this;
     }
 
-    public async Task<Art> CreateArt(string userId, int artistId, string? description, int? tierId)
+    public async Task<Art> CreateArt(string userId, int profileId, string? description, int? tierId)
     {
         if (_tierService == null)
             throw new NotAppliedException("TierService");
-        var profile = await _userService.FindProfile(userId);
-        var artist = await _artistService.GetArtistByProfileId(profile.Id);
-        if (artist == null || artist.Id != artistId)
+        var profile = await _profileService.GetProfileByUserId(userId);
+        if (profile.Id != profileId)
             throw new ArtException.UnauthorizedArtistAccess();
         if (tierId != null)
         {
             var tier = await _tierService.GetMyTier(userId, tierId.Value);
         }
-        var art = await _artRepository.CreateArt(description, artistId, tierId);
+        var art = await _artRepository.CreateArt(description, profileId, tierId);
         return art;
     }
 
@@ -65,14 +62,11 @@ public class ArtService : IArtService
     {
         if (_commentService == null)
             throw new NotAppliedException("CommentService");
-        var profile = await _userService.FindProfile(userId);
-        var artist = await _artistService.GetArtistByProfileId(profile.Id);
-        if (artist == null)
-            throw new ArtException.UnauthorizedArtistAccess();
+        var profile = await _profileService.GetProfileByUserId(userId);
         var art = await _artRepository.GetArt(artId);
         if (art == null)
             throw new ArtException.NotFoundArt();
-        if (art.ArtistId != artist.Id)
+        if (art.ProfileId != profile.Id)
             throw new ArtException.UnauthorizedArtistAccess();
         var pictures = await _pictureRepository.GetPictures(art.Id);
         foreach (var picture in pictures)
@@ -86,7 +80,7 @@ public class ArtService : IArtService
 
     public async Task<List<Art>> GetAllArts(string userId, int offset, int limit)
     {
-        var profile = await _userService.FindProfile(userId);
+        var profile = await _profileService.GetProfileByUserId(userId);
         return await _artRepository.GetAllArtsWithPictures(offset, limit);
     }
 
@@ -124,14 +118,9 @@ public class ArtService : IArtService
 
     public async Task<Picture> UploadPicture(string userId, int artId, IPictureUploader pictureUploader)
     {
-        var profile = await _userService.FindProfile(userId);
-        var artist = await _artistService.GetArtistByProfileId(profile.Id);
-        if (artist == null)
-            throw new ArtException.UnauthorizedArtistAccess();
-        var art = await _artRepository.GetArt(artId);
-        if (art == null)
-            throw new ArtException.NotFoundArt();
-        if (art.ArtistId != artist.Id)
+        var profile = await _profileService.GetProfileByUserId(userId);
+        var art = await GetArt(userId, artId);
+        if (art.ProfileId != profile.Id)
             throw new ArtException.UnauthorizedArtistAccess();
         var fileUri = await _storageService.CreateFile();
         var fileStream = await _storageService.OpenFile(fileUri, FileAccess.Write);

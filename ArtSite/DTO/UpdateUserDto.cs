@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace ArtSite.DTO;
 
-public class UpdateProfileDto
+public class UpdateUserDto
 {
     [Required]
-    public string DisplayName { get; set; }
+    public required string UserName { get; set; }
 }

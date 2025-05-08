@@ -13,11 +13,11 @@ public interface IArtService
     /// Создание нового произведения искусства.
     /// </summary>
     /// <param name="userId">Идентификатор пользователя который вызывает.</param>
-    /// <param name="artistId">Идентификатор художника.</param>
+    /// <param name="profileId">Идентификатор художника.</param>
     /// <param name="description">Описание произведения искусства.</param>
     /// <param name="tierId">Идентификатор уровня доступа.</param>
     /// <returns>Созданное произведение искусства.</returns>
-    Task<Art> CreateArt(string userId, int artistId, string? description, int? tierId);
+    Task<Art> CreateArt(string userId, int profileId, string? description, int? tierId);
 
     /// <summary>
     /// Возвращает все произведения искусства с заданным смещением и лимитом. (Систсема рекомендаций)

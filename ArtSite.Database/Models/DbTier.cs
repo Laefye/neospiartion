@@ -5,7 +5,7 @@ namespace ArtSite.Database.Models;
 public class DbTier
 {
     public int Id { get; set; }
-    public int ArtistId { get; set; }
+    public int ProfileId { get; set; }
     public required string Name { get; set; }
     public required string Description { get; set; }
     public int Price { get; set; }
@@ -19,7 +19,7 @@ public class DbTier
     {
         Id = Id,
         Name = Name,
-        ArtistId = ArtistId,
+        ProfileId = ProfileId,
         Description = Description,
         Price = Price,
         Extends = Extends,

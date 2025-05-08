@@ -4,7 +4,6 @@ using ArtSite.Core.Interfaces.Services;
 using ArtSite.Core.Services;
 using ArtSite.Database;
 using ArtSite.Database.Repositories;
-using ArtSite.Policy;
 using ArtSite.Services;
 using ArtSite.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -61,7 +60,7 @@ builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 
 // Add services to the container.
-builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStorageService, StorageService>();
 builder.Services.AddScoped<IArtService, ArtService>();
@@ -98,14 +97,6 @@ builder.Services.AddSwaggerGen(c =>
     }
     });
 });
-
-// Policy
-builder.Services.AddAuthorization((options) =>
-{
-    options.AddPolicy("Artist", policy => policy.AddRequirements(new ArtistRoleRequirement()));
-});
-builder.Services.AddScoped<IAuthorizationHandler, ArtistRoleHandler>();
-
 
 var app = builder.Build();
 

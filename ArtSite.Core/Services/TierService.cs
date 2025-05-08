@@ -9,43 +9,41 @@ namespace ArtSite.Core.Services;
 
 public class TierService : ITierService
 {
-    private readonly IArtistService _artistService;
+    private readonly IProfileService _profileService;
     private readonly ITierRepository _tierRepository;
     private readonly IUserService _userService;
     private readonly IArtService _artService;
 
-    public TierService(ITierRepository tierRepository, IUserService userService, IArtistService artistService, IArtService artService)
+    public TierService(ITierRepository tierRepository, IUserService userService, IProfileService profileService, IArtService artService)
     {
         _artService = artService;
-        _artistService = artistService;
         _tierRepository = tierRepository;
         _userService = userService;
+        _profileService = profileService;
     }
 
-    public async Task<Tier> CreateTier(string userId, string name, string description, int artistId, int price, int? extends)
+    public async Task<Tier> CreateTier(string userId, string name, string description, int profileId, int price, int? extends)
     {
-        var profile = await _userService.FindProfile(userId);
-        var artist = await _artistService.GetArtistAnywayByProfileId(profile.Id, true);
+        var profile = await _profileService.GetProfileByUserId(userId);
         if (extends != null)
         {
             var parentTier = await _tierRepository.GetTier(extends.Value);
-            if (parentTier == null || parentTier.ArtistId != artist.Id)
+            if (parentTier == null || parentTier.ProfileId != profile.Id)
                 throw new TierException.NotFoundTier();
         }
-        if (artistId != artist.Id)
+        if (profileId != profile.Id)
             throw new TierException.NotOwnerTier();
-        var tier = await _tierRepository.CreateTier(name, description, artist.Id, price, extends);
+        var tier = await _tierRepository.CreateTier(name, description, profile.Id, price, extends);
         return tier;
     }
 
     public async Task DeleteTier(string userId, int id)
     {
-        var profile = await _userService.FindProfile(userId);
-        var artist = await _artistService.GetArtistAnywayByProfileId(profile.Id);
+        var profile = await _profileService.GetProfileByUserId(userId);
         var tier = await _tierRepository.GetTier(id);
         if (tier == null)
             throw new TierException.NotFoundTier();
-        if (tier.ArtistId != artist.Id)
+        if (tier.ProfileId != profile.Id)
             throw new TierException.NotOwnerTier();
         // TODO: Все тиры которые зависят от этого тира тоже удалить (или выдать ошибку)
         await _tierRepository.DeleteTier(tier.Id);
@@ -53,12 +51,11 @@ public class TierService : ITierService
 
     public async Task<Tier> GetMyTier(string userId, int tierId)
     {
-        var profile = await _userService.FindProfile(userId);
-        var artist = await _artistService.GetArtistAnywayByProfileId(profile.Id);
+        var profile = await _profileService.GetProfileByUserId(userId);
         var tier = await _tierRepository.GetTier(tierId);
         if (tier == null)
             throw new TierException.NotFoundTier();
-        if (tier.ArtistId != artist.Id)
+        if (tier.ProfileId != profile.Id)
             throw new TierException.NotOwnerTier();
         return tier;
     }

@@ -5,6 +5,6 @@ public class Art
     public int Id { get; init; }
     public string? Description { get; init; }
     public DateTime UploadedAt { get; init; }
-    public int ArtistId { get; init; }
+    public int ProfileId { get; init; }
     public int? TierId { get; init; }
 }

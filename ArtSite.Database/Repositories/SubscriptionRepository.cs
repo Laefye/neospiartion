@@ -32,7 +32,7 @@ public class SubscriptionRepository(ApplicationDbContext _context) : ISubscripti
     {
         return await _context.Subscriptions
             .Include(x => x.Tier)
-            .Where(x => x.Tier.ArtistId == artistId)
+            .Where(x => x.Tier.ProfileId == artistId)
             .Select(x => x.ConvertToDto())
             .FirstOrDefaultAsync();
     }

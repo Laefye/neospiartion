@@ -160,4 +160,18 @@ public class UserService : IUserService
         await _userManager.UpdateAsync(user);
     }
 
+    public async Task UpdateUser(string userId, string userName)
+    {
+        IdentityUser? user = await _userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            throw new UserException.NotAllowedException();
+        }
+        user.UserName = userName;
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            throw new UserException(UserException.UserError.FieldError, result.Errors);
+        }
+    }
 }

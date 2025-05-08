@@ -1,13 +1,14 @@
 ﻿namespace ArtSite.Core.Exceptions;
 
-public class ArtistException(string message) : Exception(message) {
-    public class NotFoundArtist : ArtistException
+public class ProfileException(string message) : Exception(message) {
+    public class NotFoundProfile : ProfileException
     {
-        public NotFoundArtist() : base("Artist not found") { }
+        public NotFoundProfile() : base("Profile not found") { }
     }
 
-    public class NotArtist : ArtistException
+
+    public class NotOwnerProfile : ProfileException
     {
-        public NotArtist() : base("You are not an artist") { }
+        public NotOwnerProfile() : base("User does not have enough rights to access this profile") { }
     }
 }

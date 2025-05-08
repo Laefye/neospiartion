@@ -14,12 +14,12 @@ namespace ArtSite.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
-    private readonly IArtistService _artistService;
+    private readonly IProfileService _profileService;
 
-    public UserController(IUserService userService, IArtistService artistService)
+    public UserController(IUserService userService, IProfileService profileService)
     {
         _userService = userService;
-        _artistService = artistService;
+        _profileService = profileService;
     }
 
     [HttpPost]
@@ -80,7 +80,7 @@ public class UserController : ControllerBase
         }
     }
 
-    [Authorize()]
+    [Authorize]
     [HttpGet("me")]
     [ProducesResponseType(typeof(MeDto), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetMe()
@@ -97,37 +97,38 @@ public class UserController : ControllerBase
                Detail = e.Message,
            });
         }
-        Profile profile = await _userService.FindProfile(user.Id);
-        Artist? artist = await _artistService.GetArtistByProfileId(profile.Id);
+        Profile profile = await _profileService.GetProfileByUserId(user.Id);
         return Ok(new MeDto()
         {
             UserId = user.Id,
             Email = user.Email!,
             UserName = user.UserName!,
             ProfileId = profile.Id,
-            ArtistId = artist?.Id ?? null,
         });
     }
-    
-    [HttpGet("profile")]
-    [Authorize]
-    [ProducesResponseType(typeof(Profile), StatusCodes.Status200OK)]
-    public async Task<ActionResult> GetProfile()
+
+    [HttpPut("{userId}")]
+    public async Task<ActionResult> UpdateUser(string userId, [FromBody] UpdateUserDto updateUser)
     {
-        IdentityUser user;
         try
         {
-            user = await _userService.GetUserByClaims(User);
+            await _userService.UpdateUser(userId, updateUser.UserName);
+            return Accepted();
         }
         catch (UserException e)
         {
+            if (e is { ErrorType: UserException.UserError.FieldError, Errors: not null })
+            {
+                return BadRequest(new ProblemDetails
+                {
+                    Detail = e.Errors.First().Description
+                });
+            }
             return BadRequest(new ProblemDetails
             {
                 Detail = e.Message,
             });
         }
-        var profile = await _userService.FindProfile(user.Id);
-        return Ok(profile);
     }
 }
 

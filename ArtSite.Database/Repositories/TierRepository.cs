@@ -14,7 +14,7 @@ public class TierRepository(ApplicationDbContext context) : ITierRepository
             Name = name,
             Description = description,
             Price = price,
-            ArtistId = artistId,
+            ProfileId = artistId,
             Extends = extends
         });
         await context.SaveChangesAsync();
@@ -30,7 +30,7 @@ public class TierRepository(ApplicationDbContext context) : ITierRepository
     public async Task<List<Tier>> GetTiersByArtist(int artistId)
     {
         var tiers = await context.Tiers
-            .Where(t => t.ArtistId == artistId)
+            .Where(t => t.ProfileId == artistId)
             .ToListAsync();
         return tiers.Select(t => t.ConvertToDto()).ToList();
     }
