@@ -15,6 +15,7 @@ public class TierRepository(ApplicationDbContext context) : ITierRepository
             Description = description,
             Price = price,
             ProfileId = artistId,
+            Avatar = null,
             Extends = extends
         });
         await context.SaveChangesAsync();
@@ -43,7 +44,7 @@ public class TierRepository(ApplicationDbContext context) : ITierRepository
             dbTier.Name = tier.Name;
             dbTier.Description = tier.Description;
             dbTier.Price = tier.Price;
-            dbTier.Extends = tier.Extends;
+            dbTier.Avatar = tier.Avatar;
             await context.SaveChangesAsync();
         }
     }

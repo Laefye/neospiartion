@@ -11,15 +11,13 @@ public class TierService : ITierService
 {
     private readonly IProfileService _profileService;
     private readonly ITierRepository _tierRepository;
-    private readonly IUserService _userService;
-    private readonly IArtService _artService;
+    private readonly IStorageService _storageService;
 
-    public TierService(ITierRepository tierRepository, IUserService userService, IProfileService profileService, IArtService artService)
+    public TierService(ITierRepository tierRepository, IProfileService profileService, IStorageService storageService)
     {
-        _artService = artService;
         _tierRepository = tierRepository;
-        _userService = userService;
         _profileService = profileService;
+        _storageService = storageService;
     }
 
     public async Task<Tier> CreateTier(string userId, string name, string description, int profileId, int price, int? extends)
@@ -46,7 +44,21 @@ public class TierService : ITierService
         if (tier.ProfileId != profile.Id)
             throw new TierException.NotOwnerTier();
         // TODO: Все тиры которые зависят от этого тира тоже удалить (или выдать ошибку)
+        if (tier.Avatar != null)
+        {
+            var file = await _storageService.Apply(_profileService).GetFile(tier.Avatar.Value);
+            await _storageService.DeleteFile(userId, file.Id);
+        }
         await _tierRepository.DeleteTier(tier.Id);
+    }
+
+    public async Task<IFile> GetAvatar(int tierId)
+    {
+        var tier = await GetTier(tierId);
+        if (tier.Avatar == null)
+            throw new TierException.NotFoundAvatar();
+        var file = await _storageService.OpenFile(tier.Avatar.Value);
+        return file;
     }
 
     public async Task<Tier> GetMyTier(string userId, int tierId)
@@ -71,5 +83,20 @@ public class TierService : ITierService
     public Task<List<Tier>> GetTiers(int artistId)
     {
         return _tierRepository.GetTiersByArtist(artistId);
+    }
+
+    public async Task UpdateAvatar(string userId, int tierId, IFileUploader fileUploader)
+    {
+        var profile = await _profileService.GetProfileByUserId(userId);
+        var tier = await GetTier(tierId);
+        if (tier.ProfileId != profile.Id)
+            throw new TierException.NotOwnerTier();
+        if (tier.Avatar != null) {
+            var oldFile = await _storageService.Apply(_profileService).GetFile(tier.Avatar.Value);
+            await _storageService.DeleteFile(userId, oldFile.Id);
+        }
+        var file = await _storageService.Apply(_profileService).UploadFile(userId, fileUploader);
+        tier.Avatar = file.Id;
+        await _tierRepository.UpdateTier(tier);
     }
 }

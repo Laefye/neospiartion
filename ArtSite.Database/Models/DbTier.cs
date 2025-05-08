@@ -9,6 +9,7 @@ public class DbTier
     public required string Name { get; set; }
     public required string Description { get; set; }
     public int Price { get; set; }
+    public int? Avatar { get; set; }
     public int? Extends { get; set; }
 
 
@@ -23,5 +24,6 @@ public class DbTier
         Description = Description,
         Price = Price,
         Extends = Extends,
+        Avatar = Avatar,
     };
 }

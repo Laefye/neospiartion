@@ -10,4 +10,6 @@ public interface ITierService
     Task<List<Tier>> GetTiers(int profileId);
     Task DeleteTier(string userId, int id);
     Task<Tier> GetMyTier(string userId, int tierId);
+    Task UpdateAvatar(string userId, int tierId, IFileUploader fileUploader);
+    Task<IFile> GetAvatar(int tierId);
 }

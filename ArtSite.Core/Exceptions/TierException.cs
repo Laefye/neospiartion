@@ -17,4 +17,11 @@ public class TierException : Exception
         {
         }
     }
+
+    public class NotFoundAvatar : Exception
+    {
+        public NotFoundAvatar() : base("Avatar not found")
+        {
+        }
+    }
 }
