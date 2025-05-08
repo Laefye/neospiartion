@@ -117,7 +117,7 @@ public class ArtController : ControllerBase
     {
         try {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            var picture = await _artService.UploadPicture(userId, artId, new PictureUploader(file));
+            var picture = await _artService.UploadPicture(userId, artId, new FileUploader(file));
             return CreatedAtAction(nameof(PictureController.GetPicture), "Picture", new { pictureId = picture.Id }, picture);
         } catch (ArtException.NotFoundArt e) {
             return NotFound(new ProblemDetails

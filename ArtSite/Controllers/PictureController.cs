@@ -62,8 +62,7 @@ public class PictureController : ControllerBase
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var file = await _artService.Apply(_subscriptionService).GetPictureFile(userId, pictureId);
-            HttpContext.Response.Headers.Append("Content-Type", file.MimeType);
-            return Ok(file.Stream);
+            return File(file.Stream, file.MimeType);
         }
         catch (ArtException.NotFoundPicture e)
         {

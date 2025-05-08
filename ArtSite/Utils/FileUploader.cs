@@ -3,11 +3,11 @@ using ArtSite.Core.Interfaces;
 
 namespace ArtSite.Utils;
 
-public class PictureUploader : IFileUploader
+public class FileUploader : IFileUploader
 {
     private readonly IFormFile _file;
 
-    public PictureUploader(IFormFile file)
+    public FileUploader(IFormFile file)
     {
         _file = file;
     }

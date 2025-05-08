@@ -1,8 +1,10 @@
 ﻿using System.Security.Claims;
 using ArtSite.Core.DTO;
 using ArtSite.Core.Exceptions;
+using ArtSite.Core.Interfaces;
 using ArtSite.Core.Interfaces.Services;
 using ArtSite.DTO;
+using ArtSite.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -178,6 +180,80 @@ public class ProfileController : ControllerBase
             {
                 Detail = e.Message
             });
+        } catch (Exception) {
+            throw;
+        }
+    }
+
+    [HttpGet("{profileId}/avatar")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> GetAvatar(int profileId)
+    {
+        try {
+            var avatar = await _profileService.GetAvatar(profileId);
+            return File(avatar.Stream, avatar.MimeType);
+        } catch (ProfileException.NotFoundProfile e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (ProfileException.NotFoundAvatar e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }
+    }
+
+    [HttpPost("{profileId}/avatar")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> PostAvatar(int profileId, IFormFile avatarFile)
+    {
+        if (avatarFile == null || avatarFile.Length == 0)
+        {
+            return BadRequest("Avatar file is required.");
+        }
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            await _profileService.UpdateAvatar(userId, profileId, new FileUploader(avatarFile));
+            return Accepted();
+        } catch (ProfileException.NotFoundProfile e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (ProfileException.NotOwnerProfile) {
+            return Forbid();
+        } catch (Exception) {
+            throw;
+        }
+    }
+
+    [HttpDelete("{profileId}/avatar")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> DeleteAvatar(int profileId)
+    {
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            await _profileService.DeleteAvatar(userId, profileId);
+            return Accepted();
+        } catch (ProfileException.NotFoundProfile e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (ProfileException.NotOwnerProfile) {
+            return Forbid();
         } catch (Exception) {
             throw;
         }

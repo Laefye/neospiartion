@@ -29,6 +29,7 @@ public class ProfileRepository(ApplicationDbContext context) : IProfileRepositor
         {
             DisplayName = displayName,
             UserId = userId,
+            Avatar = null
         });
         await context.SaveChangesAsync();
         return entry.Entity.ConvertToDto();
@@ -40,6 +41,7 @@ public class ProfileRepository(ApplicationDbContext context) : IProfileRepositor
         if (dbProfile == null)
             return;
         dbProfile.DisplayName = profile.DisplayName;
+        dbProfile.Avatar = profile.Avatar;
         context.Profiles.Update(dbProfile);
         await context.SaveChangesAsync();
     }
