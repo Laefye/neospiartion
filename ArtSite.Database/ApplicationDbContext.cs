@@ -20,4 +20,5 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     public DbSet<DbTier> Tiers { get; set; }
     public DbSet<DbSubscription> Subscriptions { get; set; }
     public DbSet<DbStoragedFile> StoragedFiles { get; set; }
+    public DbSet<DbCommission> Commissions { get; set; }
 }

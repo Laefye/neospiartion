@@ -13,7 +13,7 @@ public class DbMessage
     {
         Id = Id,
         Text = Text,
-        SentAt = SentAt,
+        CreatedAt = SentAt,
         SenderId = SenderId,
         ReceiverId = ReceiverId,
     };

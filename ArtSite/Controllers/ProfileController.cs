@@ -18,13 +18,15 @@ public class ProfileController : ControllerBase
     private readonly IArtService _artService;
     private readonly ITierService _tierService;
     private readonly ISubscriptionService _subscriptionService;
+    private readonly ICommissionService _commissionService;
 
-    public ProfileController(IProfileService artistService, IArtService artService, ITierService tierService, ISubscriptionService subscriptionService)
+    public ProfileController(IProfileService artistService, IArtService artService, ITierService tierService, ISubscriptionService subscriptionService, ICommissionService commissionService)
     {
         _profileService = artistService;
         _artService = artService;
         _tierService = tierService;
         _subscriptionService = subscriptionService;
+        _commissionService = commissionService;
     }
 
     [HttpGet("{profileId}")]
@@ -277,6 +279,48 @@ public class ProfileController : ControllerBase
                 Detail = e.Message
             });
         } catch (SubscriptionException.NotOwned) {
+            return Forbid();
+        } catch (Exception) {
+            throw;
+        }
+    }
+
+    [HttpGet("{profileId}/commissions")]
+    [ProducesResponseType(typeof(IEnumerable<Commission>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> GetCommissions(int profileId)
+    {
+        try {
+            var commissions = await _commissionService.GetCommissionsByProfileId(profileId);
+            return Ok(commissions);
+        } catch (ProfileException.NotFoundProfile e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }
+    }
+
+    [HttpPost("{profileId}/commissions")]
+    [Authorize]
+    [ProducesResponseType(typeof(Commission), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> PostCommission(int profileId, [FromBody] CommissionDto commissionDto)
+    {
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var commission = await _commissionService.CreateCommission(userId, profileId, commissionDto.Name, commissionDto.Description, commissionDto.Price);
+            return CreatedAtAction(nameof(CommissionController.GetCommission), "Commission", new { commissionId = commission.Id }, commission);
+        } catch (ProfileException.NotFoundProfile e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (CommissionException.NotOwner) {
             return Forbid();
         } catch (Exception) {
             throw;
