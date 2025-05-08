@@ -14,9 +14,9 @@ public class PictureRepository : IPictureRepository
         _context = context;
     }
 
-    public async Task<Picture> AddPicture(int artId, string url, string mimeType)
+    public async Task<Picture> AddPicture(int artId, int storagedFileId)
     {
-        var picture = await _context.Pictures.AddAsync(new DbPicture { ArtId = artId, Url = url, MimeType = mimeType });
+        var picture = await _context.Pictures.AddAsync(new DbPicture { ArtId = artId, StoragedFileId = storagedFileId });
         await _context.SaveChangesAsync();
         return picture.Entity.ConvertToDto();
     }

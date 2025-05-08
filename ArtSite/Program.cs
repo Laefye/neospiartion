@@ -7,7 +7,6 @@ using ArtSite.Database.Repositories;
 using ArtSite.Services;
 using ArtSite.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -26,6 +25,7 @@ builder.Services.AddScoped<IArtRepository, ArtRepository>();
 builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 builder.Services.AddScoped<ITierRepository, TierRepository>();
 builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<IStoragedFileRepository, StoragedFileRepository>();
 
 
 // Configure the identity

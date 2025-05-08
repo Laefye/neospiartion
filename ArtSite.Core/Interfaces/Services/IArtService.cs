@@ -51,7 +51,7 @@ public interface IArtService
     /// <param name="artId">Идентификатор произведения искусства.</param>
     /// <param name="pictureUploader">Загрузчик изображения.</param>
     /// <returns>Загруженное изображение.</returns>
-    Task<Picture> UploadPicture(string userId, int artId, IPictureUploader pictureUploader);
+    Task<Picture> UploadPicture(string userId, int artId, IFileUploader pictureUploader);
 
     /// <summary>
     /// Удаляет произведения искусства.
@@ -68,4 +68,6 @@ public interface IArtService
     /// <param name="pictureId">Идентификатор изображения.</param>
     /// <returns>Изображение.</returns>
     Task<Picture> GetPicture(string? userId, int pictureId);
+
+    Task<IFile> GetPictureFile(string? userId, int pictureId);
 }

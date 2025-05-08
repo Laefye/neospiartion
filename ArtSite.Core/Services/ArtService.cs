@@ -71,7 +71,7 @@ public class ArtService : IArtService
         var pictures = await _pictureRepository.GetPictures(art.Id);
         foreach (var picture in pictures)
         {
-            _storageService.DeleteFile(picture.Url);
+            await _storageService.DeleteFile(userId, picture.StoragedFileId);
             await _pictureRepository.DeletePicture(picture.Id);
         }
         await _commentService.ForceDeleteAllComments(art.Id);
@@ -90,6 +90,12 @@ public class ArtService : IArtService
         if (art == null)
             throw new ArtException.NotFoundArt();
         return art;
+    }
+
+    public async Task<IFile> GetPictureFile(string? userId, int pictureId)
+    {
+        var picture = await GetPicture(userId, pictureId);
+        return await _storageService.OpenFile(picture.StoragedFileId);
     }
 
     public async Task<Picture> GetPicture(string? userId, int pictureId)
@@ -116,16 +122,13 @@ public class ArtService : IArtService
         return pictures;
     }
 
-    public async Task<Picture> UploadPicture(string userId, int artId, IPictureUploader pictureUploader)
+    public async Task<Picture> UploadPicture(string userId, int artId, IFileUploader pictureUploader)
     {
         var profile = await _profileService.GetProfileByUserId(userId);
         var art = await GetArt(userId, artId);
         if (art.ProfileId != profile.Id)
             throw new ArtException.UnauthorizedArtistAccess();
-        var fileUri = await _storageService.CreateFile();
-        var fileStream = await _storageService.OpenFile(fileUri, FileAccess.Write);
-        pictureUploader.Upload(fileStream);
-        fileStream.Close();
-        return await _pictureRepository.AddPicture(art.Id, fileUri, pictureUploader.MimeType);
+        var storagedFile = await _storageService.Apply(_profileService).UploadFile(userId, pictureUploader);
+        return await _pictureRepository.AddPicture(art.Id, storagedFile.Id);
     }
 }

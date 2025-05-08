@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using ArtSite.Core.DTO;
 using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -20,8 +21,8 @@ public class PictureController : ControllerBase
         _subscriptionService = subscriptionService;
     }
 
-    [HttpGet("{pictureId}/view")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [HttpGet("{pictureId}")]
+    [ProducesResponseType(typeof(Picture), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
@@ -31,8 +32,38 @@ public class PictureController : ControllerBase
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var picture = await _artService.Apply(_subscriptionService).GetPicture(userId, pictureId);
-            HttpContext.Response.Headers.Append("Content-Type", picture.MimeType);
-            return Ok(await _storageService.OpenFile(picture.Url, FileAccess.Read));
+            return Ok(picture);
+        }
+        catch (ArtException.NotFoundPicture e)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        }
+        catch (ArtException.UnauthorizedArtistAccess)
+        {
+            return Forbid();
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
+    [HttpPost("{pictureId}/view")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult> ViewPicture(int pictureId)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var file = await _artService.Apply(_subscriptionService).GetPictureFile(userId, pictureId);
+            HttpContext.Response.Headers.Append("Content-Type", file.MimeType);
+            return Ok(file.Stream);
         }
         catch (ArtException.NotFoundPicture e)
         {
