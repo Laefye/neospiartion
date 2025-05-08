@@ -19,14 +19,16 @@ public class ProfileController : ControllerBase
     private readonly ITierService _tierService;
     private readonly ISubscriptionService _subscriptionService;
     private readonly ICommissionService _commissionService;
+    private readonly IMessageService _messageService;
 
-    public ProfileController(IProfileService artistService, IArtService artService, ITierService tierService, ISubscriptionService subscriptionService, ICommissionService commissionService)
+    public ProfileController(IProfileService artistService, IArtService artService, ITierService tierService, ISubscriptionService subscriptionService, ICommissionService commissionService, IMessageService messageService)
     {
         _profileService = artistService;
         _artService = artService;
         _tierService = tierService;
         _subscriptionService = subscriptionService;
         _commissionService = commissionService;
+        _messageService = messageService.Apply(commissionService);
     }
 
     [HttpGet("{profileId}")]
@@ -120,11 +122,25 @@ public class ProfileController : ControllerBase
     }
 
     [HttpGet("{profileId}/messages")]
+    [Authorize]
     [ProducesResponseType(typeof(IEnumerable<Message>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> GetMessages(int profileId)
+    public async Task<ActionResult> GetMessages(int profileId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
     {
-        throw new NotImplementedException();
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var messages = await _messageService.GetMessages(userId, profileId, limit, offset);
+            return Ok(messages);
+        } catch (ProfileException.NotFoundProfile e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (MessageException.SelfMessage) {
+            return Forbid();
+        } catch (Exception) {
+            throw;
+        }
     }
 
     [HttpPost("{profileId}/messages")]
@@ -132,14 +148,55 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> PostMessage(int profileId, [FromBody] AddingMessage addingMessage)
+    public async Task<ActionResult> PostMessage(int profileId, [FromBody] AddingMessageDto addingMessage)
     {
-        throw new NotImplementedException();
+        if (addingMessage == null || string.IsNullOrEmpty(addingMessage.Text))
+        {
+            return BadRequest("Text is required.");
+        }
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var message = await _messageService.CreateMessage(userId, profileId, addingMessage.Text, addingMessage.CommissionId);
+            return CreatedAtAction(nameof(MessageController.GetMessage), "Message", new { messageId = message.Id }, message);
+        } catch (ProfileException.NotFoundProfile e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (MessageException.SelfMessage) {
+            return Forbid();
+        } catch (MessageException.NotFoundCommission e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }
     }
 
-    public class AddingMessage
+    [HttpGet("{profileId}/conversations")]
+    [Authorize]
+    [ProducesResponseType(typeof(IEnumerable<Conversation>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> GetConversations(int profileId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
     {
-        public required string Text { get; set; }
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var conversations = await _messageService.GetConversations(userId, profileId, limit, offset);
+            return Ok(conversations);
+        } catch (ProfileException.NotFoundProfile e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (MessageException.SelfMessage) {
+            return Forbid();
+        } catch (MessageException.NotOwner) {
+            return Forbid();
+        } catch (Exception) {
+            throw;
+        }
     }
 
     [HttpGet("{profileId}/tiers")]

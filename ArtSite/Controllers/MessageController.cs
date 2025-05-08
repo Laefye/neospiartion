@@ -1,4 +1,8 @@
-﻿using ArtSite.Core.DTO;
+﻿using System.Security.Claims;
+using ArtSite.Core.DTO;
+using ArtSite.Core.Exceptions;
+using ArtSite.Core.Interfaces.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,27 +12,33 @@ namespace ArtSite.Controllers;
 [ApiController]
 public class MessageController : ControllerBase
 {
-    [HttpGet()]
-    [ProducesResponseType(typeof(Message), StatusCodes.Status200OK)]
-    public async Task<ActionResult> GetMessages([FromQuery] bool onlyLast = false)
+    private readonly IMessageService _messageService;
+    private readonly IProfileService _profileService;
+    
+    public MessageController(IMessageService messageService, IProfileService profileService)
     {
-        throw new NotImplementedException();
+        _messageService = messageService;
+        _profileService = profileService;
     }
 
     [HttpGet("{messageId}")]
+    [Authorize]
     [ProducesResponseType(typeof(Message), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetMessage(int messageId)
     {
-        throw new NotImplementedException();
-    }
-
-    [HttpDelete("{messageId}")]
-    [ProducesResponseType(StatusCodes.Status202Accepted)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult> DeleteMessage(int messageId)
-    {
-        throw new NotImplementedException();
+        try {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            var message = await _messageService.GetMessage(userId, messageId);
+            return Ok(message);
+        }
+        catch (MessageException.NotFound e)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message,
+            });
+        }
     }
 }
 
