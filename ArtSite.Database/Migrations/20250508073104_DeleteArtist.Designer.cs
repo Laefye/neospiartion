@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ArtSite.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250508064720_ChangeFromArtistIdToProfileId")]
-    partial class ChangeFromArtistIdToProfileId
+    [Migration("20250508073104_DeleteArtist")]
+    partial class DeleteArtist
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -48,22 +48,6 @@ namespace ArtSite.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Arts");
-                });
-
-            modelBuilder.Entity("ArtSite.Database.Models.DbArtist", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ProfileId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Artists");
                 });
 
             modelBuilder.Entity("ArtSite.Database.Models.DbComment", b =>

@@ -30,11 +30,11 @@ namespace ArtSite.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ArtistId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<int>("ProfileId")
+                        .HasColumnType("integer");
 
                     b.Property<int?>("TierId")
                         .HasColumnType("integer");
@@ -45,22 +45,6 @@ namespace ArtSite.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Arts");
-                });
-
-            modelBuilder.Entity("ArtSite.Database.Models.DbArtist", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ProfileId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Artists");
                 });
 
             modelBuilder.Entity("ArtSite.Database.Models.DbComment", b =>
@@ -171,9 +155,6 @@ namespace ArtSite.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ArtistId")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -186,6 +167,9 @@ namespace ArtSite.Database.Migrations
                         .HasColumnType("text");
 
                     b.Property<int>("Price")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProfileId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");

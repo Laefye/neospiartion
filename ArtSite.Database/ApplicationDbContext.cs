@@ -12,7 +12,6 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
     }
 
-    public DbSet<DbArtist> Artists { get; set; }
     public DbSet<DbArt> Arts { get; set; }
     public DbSet<DbPicture> Pictures { get; set; }
     //public DbSet<DbMessage> Messages { get; set; }
