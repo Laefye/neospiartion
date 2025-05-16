@@ -25,7 +25,6 @@ export default function RegisterPage() {
         e.preventDefault();
         setError(null);
         
-        // Basic validation
         if (password !== confirmPassword) {
         setError('Passwords do not match');
         return;
@@ -34,7 +33,6 @@ export default function RegisterPage() {
         setIsLoading(true);
         
         try {
-        // Note: The RegisterDto in your backend requires displayName
         const response = await fetch('/api/user', {
             method: 'POST',
             headers: {
@@ -43,7 +41,7 @@ export default function RegisterPage() {
             body: JSON.stringify({ 
             email, 
             userName, 
-            displayName: displayName || userName, // Use userName as fallback
+            displayName: displayName || userName,
             password 
             }),
         });
@@ -53,7 +51,6 @@ export default function RegisterPage() {
             throw new Error(errorData.detail || 'Registration failed. Please try again.');
         }
         
-        // After registration, log the user in
         const loginResponse = await fetch('/api/user/authentication', {
             method: 'POST',
             headers: {
@@ -63,19 +60,16 @@ export default function RegisterPage() {
         });
         
         if (!loginResponse.ok) {
-            // Registration succeeded but login failed
             navigate('/login');
             return;
         }
         
         const loginData = await loginResponse.json();
         
-        // Extract the token from format "Bearer <token>"
         const token = loginData.accessToken?.startsWith('Bearer ') 
             ? loginData.accessToken.substring(7) 
             : loginData.accessToken;
         
-        // Save login information
         login(token, {
             userId: loginData.userId,
             email: email,
@@ -83,7 +77,6 @@ export default function RegisterPage() {
             profileId: loginData.profileId,
         });
         
-        // Redirect to home after registration and login
         navigate('/');
         } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');

@@ -20,83 +20,73 @@ export default function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
     
-    // Get redirect URL from query params if available
     const from = (location.state as { from?: string })?.from || '/';
     
-    // Handle regular email/password login
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError(null);
         setIsLoading(true);
         
-        try {
-        const response = await fetch('/api/user/authentication', {
+        try 
+        {
+            const response = await fetch('/api/user/authentication', {
             method: 'POST',
-            headers: {
-            'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify({ email, password }),
         });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.detail || 'Login failed. Please check your credentials.');
-        }
-        
-        const data = await response.json();
-        
-        // Extract the token from format "Bearer <token>"
-        const token = data.accessToken?.startsWith('Bearer ') 
-            ? data.accessToken.substring(7) 
-            : data.accessToken;
-        
-        // Save login information
-        login(token, {
-            userId: data.userId,
-            email: email,
-            userName: data.userName || email.split('@')[0], // Fallback to part of email if username not provided
-            profileId: data.profileId,
-        });
-        
-        // Redirect to the original destination or home
-        navigate(from);
-        } catch (err) {
-        setError(err instanceof Error ? err.message : 'An unknown error occurred');
-        } finally {
-        setIsLoading(false);
+            
+            if (!response.ok) 
+            {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Login failed. Please check your credentials.');
+            }
+            
+            const data = await response.json();
+            const token = data.accessToken?.startsWith('Bearer ') 
+                ? data.accessToken.substring(7) 
+                : data.accessToken;
+            
+            login(token, {
+                userId: data.userId,
+                email: email,
+                userName: data.userName || email.split('@')[0],
+                profileId: data.profileId,
+            });
+            
+            navigate(from);
+        } 
+        catch (err) 
+        {
+            setError(err instanceof Error ? err.message : 'An unknown error occurred');
+        } 
+        finally 
+        {
+            setIsLoading(false);
         }
     };
     
-    // Handle VK authentication
     const handleVKLogin = async () => {
-        try {
-        // Generate a code verifier (random string)
-        const codeVerifier = generateRandomString(64);
-        
-        // Store code verifier in localStorage to use it later
-        localStorage.setItem('vk_code_verifier', codeVerifier);
-        
-        // State parameter to verify the request later
-        const state = generateRandomString(16);
-        localStorage.setItem('vk_state', state);
-        
-        // Get the authorization URL from your backend
-        const response = await fetch(`/Vk/authorizationUrl?codeVerifier=${codeVerifier}&state=${state}`);
-        
-        if (!response.ok) {
-            throw new Error('Failed to get VK authorization URL');
-        }
-        
-        const authUrl = await response.text();
-        
-        // Redirect the user to VK for authentication
-        window.location.href = authUrl;
-        } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to initiate VK login');
+        try 
+        {
+            const codeVerifier = generateRandomString(64);
+            localStorage.setItem('vk_code_verifier', codeVerifier);
+            const state = generateRandomString(16);
+            localStorage.setItem('vk_state', state);
+            const response = await fetch(`/Vk/authorizationUrl?codeVerifier=${codeVerifier}&state=${state}`);
+            
+            if (!response.ok) {
+                throw new Error('Failed to get VK authorization URL');
+            }
+            
+            const authUrl = await response.text();
+            window.location.href = authUrl;
+        } 
+        catch (error) 
+        {
+            setError(error instanceof Error ? error.message : 'Failed to initiate VK login');
         }
     };
     
-    // Helper function to generate random string for PKCE
     const generateRandomString = (length: number) => {
         const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
         let result = '';
