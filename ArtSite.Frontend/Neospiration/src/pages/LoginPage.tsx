@@ -67,6 +67,7 @@ export default function LoginPage() {
                         <Button
                           type="submit"
                           isLoading={loading}
+                          style={{ backgroundColor: '#551851' }}
                         >
                           Продолжить
                         </Button>
