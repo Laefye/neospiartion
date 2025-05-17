@@ -3,8 +3,7 @@ interface DividerProps {
     bgColor?: string;
 }
 
-export function Divider({ text, bgColor = '#25022A' }: DividerProps) 
-{
+export function Divider({ text, bgColor = 'var(--color-art-bg-dark)' }: DividerProps) {
     return (
         <div className="relative">
         <div className="absolute inset-0 flex items-center">
@@ -12,7 +11,7 @@ export function Divider({ text, bgColor = '#25022A' }: DividerProps)
         </div>
         {text && (
             <div className="relative flex justify-center">
-            <span className={`px-3 text-sm text-gray-300`} style={{ backgroundColor: bgColor }}>
+            <span className="px-3 text-sm text-art-text-secondary" style={{ backgroundColor: bgColor }}>
                 {text}
             </span>
             </div>
