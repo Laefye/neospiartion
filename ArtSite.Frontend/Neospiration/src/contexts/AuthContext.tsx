@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import api from '../services/api';
+import tokenService from '../services/token/TokenService';
 
 interface User {
     userId: string;
@@ -28,8 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
+        if (tokenService.isAuthenticated()) {
             fetchUser();
         }
     }, []);
@@ -41,13 +41,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             setUser(response.data);
             setIsAuthenticated(true);
         } 
-        catch (error) 
-        {
+        catch (error) {
             console.error('Failed to fetch user:', error);
             logout();
         } 
-        finally 
-        {
+        finally {
             setLoading(false);
         }
     };
@@ -62,19 +60,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 password
             });
             
-            localStorage.setItem('token', response.data.accessToken);
+            tokenService.setToken(response.data.accessToken);
             setIsAuthenticated(true);
             await fetchUser();
-        
         } 
-        catch (err: any) 
-        {
+        catch (err: any) {
             const errorMessage = err.response?.data?.detail || 'Неверный email или пароль';
             setError(errorMessage);
             setIsAuthenticated(false);
         } 
-        finally 
-        {
+        finally {
             setLoading(false);
         }
     };
@@ -97,21 +92,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
 
     const logout = () => {
-        localStorage.removeItem('token');
+        tokenService.removeToken();
         setUser(null);
         setIsAuthenticated(false);
     };
 
     return (
         <AuthContext.Provider value={{ 
-        user, 
-        loading, 
-        error, 
-        login, 
-        logout, 
-        vkLogin, 
-        isAuthenticated 
-        }}>{children}
+            user, 
+            loading, 
+            error, 
+            login, 
+            logout, 
+            vkLogin, 
+            isAuthenticated 
+        }}>
+            {children}
         </AuthContext.Provider>
     );
 }

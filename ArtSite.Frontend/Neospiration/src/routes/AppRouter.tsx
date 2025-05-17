@@ -8,7 +8,7 @@ export function AppRouter() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/vk-callback" element={<VKCallback />} />
       {/* Add your other routes here */}
-      <Route path="*" element={<LoginPage />} /> {/* Fallback route */}
+      <Route path="*" element={<LoginPage />} />
     </Routes>
   );
 }
