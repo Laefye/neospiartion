@@ -37,4 +37,5 @@ export type Profile = {
     userId: string;
     displayName: string;
     avatar: number | null;
+    description: string;
 }

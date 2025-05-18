@@ -31,6 +31,7 @@ export default function ProfilePage() {
                 <p>User ID: {profile.userId}</p>
                 <p>Profile ID: {profile.id}</p>
                 <p>Avatar: {profile.avatar}</p>
+                <p>Description: {profile.description}</p>
             </div>
         )}
         </>

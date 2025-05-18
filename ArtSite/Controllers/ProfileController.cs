@@ -62,7 +62,7 @@ public class ProfileController : ControllerBase
         }
         try
         {
-            await _profileService.UpdateProfile(userId, profileId, updateDto.DisplayName);
+            await _profileService.UpdateProfile(userId, profileId, updateDto.DisplayName, updateDto.Description);
             return Accepted();
         }
         catch (ProfileException.NotFoundProfile e)

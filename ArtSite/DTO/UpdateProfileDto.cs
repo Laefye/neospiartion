@@ -11,4 +11,7 @@ public class UpdateProfileDto
 {
     [Required]
     public string DisplayName { get; set; }
+
+    [Required]
+    public string Description { get; set; }
 }

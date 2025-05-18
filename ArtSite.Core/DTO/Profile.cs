@@ -12,4 +12,5 @@ public class Profile
     public required string DisplayName { get; set; }
     public required string UserId { get; set; }
     public int? Avatar { get; set; }
+    public required string Description { get; set; }
 }
