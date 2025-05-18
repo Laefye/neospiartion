@@ -21,7 +21,7 @@ export class LocalStorageTokenService implements TokenStorage {
     }
 
     isAuthenticated(): boolean {
-        return !!this.getToken();
+        return this.getToken() !== null;
     }
 }
 

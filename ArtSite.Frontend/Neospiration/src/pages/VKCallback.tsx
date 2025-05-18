@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
-import { Navigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useSearchParams } from 'react-router';
 import api from '../services/api';
-import tokenService from '../services/token/TokenService';
+import tokenService from '../services/token/TokenStorage';
 import { ErrorMessage } from '../components/ui/ErrorMessage'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 

@@ -29,6 +29,18 @@ builder.Services.AddScoped<IStoragedFileRepository, StoragedFileRepository>();
 builder.Services.AddScoped<ICommissionRepository, CommissionRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
+// CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "dev",
+                        policy =>
+                        {
+                            policy.AllowAnyOrigin();
+                            policy.AllowAnyMethod();
+                            policy.AllowAnyHeader();
+                        });
+});
+
 
 // Configure the identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
@@ -109,6 +121,7 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseCors("dev");
 }
 
 app.UseHttpsRedirection();

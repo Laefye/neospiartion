@@ -1,35 +1,59 @@
 import axios from 'axios';
-import tokenService from './token/TokenService';
+import type { AxiosInstance } from 'axios';
+import { LocalStorageTokenService, type TokenStorage } from './token/TokenStorage';
 
-const API_URL = 'http://localhost:5173';
+export interface Client {
+    get(path: string, params?: any): Promise<any>;
+    post(path: string, data?: any): Promise<any>;
+    put(path: string, data?: any): Promise<any>;
+    delete(path: string, params?: any): Promise<any>;
+}
 
-const api = axios.create({
-    baseURL: API_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
-});
+export class DefaultClient implements Client {
+    private api: AxiosInstance;
+    tokenStorage: TokenStorage;
+    private baseURL: string = 'http://localhost:5273';
+    private prefix: string = this.baseURL + '/api';
 
-api.interceptors.request.use(
-    (config) => {
-        const token = tokenService.getToken();
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-    },
-    (error) => Promise.reject(error)
-);
-
-api.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response?.status === 401) {
-            tokenService.removeToken();
-            window.location.href = '/login';
-        }
-        return Promise.reject(error);
+    constructor() {
+        this.api = axios.create({
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        this.tokenStorage = new LocalStorageTokenService();
     }
-);
 
-export default api;
+    private config(params?: any) {
+        const token = this.tokenStorage.getToken();
+        if (token) {
+            return {
+                params,
+                headers: {
+                    'Authorization': token,
+                },
+            }
+        }
+        return {
+            params,
+        }
+    }
+
+    get(path: string, params?: any): Promise<any> {
+        return this.api.get(this.prefix + path, this.config(params));
+    }
+
+    post(path: string, data?: any): Promise<any> {
+        return this.api.post(this.prefix + path, data);
+    }
+
+    put(path: string, data?: any): Promise<any> {
+        return this.api.put(this.prefix + path, data);
+    }
+
+    delete(path: string, params?: any): Promise<any> {
+        return this.api.delete(this.prefix + path, { params });
+    }
+}
+
+export default new DefaultClient();

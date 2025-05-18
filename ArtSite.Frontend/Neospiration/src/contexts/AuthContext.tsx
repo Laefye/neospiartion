@@ -1,113 +1,49 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import api from '../services/api';
-import tokenService from '../services/token/TokenService';
+import { useNavigate } from 'react-router';
+import { UserController } from '../services/UserController';
+import { InvalidTokenException } from '../services/interfaces/IUserController';
+import type { Me } from '../services/types';
 
-interface User {
-    userId: string;
-    email: string;
-    userName: string;
-    profileId?: number;
-}
-
-interface AuthContextType {
-    user: User | null;
-    loading: boolean;
-    error: string | null;
-    login: (email: string, password: string) => Promise<void>;
-    logout: () => void;
-    vkLogin: () => void;
-    isAuthenticated: boolean;
+type AuthContextType = {
+    me: Me | null,
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-
+export function AuthProvider({ children, requirement }: { children: ReactNode, requirement: 'any' | 'auth' }) {
+    let navigate = useNavigate();
+    let [done, setDone] = useState(false);
+    let [me, setMe] = useState<Me | null>(null);
     useEffect(() => {
-        if (tokenService.isAuthenticated()) {
-            fetchUser();
-        }
-    }, []);
-
-    const fetchUser = async () => {
-        try {
-            setLoading(true);
-            const response = await api.get('/api/user/me');
-            setUser(response.data);
-            setIsAuthenticated(true);
-        } 
-        catch (error) {
-            console.error('Failed to fetch user:', error);
-            logout();
-        } 
-        finally {
-            setLoading(false);
-        }
-    };
-
-    const login = async (email: string, password: string) => {
-        try {
-            setLoading(true);
-            setError(null);
-            
-            const response = await api.post('/api/user/authentication', {
-                email,
-                password
-            });
-            
-            tokenService.setToken(response.data.accessToken);
-            setIsAuthenticated(true);
-            await fetchUser();
-        } 
-        catch (err: any) {
-            const errorMessage = err.response?.data?.detail || 'Неверный email или пароль';
-            setError(errorMessage);
-            setIsAuthenticated(false);
-        } 
-        finally {
-            setLoading(false);
-        }
-    };
-
-    const vkLogin = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            
-            const response = await api.get('/Vk/authorizationUrl');
-            const authUrl = response.data;
-            
-            window.location.href = authUrl;
-        } 
-        catch
-        {
-            setError('Не удалось начать авторизацию через ВКонтакте');
-            setLoading(false);
-        }
-    };
-
-    const logout = () => {
-        tokenService.removeToken();
-        setUser(null);
-        setIsAuthenticated(false);
-    };
-
+        (async () => {
+            if (!api.tokenStorage.isAuthenticated() && requirement == 'auth') {
+                navigate('/login');
+                return;
+            }
+            let userController = new UserController(api);
+            try {
+                let me = await userController.me();
+                setMe(me);
+                setDone(true);
+            } catch (error) {
+                if (error instanceof InvalidTokenException) {
+                    if (requirement == 'auth') {
+                        api.tokenStorage.removeToken();
+                        navigate('/login');
+                        return;
+                    } else {
+                        setDone(true);
+                    }
+                }
+                throw error;
+            }
+        })();
+    }, [requirement]);
     return (
-        <AuthContext.Provider value={{ 
-            user, 
-            loading, 
-            error, 
-            login, 
-            logout, 
-            vkLogin, 
-            isAuthenticated 
-        }}>
-            {children}
+        <AuthContext.Provider value={{ me: me }}>
+            {done && children}
         </AuthContext.Provider>
     );
 }
