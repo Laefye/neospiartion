@@ -7,7 +7,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="App min-h-screen w-full" style={{ 
+        <div className="min-h-screen w-full" style={{ 
           background: 'linear-gradient(to bottom right, #25022A, #320425)'
         }}>
           <AppRouter />
