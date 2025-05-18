@@ -14,7 +14,7 @@ export function AppRouter() {
       <Route path="/vk-callback" element={<VKCallback />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/feed" element={<AuthProvider requirement='auth'><FeedPage /></AuthProvider>} />
-      <Route path="/profile/:id" element={<AuthProvider requirement='auth'><ProfilePage /></AuthProvider>} />
+      <Route path="/profile/:id" element={<AuthProvider requirement='any'><ProfilePage /></AuthProvider>} />
       <Route path="/profile/:id/edit" element={<AuthProvider requirement='auth'><ProfileEditPage /></AuthProvider>} />
       {/* Add your other routes here */}
       <Route path="*" element={<LoginPage />} />

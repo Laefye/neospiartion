@@ -68,7 +68,7 @@ export default function ProfilePage() {
                             )}
                             <span className='ml-4 text-2xl'>{profile.displayName}</span>
                             <div className='grow'></div>
-                            {profile.userId != auth.me?.userId && (
+                            {auth.me != null && profile.userId != auth.me.userId && (
                                 <ButtonLink variant='outline' href={'/conversation/' + profile.id}>
                                     <MessageSquare className='me-2' />
                                     <span>Сообщения</span>
