@@ -12,6 +12,7 @@
   --max-width: 1125px;
   --font-rubik: 'Rubik', sans-serif;
   --color-art-seperator: #3003260A;
+  --color-art-error: #551635;
   --gradient-art-primary: linear-gradient(to bottom right, var(--color-art-bg-dark), var(--color-art-bg-darker));
 }
 

@@ -121,7 +121,7 @@ export default function ProfileEditPage() {
     return (
         <div className='w-full flex flex-col items-center'>
             <div className="w-max-container w-full py-5">
-                <Container className="space-y-2.5">
+                <Container className="space-y-2.5 flex flex-col items-stretch">
                     <div className="flex items-center justify-end">
                         <ButtonLink variant="outline" href={'/profile/' + id} className="w-min">
                             <ChevronLeft className="me-2" />
@@ -129,7 +129,7 @@ export default function ProfileEditPage() {
                         </ButtonLink>
                     </div>
                     <Seperator/>
-                    {error && <ErrorMessage message={error} />}
+                    {error && <ErrorMessage message={error}/>}
                     <form className='space-y-2.5 flex flex-col' onSubmit={submitHandler}>
                         <FormInput required id="displayName" label="Выводимая имя" disabled={loading} value={displayName} onChange={(e) => setDisplayName(e.target.value)}/>
                         <TextArea id="description" label="Описание" className="h-32" disabled={loading} value={description} onChange={(e) => setDescription(e.target.value)}/>
