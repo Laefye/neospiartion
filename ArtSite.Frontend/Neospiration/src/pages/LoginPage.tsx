@@ -3,7 +3,7 @@ import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Button } from '../components/ui/Button';
 import { FormInput } from '../components/ui/FormInput';
-import { ErrorMessage } from '../components/ui/ErrorMessage';
+import { OldErrorMessage } from '../components/ui/ErrorMessage';
 import { Divider } from '../components/ui/Divider';
 import api from '../services/api';
 import { UserController } from '../services/UserController';
@@ -48,7 +48,7 @@ export default function LoginPage() {
         Войдите или зарегистрируйтесь
       </h1>
       
-      {error && <ErrorMessage message={error} />}
+      {error && <OldErrorMessage message={error} />}
       <div className="space-y-6">
         <Button
         variant="white" 

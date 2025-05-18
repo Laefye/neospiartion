@@ -44,7 +44,7 @@ public class UserService : IUserService
         var result = await _userManager.CreateAsync(user, password);
         if (!result.Succeeded)
         {
-            throw new UserException(UserException.UserError.FieldError, result.Errors);
+            throw new UserException.FormErrorException(result.Errors);
         }
         var profile = await _profileRepository.CreateProfile(user.Id, displayName);
         return user;

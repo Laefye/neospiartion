@@ -3,10 +3,11 @@ import type { FormEvent } from 'react';
 import { Link } from 'react-router';
 import { Button } from '../components/ui/Button';
 import { FormInput } from '../components/ui/FormInput';
-import { ErrorMessage } from '../components/ui/ErrorMessage';
+import ErrorMessage, { OldErrorMessage } from '../components/ui/ErrorMessage';
 import api from '../services/api';
 import { UserController } from '../services/UserController';
 import ButtonLink from '../components/ui/ButtonLink';
+import { InvalidRegistrationDataException } from '../services/interfaces/IUserController';
 
 export default function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -16,11 +17,13 @@ export default function RegisterPage() {
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorList, setErrorList] = useState<string[] | null>(null);
   const [isCreated, setIsCreated] = useState(false);
   
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
+    setErrorList(null);
     if (!email || !password) {
       return;
     }
@@ -38,7 +41,10 @@ export default function RegisterPage() {
         displayName,
       });
     } catch (error) {
-      if (error instanceof Error) {
+      if (error instanceof InvalidRegistrationDataException) {
+        setErrorList(error.errors);
+        setError(error.message);
+      } else if (error instanceof Error) {
         setError(error.message);
       } else {
         setError('Неизвестная ошибка');
@@ -73,7 +79,7 @@ export default function RegisterPage() {
           Создание аккаунта
         </h1>
         
-        {error && <ErrorMessage message={error} />}
+        {error && <ErrorMessage><p>{error}</p>{errorList && <ul className='list-disc ps-3'>{errorList.map(x => <li>{x}</li>)}</ul>}</ErrorMessage>}
         <div className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <FormInput

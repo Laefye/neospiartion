@@ -37,15 +37,19 @@ public class UserController : ControllerBase
                 Email = user.Email,
             });
         }
+        catch (UserException.FormErrorException e)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Detail = e.Message,
+                Extensions = new Dictionary<string, object?>
+                {
+                    { "errors", e.Errors.Select(e => e.Description).ToList() }
+                }
+            });
+        }
         catch (UserException e)
         {
-            if (e is { ErrorType: UserException.UserError.FieldError, Errors: not null })
-            {
-                return BadRequest(new ProblemDetails
-                {
-                    Detail = e.Errors.First().Description
-                });
-            }
             return BadRequest(new ProblemDetails
             {
                 Detail = e.Message,

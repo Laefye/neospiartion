@@ -7,7 +7,7 @@ import { TextArea } from "../components/ui/TextArea";
 import { Button } from "../components/ui/Button";
 import { ProfileController } from "../services/ProfileController";
 import api from "../services/api";
-import { ErrorMessage } from "../components/ui/ErrorMessage";
+import { OldErrorMessage } from "../components/ui/ErrorMessage";
 import { FileSelect } from "../components/ui/FileSelect";
 import Seperator from "../components/ui/Seperator";
 import ButtonLink from "../components/ui/ButtonLink";
@@ -129,7 +129,7 @@ export default function ProfileEditPage() {
                         </ButtonLink>
                     </div>
                     <Seperator/>
-                    {error && <ErrorMessage message={error}/>}
+                    {error && <OldErrorMessage message={error}/>}
                     <form className='space-y-2.5 flex flex-col' onSubmit={submitHandler}>
                         <FormInput required id="displayName" label="Выводимая имя" disabled={loading} value={displayName} onChange={(e) => setDisplayName(e.target.value)}/>
                         <TextArea id="description" label="Описание" className="h-32" disabled={loading} value={description} onChange={(e) => setDescription(e.target.value)}/>

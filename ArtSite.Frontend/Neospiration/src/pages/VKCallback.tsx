@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router';
 import api from '../services/api';
 import tokenService from '../services/token/TokenStorage';
-import { ErrorMessage } from '../components/ui/ErrorMessage'
+import { OldErrorMessage } from '../components/ui/ErrorMessage'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 
 export default function VKCallback() {
@@ -40,7 +40,7 @@ export default function VKCallback() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <ErrorMessage message={error} redirectTo="/login" buttonText="Вернуться на страницу входа" />
+        <OldErrorMessage message={error} redirectTo="/login" buttonText="Вернуться на страницу входа" />
       </div>
     );
   }

@@ -43,6 +43,16 @@ public class UserException : Exception
     {
     }
 
+    public class FormErrorException : UserException
+    {
+        public IEnumerable<IdentityError> Errors { get; init; }
+
+        public FormErrorException(IEnumerable<IdentityError> errors) : base("Form errors")
+        {
+            Errors = errors;
+        }
+    }
+
     public class NotAllowedException : UserException
     {
         public NotAllowedException() : base("Not allowed")

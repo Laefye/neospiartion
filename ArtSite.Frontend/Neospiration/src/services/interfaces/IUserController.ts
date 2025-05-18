@@ -13,9 +13,19 @@ export class InvalidCredentialsException extends UserException {
     }
 }
 
+export class AlreadyUsedException extends UserException {
+    constructor() {
+        super("Пользователь с таким E-Mail или никнеймом уже существует");
+    }
+}
+
+
 export class InvalidRegistrationDataException extends UserException {
-    constructor(message: string) {
+    errors: string[];
+
+    constructor(message: string, errors: string[]) {
         super(message);
+        this.errors = errors;
     }
 }
 
