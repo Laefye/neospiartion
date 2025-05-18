@@ -36,6 +36,8 @@ export function AuthProvider({ children, requirement }: { children: ReactNode, r
                     } else {
                         setDone(true);
                     }
+                } else if (error instanceof Error) {
+                    alert(error.message);
                 }
                 throw error;
             }
@@ -44,6 +46,14 @@ export function AuthProvider({ children, requirement }: { children: ReactNode, r
     return (
         <AuthContext.Provider value={{ me: me }}>
             {done && children}
+            {!done && (
+                <div className="flex flex-col items-center justify-center min-h-screen w-full px-4 py-6 sm:py-12">
+                    <div className="w-full max-w-md space-y-8 px-4 sm:px-0">
+                        <h1 className="text-center text-3xl font-bold text-art-text-primary">
+                            Загрузка...
+                        </h1>
+                    </div>
+                </div>)}
         </AuthContext.Provider>
     );
 }

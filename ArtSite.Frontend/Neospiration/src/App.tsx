@@ -5,7 +5,7 @@ import './App.css';
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen w-full" style={{ 
+      <div className="min-h-screen w-full font-rubik" style={{ 
         background: 'linear-gradient(to bottom right, #25022A, #320425)'
       }}>
         <AppRouter />

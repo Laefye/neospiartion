@@ -39,3 +39,8 @@ export type Profile = {
     avatar: number | null;
     description: string;
 }
+
+export type UpdateProfile = {
+    displayName: string;
+    description: string;
+}

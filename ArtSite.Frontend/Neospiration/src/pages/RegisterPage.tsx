@@ -1,14 +1,14 @@
-import { use, useState } from 'react';
+import { useState } from 'react';
 import type { FormEvent } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link } from 'react-router';
 import { Button } from '../components/ui/Button';
 import { FormInput } from '../components/ui/FormInput';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import api from '../services/api';
 import { UserController } from '../services/UserController';
+import ButtonLink from '../components/ui/ButtonLink';
 
 export default function RegisterPage() {
-  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -16,6 +16,7 @@ export default function RegisterPage() {
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isCreated, setIsCreated] = useState(false);
   
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -45,82 +46,102 @@ export default function RegisterPage() {
       setLoading(false);
       return;
     }
-    alert('Вы успешно зарегистрировались! Теперь вы можете войти в свой аккаунт.');
     setLoading(false);
-    navigate('/login');
+    setIsCreated(true);
   };
 
-  return (
-  <div className="flex flex-col items-center justify-center min-h-screen w-full px-4 py-6 sm:py-12">
-    <div className="w-full max-w-md space-y-8 px-4 sm:px-0">
-      <h1 className="text-center text-3xl font-bold text-art-text-primary">
-        Создание аккаунта
-      </h1>
-      
-      {error && <ErrorMessage message={error} />}
-      <div className="space-y-6">
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <FormInput
-            type="email"
-            id="email"
-            name="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            placeholder="E-Mail"
-          />
-          <FormInput
-            type="password"
-            id="password"
-            name="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            placeholder="Пароль"
-          />
-          <FormInput
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            placeholder="Подтверждение пароля"/>
-          <FormInput
-            type="text"
-            id="username"
-            name="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            placeholder="Никнейм"
-          />
-          <FormInput
-            type="text"
-            id="displayName"
-            name="displayName"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            required
-            placeholder="Отображаемое имя"
-          />
+  if (isCreated) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen w-full px-4 py-6 sm:py-12">
+        <div className="w-full max-w-md space-y-8 px-4 sm:px-0">
+          <h1 className="text-center text-3xl font-bold text-art-text-primary">
+            Аккаунт успешно создан
+          </h1>
+          <p className="text-center text-gray-300">
+            Теперь вы можете войти в свой аккаунт.
+          </p>
+          <ButtonLink  href='/login'>Войти</ButtonLink>
+        </div>
+      </div>
+    );
+  }
 
-          <Button
-          type="submit"
-          isLoading={loading}
-          className="w-full">
-            {loading ? 'Загрузка...' : 'Продолжить'}
-          </Button>
-          
-          <div className="flex justify-center text-sm text-gray-300">
-            <span>Нет аккаунта? </span>
-            <Link to="/register" className="ml-1 text-purple-300 hover:text-purple-200">
-              Создайте новый аккаунта
-            </Link>
-          </div>
-        </form>
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen w-full px-4 py-6 sm:py-12">
+      <div className="w-full max-w-md space-y-8 px-4 sm:px-0">
+        <h1 className="text-center text-3xl font-bold text-art-text-primary">
+          Создание аккаунта
+        </h1>
+        
+        {error && <ErrorMessage message={error} />}
+        <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <FormInput
+              type="email"
+              id="email"
+              name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="E-Mail"
+              variant='white'
+            />
+            <FormInput
+              type="password"
+              id="password"
+              name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              variant='white'
+              placeholder="Пароль"
+            />
+            <FormInput
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              variant='white'
+              placeholder="Подтверждение пароля"/>
+            <FormInput
+              type="text"
+              id="username"
+              name="username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              required
+              variant='white'
+              placeholder="Никнейм"
+            />
+            <FormInput
+              type="text"
+              id="displayName"
+              name="displayName"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+              required
+              variant='white'
+              placeholder="Отображаемое имя"
+            />
+
+            <Button
+            type="submit"
+            isLoading={loading}
+            className="w-full">
+              {loading ? 'Загрузка...' : 'Продолжить'}
+            </Button>
+            
+            <div className="flex justify-center text-sm text-gray-300">
+              <span>Нет аккаунта? </span>
+              <Link to="/register" className="ml-1 text-purple-300 hover:text-purple-200">
+                Создайте новый аккаунта
+              </Link>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
   );
 }

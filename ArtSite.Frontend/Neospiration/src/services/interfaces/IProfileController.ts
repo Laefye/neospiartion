@@ -15,7 +15,7 @@ export class ProfileNotFoundException extends ProfileException {
 
 export interface IProfileController {
     getProfile(profileId: number): Promise<types.Profile>;
-    // updateProfile(profileId: number, value: types.UpdateProfile): Promise<void>;
+    updateProfile(profileId: number, value: types.UpdateProfile): Promise<void>;
 
     // getArts(profileId: number): Promise<types.Art[]>;
     // postArt(profileId: number, value: types.ArtDto): Promise<types.Art>;
@@ -27,9 +27,9 @@ export interface IProfileController {
     // getTiers(profileId: number): Promise<types.Tier[]>;
     // createTier(profileId: number, value: types.AddingTierDto): Promise<types.Tier>;
 
-    // getAvatar(profileId: number): Promise<types.AvatarFile>;
-    // postAvatar(profileId: number, avatarFile: File): Promise<void>;
-    // deleteAvatar(profileId: number): Promise<void>;
+    getAvatarUrl(profileId: number): Promise<string>;
+    postAvatar(profileId: number, avatarFile: File): Promise<void>;
+    deleteAvatar(profileId: number): Promise<void>;
 
     // getSubscriptions(profileId: number): Promise<types.Subscription[]>;
     // getCommissions(profileId: number): Promise<types.Commission[]>;
