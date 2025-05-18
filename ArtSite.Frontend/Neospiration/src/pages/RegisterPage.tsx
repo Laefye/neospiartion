@@ -29,7 +29,7 @@ export default function RegisterPage() {
       return;
     }
     setLoading(true);
-    let userController = new UserController(api);
+    const userController = new UserController(api);
     try {
       await userController.register({
         email,

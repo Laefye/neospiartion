@@ -20,7 +20,7 @@ export default function ProfilePage() {
         (async () => {
             try {
                 const profileController = new ProfileController(api);
-                let profile = await profileController.getProfile(parseInt(id!))
+                const profile = await profileController.getProfile(parseInt(id!))
                 setProfile(profile);
                 if (profile.avatar) {
                     const avatarUrl = await profileController.getAvatarUrl(profile.id);

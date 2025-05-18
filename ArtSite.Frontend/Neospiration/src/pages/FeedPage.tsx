@@ -1,7 +1,7 @@
 import { useAuth } from "../contexts/AuthContext"
 
 export default function FeedPage() {
-    let user = useAuth();
+    const user = useAuth();
     console.log(user);
     return (
         <div>

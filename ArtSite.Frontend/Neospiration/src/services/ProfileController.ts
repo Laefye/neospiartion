@@ -12,11 +12,7 @@ export class ProfileController implements IProfileController {
     }
     
     async deleteAvatar(profileId: number): Promise<void> {
-        try {
-            await this.api.delete(this.prefix + '/' + profileId + '/avatar');
-        } catch (error) {
-            throw error;
-        }
+        await this.api.delete(this.prefix + '/' + profileId + '/avatar');
     }
     
     async getAvatarUrl(profileId: number): Promise<string> {
@@ -24,25 +20,18 @@ export class ProfileController implements IProfileController {
     }
     
     async postAvatar(profileId: number, avatarFile: File): Promise<void> {
-        try {
-            const formData = new FormData();
-            formData.append('avatarFile', avatarFile);
-            await this.api.postFormData(this.prefix + '/' + profileId + '/avatar', formData);
-        } catch (error) {
-            throw error;
-        }
+        const formData = new FormData();
+        formData.append('avatarFile', avatarFile);
+        await this.api.postFormData(this.prefix + '/' + profileId + '/avatar', formData);
     }
 
     async updateProfile(profileId: number, value: UpdateProfile): Promise<void> {
-        try {
-            await this.api.put(this.prefix + '/' + profileId, value);
-        } catch (error) {
-            throw error;
-        }
+        await this.api.put(this.prefix + '/' + profileId, value);
     }
 
     async getProfile(profileId: number): Promise<Profile> {
-        try {
+        try 
+        {
             const { data } = await this.api.get(this.prefix + '/' + profileId);
             return data;
         } catch (error) {

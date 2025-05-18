@@ -23,11 +23,11 @@ export default function LoginPage() {
       return;
     }
     setLoading(true);
-    let userController = new UserController(api);
+    const userController = new UserController(api);
     try {
-      let token = await userController.authenticate({ email, password });
+      const token = await userController.authenticate({ email, password });
       api.tokenStorage.setToken(token.accessToken);
-      let me = await userController.me();
+      const me = await userController.me();
       navigate('/profile/' + me.profileId);
     } catch (error) {
       if (error instanceof Error) {

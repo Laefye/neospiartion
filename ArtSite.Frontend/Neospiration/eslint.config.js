@@ -18,6 +18,9 @@ export default tseslint.config(
       'react-refresh': reactRefresh,
     },
     rules: {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-non-null-asserted-optional-chain": "error",
+      "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/no-explicit-any": ["off"],
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
