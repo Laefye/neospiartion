@@ -13,18 +13,18 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children, requirement }: { children: ReactNode, requirement: 'any' | 'auth' }) {
-    let navigate = useNavigate();
-    let [done, setDone] = useState(false);
-    let [me, setMe] = useState<Me | null>(null);
+    const navigate = useNavigate();
+    const [done, setDone] = useState(false);
+    const [me, setMe] = useState<Me | null>(null);
     useEffect(() => {
         (async () => {
             if (!api.tokenStorage.isAuthenticated() && requirement == 'auth') {
                 navigate('/login');
                 return;
             }
-            let userController = new UserController(api);
+            const userController = new UserController(api);
             try {
-                let me = await userController.me();
+                const me = await userController.me();
                 setMe(me);
                 setDone(true);
             } catch (error) {
