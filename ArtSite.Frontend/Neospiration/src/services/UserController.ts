@@ -74,6 +74,7 @@ export class UserController implements IUserController {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     updateProfile(value: UpdateUser): Promise<void> {
         throw new Error("Method not implemented.");
     }

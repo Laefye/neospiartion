@@ -40,7 +40,7 @@ export default function VKCallback() {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <OldErrorMessage message={error} redirectTo="/login" buttonText="Вернуться на страницу входа" />
+        <OldErrorMessage message={error} onRetry={() => window.location.href = "/login"} buttonText="Вернуться на страницу входа" />
       </div>
     );
   }

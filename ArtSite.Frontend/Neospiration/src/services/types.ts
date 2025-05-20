@@ -44,3 +44,26 @@ export type UpdateProfile = {
     displayName: string;
     description: string;
 }
+
+export type Art = {
+    id: number;
+    description?: string;
+    updatedAt: Date;
+    profileId: number;
+    tierId?: number;
+}
+
+export type Picture = {
+    id: number;
+    artId: number;
+    storagedFileId: number;
+}
+
+export type Comment = {
+    id: number;
+    text: string;
+    artId: number;
+    uploadedAt: Date;
+    updatedAt: Date;
+    profileId: number;
+}

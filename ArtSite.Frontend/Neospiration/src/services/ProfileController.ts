@@ -1,6 +1,6 @@
 import { AxiosError } from "axios";
 import type { Client } from "./api";
-import type { Profile, UpdateProfile } from "./types";
+import type * as types from "./types";
 import { ProfileNotFoundException, type IProfileController } from "./interfaces/IProfileController";
 
 export class ProfileController implements IProfileController {
@@ -25,11 +25,11 @@ export class ProfileController implements IProfileController {
         await this.api.postFormData(this.prefix + '/' + profileId + '/avatar', formData);
     }
 
-    async updateProfile(profileId: number, value: UpdateProfile): Promise<void> {
+    async updateProfile(profileId: number, value: types.UpdateProfile): Promise<void> {
         await this.api.put(this.prefix + '/' + profileId, value);
     }
 
-    async getProfile(profileId: number): Promise<Profile> {
+    async getProfile(profileId: number): Promise<types.Profile> {
         try 
         {
             const { data } = await this.api.get(this.prefix + '/' + profileId);
@@ -42,5 +42,10 @@ export class ProfileController implements IProfileController {
             }
             throw error;
         }
+    }
+
+    async getArts(profileId: number): Promise<types.Art[]> {
+        const { data } = await this.api.get(this.prefix + '/' + profileId + '/arts');
+        return data;
     }
 }

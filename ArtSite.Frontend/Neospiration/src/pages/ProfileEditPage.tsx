@@ -96,6 +96,7 @@ export default function ProfileEditPage() {
             }
             const profileController = new ProfileController(api);
             try {
+                // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
                 const profile = await profileController.getProfile(auth.me?.profileId!);
                 setDisplayName(profile.displayName);
                 setDescription(profile.description);

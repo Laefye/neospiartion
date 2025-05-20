@@ -1,14 +1,17 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
+import { useEffect, useState, useRef } from 'react';
+import { useParams } from 'react-router'; // Fixed import
 import { ProfileController } from '../services/ProfileController';
+import { ArtController } from '../services/ArtController';
 import api from '../services/api';
-import type { Profile } from '../services/types';
+import type { Profile, Art } from '../services/types';
 import Seperator from '../components/ui/Seperator';
-import { MessageSquare, PencilLine, Home, Bell } from 'lucide-react';
+import { MessageSquare, PencilLine, Home, Bell, Plus } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ButtonLink from '../components/ui/ButtonLink';
 import Container from '../components/ui/Container';
 import NotificationWindow from '../components/ui/NotificationWindow';
+import ArtPublishModal from '../components/ui/ArtPublishModal';
+import ArtComments from '../components/ui/ArtComments';
 
 export default function ProfilePage() {
     const { id } = useParams();
@@ -19,17 +22,36 @@ export default function ProfilePage() {
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
     const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+    const [showCreatePostForm, setShowCreatePostForm] = useState(false);
+    const [postDescription, setPostDescription] = useState('');
+    const [uploading, setUploading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const [arts, setArts] = useState<Art[]>([]);
+    const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
+    
+    const toggleNotification = () => {
+        setIsNotificationOpen(prev => !prev);
+    };
+    
+    const closeNotification = () => {
+        setIsNotificationOpen(false);
+    };
     
     useEffect(() => {
-        (async () => {
+        const loadProfile = async () => {
             try {
                 const profileController = new ProfileController(api);
-                const profile = await profileController.getProfile(parseInt(id!))
+                const profile = await profileController.getProfile(parseInt(id!));
                 setProfile(profile);
+                
                 if (profile.avatar) {
                     const avatarUrl = await profileController.getAvatarUrl(profile.id);
                     setAvatarUrl(avatarUrl);
                 }
+                
+                const arts = await profileController.getArts(profile.id);
+                setArts(arts);
+                
                 setLoading(false);
             } catch (err) {
                 if (err instanceof Error) {
@@ -39,21 +61,68 @@ export default function ProfilePage() {
                 }
                 setLoading(false);
             }
-        })();
+        };
+        
+        if (id) {
+            loadProfile();
+        }
     }, [id]);
+    
+    const handleCreatePost = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        if (!profile) return;
+        if (!fileInputRef.current?.files?.length) {
+            setError('Пожалуйста, выберите файл для загрузки');
+            return;
+        }
+        
+        setUploading(true);
+        setError(null);
+        
+        try {
+            const artController = new ArtController(api);
+            const art = await artController.createArt(
+                profile.id, 
+                postDescription
+            );
+            
+            await artController.uploadPicture(
+                art.id, 
+                fileInputRef.current.files[0]
+            );
+            
+            setPostDescription('');
+            setShowCreatePostForm(false);
+            if (fileInputRef.current) fileInputRef.current.value = '';
+            
+            const profileController = new ProfileController(api);
+            const updatedArts = await profileController.getArts(profile.id);
+            setArts(updatedArts);
+            
+        } catch (err) {
+            if (err instanceof Error) {
+                setError(err.message);
+            } else {
+                setError('Ошибка при создании поста');
+            }
+        } finally {
+            setUploading(false);
+        }
+    };
     
     return (
         <>
             <NotificationWindow 
                 isOpen={isNotificationOpen} 
-                onClose={() => setIsNotificationOpen(false)} 
+                onClose={closeNotification}
             />
             
             <header className="bg-[#320425] py-3 px-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between">
                     <div className="flex items-center">
                         <a href="/" className="text-white text-xl font-bold">
-                            <img src={'../assets/NEOspiration.svg'} alt="NEOspiration" className="h-8" />
+                            NEOspiration
                         </a>
                     </div>
 
@@ -65,7 +134,8 @@ export default function ProfilePage() {
                             <>
                                 <button 
                                     className="text-white hover:text-gray-200 relative"
-                                    onClick={() => setIsNotificationOpen(prev => !prev)}
+                                    onClick={toggleNotification}
+                                    aria-label="Notifications"
                                 >
                                     <Bell size={24} />
                                 </button>
@@ -75,66 +145,17 @@ export default function ProfilePage() {
                             </>
                         )}
 
-                        {auth.me ? (
-                            <div className="relative">
-                                <button
-                                    className="flex items-center text-white hover:text-gray-200"
-                                    onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
-                                >
-                                    <div className="w-8 h-8 rounded-full bg-white mr-2 flex items-center justify-center">
-                                        {auth.me?.profileId && (
-                                            <img
-                                                src={`/api/profiles/${auth.me.profileId}/avatar`}
-                                                alt={auth.me.userName}
-                                                className="w-8 h-8 rounded-full"
-                                                onError={(e) => {
-                                                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${auth.me?.userName?.charAt(0)}&background=random`;
-                                                }}
-                                            />
-                                        )}
-                                    </div>
-                                    <span className="mr-1">{auth.me?.userName || "Cool Artist"}</span>
-                                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                                    </svg>
-                                </button>
-
-                                {isProfileDropdownOpen && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10">
-                                        <a 
-                                            href={`/profile/${auth.me?.profileId}`} 
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Мой профиль
-                                        </a>
-                                        <a 
-                                            href={`/profile/${auth.me?.profileId}/edit`} 
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            Настройки
-                                        </a>
-                                        <button
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            onClick={() => {
-                                                localStorage.removeItem('token');
-                                                window.location.href = '/login';
-                                            }}
-                                        >
-                                            Выйти
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="flex items-center space-x-4">
-                                <a href="/login" className="text-white hover:text-gray-200 px-3 py-1">
-                                    Войти
-                                </a>
-                                <a href="/register" className="bg-art-primary text-white px-3 py-1 rounded-md hover:bg-opacity-90">
-                                    Зарегистрироваться
-                                </a>
-                            </div>
-                        )}
+                        <div className="relative">
+                            <button
+                                className="flex items-center text-white hover:text-gray-200"
+                                onClick={() => setIsProfileDropdownOpen(!isProfileDropdownOpen)}
+                            >
+                                <span className="mr-1">Cool Artist</span>
+                                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </header>
@@ -154,18 +175,18 @@ export default function ProfilePage() {
                         </div>
                     </div>
                 )}
+                
                 {profile && !loading && (
-                    <div className='w-max-container w-full py-5'>
+                    <div className='w-max-container w-full py-5 space-y-5'>
                         <Container className='space-y-2.5'>
                             <div className='flex items-center'>
-                                {avatarUrl && (
+                                {avatarUrl ? (
                                     <img
                                         src={avatarUrl}
                                         alt={profile.displayName}
                                         className='w-16 h-16 rounded-full'
                                     />
-                                )}
-                                {!avatarUrl && (
+                                ) : (
                                     <div className='w-16 h-16 rounded-full bg-gray-200'></div>
                                 )}
                                 <span className='ml-4 text-2xl'>{profile.displayName}</span>
@@ -183,14 +204,117 @@ export default function ProfilePage() {
                                     </ButtonLink>
                                 )}
                             </div>
-                            { profile.description && (<>
-                                <Seperator/>
-                                <p className='text-lg'>{profile.description}</p>
-                            </>)}
+                            {profile.description && (
+                                <>
+                                    <Seperator/>
+                                    <p className='text-lg'>{profile.description}</p>
+                                </>
+                            )}
                         </Container>
+                        
+                        {profile.userId === auth.me?.userId && (
+                            <div className="w-full flex justify-center mb-4">
+                                {!showCreatePostForm ? (
+                                    <button
+                                        onClick={() => setShowCreatePostForm(true)}
+                                        className="w-full bg-[#1E1E1E] hover:bg-opacity-90 text-white py-3 rounded-md flex items-center justify-center gap-2 transition-colors"
+                                    >
+                                        <Plus size={20} />
+                                        <span>Создать пост</span>
+                                    </button>
+                                ) : (
+                                    <Container className='space-y-4'>
+                                        <h3 className="text-lg font-medium">Создать новый пост</h3>
+                                        {error && <div className="p-3 bg-red-100 text-red-700 rounded-md">{error}</div>}
+                                        
+                                        <form onSubmit={handleCreatePost} className="space-y-4">
+                                            <div className="space-y-2">
+                                                <label htmlFor="postDescription" className="block text-sm font-medium">
+                                                    Описание
+                                                </label>
+                                                <textarea
+                                                    id="postDescription"
+                                                    value={postDescription}
+                                                    onChange={(e) => setPostDescription(e.target.value)}
+                                                    disabled={uploading}
+                                                    placeholder="Расскажите о вашей работе..."
+                                                    className="w-full p-2 border border-gray-300 rounded-md h-24"
+                                                />
+                                            </div>
+                                            
+                                            <div className="space-y-2">
+                                                <label htmlFor="artFile" className="block text-sm font-medium">
+                                                    Изображение
+                                                </label>
+                                                <input
+                                                    id="artFile"
+                                                    type="file"
+                                                    ref={fileInputRef}
+                                                    disabled={uploading}
+                                                    accept="image/*"
+                                                    className="w-full p-2 border border-gray-300 rounded-md"
+                                                />
+                                            </div>
+                                            
+                                            <div className="flex gap-3">
+                                                <button 
+                                                    type="submit"
+                                                    disabled={uploading}
+                                                    className="px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 disabled:opacity-50"
+                                                >
+                                                    {uploading ? 'Загрузка...' : 'Опубликовать'}
+                                                </button>
+                                                
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowCreatePostForm(false)}
+                                                    disabled={uploading}
+                                                    className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50"
+                                                >
+                                                    Отмена
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </Container>
+                                )}
+                            </div>
+                        )}
+                        
+                        {arts.length > 0 && (
+                            <Container>
+                                <h3 className="text-lg font-medium mb-4">Работы</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {arts.map(art => (
+                                        <div key={art.id} className="border rounded-lg overflow-hidden">
+                                            <img 
+                                                src={`/api/arts/${art.id}/pictures`} 
+                                                alt={art.description || 'Artwork'} 
+                                                className="w-full h-48 object-cover"
+                                            />
+                                            <div className="p-3">
+                                                <p className="line-clamp-2">{art.description}</p>
+                                                {/* Render comment section for each art */}
+                                                <ArtComments artId={art.id} />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </Container>
+                        )}
+                        
+                        <ArtPublishModal
+                            open={isPublishModalOpen}
+                            onClose={() => setIsPublishModalOpen(false)}
+                            profileId={profile.id}
+                            onPublished={async () => {
+                                const profileController = new ProfileController(api);
+                                setArts(await profileController.getArts(profile.id));
+                                setIsPublishModalOpen(false);
+                            }}
+                        />
                     </div>
                 )}
             </div>
         </>
     );
-};
+}
