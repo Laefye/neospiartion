@@ -12,7 +12,7 @@ export class ArtController implements IArtController {
 
     async getArt(artId: number): Promise<types.Art> {
         try {
-            const response = await this.api.get(`/api/arts/${artId}`);
+            const response = await this.api.get(`/arts/${artId}`);
             return response.data;
         } catch (err: any) {
             if (err.response && err.response.status === 404) {
@@ -24,7 +24,7 @@ export class ArtController implements IArtController {
 
     async createArt(profileId: number, description: string, tierId?: number): Promise<types.Art> {
         try {
-            const response = await this.api.post(`/api/profiles/${profileId}/arts`, {
+            const response = await this.api.post(`/profiles/${profileId}/arts`, {
                 description,
                 tierId
             });
@@ -66,7 +66,7 @@ export class ArtController implements IArtController {
 
     async getPictures(artId: number): Promise<types.Picture[]> {
         try {
-            const response = await this.api.get(`/api/arts/${artId}/pictures`);
+            const response = await this.api.get(`/arts/${artId}/pictures`);
             return response.data;
         } catch (err: any) {
             if (err.response && err.response.status === 404) {
@@ -80,8 +80,7 @@ export class ArtController implements IArtController {
         try {
             const formData = new FormData();
             formData.append('file', file);
-            
-            const response = await this.api.post(`/api/arts/${artId}/pictures`, formData);
+            const response = await this.api.postFormData(`/arts/${artId}/pictures`, formData);
             return response.data;
         } catch (err: any) {
             if (err.response && err.response.status === 404) {
@@ -91,7 +90,7 @@ export class ArtController implements IArtController {
         }
     }
 
-    getPictureUrl(artId: number, index: number = 0): string {
-        return `/api/arts/${artId}/pictures?index=${index}`;
+    getPictureUrl(pictureId: number): string {
+        return this.api.url + `/pictures/${pictureId}/view`;
     }
 }

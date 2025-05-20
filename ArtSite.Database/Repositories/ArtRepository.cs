@@ -63,6 +63,6 @@ public class ArtRepository : IArtRepository
 
     public async Task<List<Art>> GetArts(int artistId)
     {
-        return await _context.Arts.Where(art => art.ProfileId == artistId).Select(art => art.ConvertToDto()).ToListAsync();
+        return await _context.Arts.OrderByDescending(art => art.UploadedAt).Where(art => art.ProfileId == artistId).Select(art => art.ConvertToDto()).ToListAsync();
     }
 }

@@ -48,9 +48,14 @@ export type UpdateProfile = {
 export type Art = {
     id: number;
     description?: string;
-    updatedAt: Date;
+    uploadedAt: Date;
     profileId: number;
     tierId?: number;
+}
+
+export type CreationArt = {
+    description: string;
+    tierId?: number | null;
 }
 
 export type Picture = {

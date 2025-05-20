@@ -21,9 +21,9 @@ export class ArtNotAvailableForProfileException extends ArtException {
 
 export interface IArtController {
     getArt(artId: number): Promise<types.Art>;
-    createArt(profileId: number, description: string, tierId?: number): Promise<types.Art>;
+    // createArt(profileId: number, description: string, tierId?: number): Promise<types.Art>;
     getComments(artId: number): Promise<types.Comment[]>;
     addComment(artId: number, text: string): Promise<types.Comment>;
     uploadPicture(artId: number, file: File): Promise<types.Picture>;
-    getPictureUrl(artId: number, index?: number): string;
+    getPictureUrl(pictureId: number): string;
 }

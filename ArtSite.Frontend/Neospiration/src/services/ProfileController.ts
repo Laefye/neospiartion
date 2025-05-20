@@ -11,6 +11,11 @@ export class ProfileController implements IProfileController {
         this.api = api;
     }
     
+    async postArt(profileId: number, value: types.CreationArt): Promise<types.Art> {
+        const { data } = await this.api.post(`/profiles/${profileId}/arts`, value);
+        return data;
+    }
+    
     async deleteAvatar(profileId: number): Promise<void> {
         await this.api.delete(this.prefix + '/' + profileId + '/avatar');
     }
@@ -46,6 +51,10 @@ export class ProfileController implements IProfileController {
 
     async getArts(profileId: number): Promise<types.Art[]> {
         const { data } = await this.api.get(this.prefix + '/' + profileId + '/arts');
-        return data;
+        return data.map((art: any) => ({
+            ...art,
+            uploadedAt: new Date(art.uploadedAt),
+            description: art.description || '',
+        } as types.Art));
     }
 }

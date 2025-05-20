@@ -18,7 +18,7 @@ export interface IProfileController {
     updateProfile(profileId: number, value: types.UpdateProfile): Promise<void>;
 
     getArts(profileId: number): Promise<types.Art[]>;
-    // postArt(profileId: number, value: types.ArtDto): Promise<types.Art>;
+    postArt(profileId: number, value: types.CreationArt): Promise<types.Art>;
 
     // getMessages(profileId: number, limit?: number, offset?: number): Promise<types.Message[]>;
     // postMessage(profileId: number, value: types.AddingMessageDto): Promise<types.Message>;
