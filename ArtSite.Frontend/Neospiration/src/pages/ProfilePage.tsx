@@ -29,10 +29,16 @@ export default function ProfilePage() {
     const [arts, setArts] = useState<Art[]>([]);
     const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
     
+    const profileController = new ProfileController(api);
+
+    const updateArts = async () => {
+        const arts = await profileController.getArts(parseInt(id!));
+        setArts(arts);
+    }
+
     useEffect(() => {
         const loadProfile = async () => {
             try {
-                const profileController = new ProfileController(api);
                 const profile = await profileController.getProfile(parseInt(id!));
                 setProfile(profile);
                 
@@ -41,8 +47,7 @@ export default function ProfilePage() {
                     setAvatarUrl(avatarUrl);
                 }
                 
-                const arts = await profileController.getArts(profile.id);
-                setArts(arts);
+                await updateArts();
                 
                 setLoading(false);
             } catch (err) {
@@ -116,7 +121,7 @@ export default function ProfilePage() {
                         
                         {profile.userId === auth.me?.userId && (
                             <ArtPublishModal
-                                onPublished={async () => { } } profileId={parseInt(id!)}/>
+                                onPublished={updateArts} profileId={parseInt(id!)}/>
                         )}
                         
                         {arts.length > 0 && arts.map((art) => (<ArtComponent key={art.id} art={art}/>))}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Button } from '../components/ui/Button';
+import Button from '../components/ui/Button';
 import { FormInput } from '../components/ui/FormInput';
 import { OldErrorMessage } from '../components/ui/ErrorMessage';
 import { Divider } from '../components/ui/Divider';

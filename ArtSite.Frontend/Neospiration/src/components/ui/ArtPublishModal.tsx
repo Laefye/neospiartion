@@ -3,6 +3,7 @@ import { Plus, X } from 'lucide-react';
 import { ArtController } from '../../services/ArtController';
 import api from '../../services/api';
 import { FileSelect } from './FileSelect';
+import Button from './Button';
 import Container from './Container';
 import { useAuth } from '../../contexts/AuthContext';
 import { ProfileController } from '../../services/ProfileController';
@@ -13,7 +14,6 @@ interface ArtPublishModalProps {
 }
 
 export default function ArtPublishModal({ profileId, onPublished }: ArtPublishModalProps) {
-    const [description, setDescription] = useState('');
     const [error, setError] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
     const [showCreatePostForm, setShowCreatePostForm] = useState(false);
@@ -47,6 +47,7 @@ export default function ArtPublishModal({ profileId, onPublished }: ArtPublishMo
             setPostDescription('');
             setShowCreatePostForm(false);
             if (fileInputRef.current) fileInputRef.current.value = '';
+            onPublished();
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
@@ -61,13 +62,13 @@ export default function ArtPublishModal({ profileId, onPublished }: ArtPublishMo
     return (
         <div className="w-full flex justify-center mb-4">
             {!showCreatePostForm ? (
-                <button
+                <Button
                     onClick={() => setShowCreatePostForm(true)}
                     className="w-full bg-[#1E1E1E] hover:bg-opacity-90 text-white py-3 rounded-md flex items-center justify-center gap-2 transition-colors"
                 >
                     <Plus size={20} />
                     <span>Создать пост</span>
-                </button>
+                </Button>
             ) : (
                 <Container className='space-y-4'>
                     <h3 className="text-lg font-medium">Создать новый пост</h3>
