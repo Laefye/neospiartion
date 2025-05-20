@@ -9,8 +9,11 @@ namespace ArtSite.Core.DTO;
 public class Tier
 {
     public int Id { get; set; }
-    public int ArtistId { get; set; }
+    public int ProfileId { get; set; }
     public required string Name { get; set; }
-    public int Extends { get; set; }
+    public required string Description { get; set; }
+    public required int Price { get; set; }
+    public int? Avatar { get; set; }
+    public int? Extends { get; set; }
 }
 

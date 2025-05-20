@@ -1,13 +1,11 @@
-﻿using ArtSite.Config;
-using ArtSite.DTO;
+﻿using ArtSite.DTO;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using ArtSite.Core.DTO;
+using ArtSite.Core.Exceptions;
+using ArtSite.Core.Interfaces.Services;
 
 namespace ArtSite.Controllers;
 
@@ -15,82 +13,122 @@ namespace ArtSite.Controllers;
 [ApiController]
 public class UserController : ControllerBase
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly JwtConfig _jwtConfig;
+    private readonly IUserService _userService;
+    private readonly IProfileService _profileService;
 
-    public UserController(UserManager<IdentityUser> userManager, IConfiguration configuration)
+    public UserController(IUserService userService, IProfileService profileService)
     {
-        _userManager = userManager;
-        _jwtConfig = new(configuration);
+        _userService = userService;
+        _profileService = profileService;
     }
 
-    [HttpPost()]
+    [HttpPost]
+    [ProducesResponseType(typeof(SafeUserDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> Register([FromBody] RegisterDto register)
     {
-        var userExists = await _userManager.FindByEmailAsync(register.Email);
-        if (userExists != null)
-            return BadRequest("Пользователь с таким email уже существует");
-
-        var user = new IdentityUser()
+        try
         {
-            Email = register.Email,
-            UserName = register.Email,
-            SecurityStamp = Guid.NewGuid().ToString()
-        };
-
-        var result = await _userManager.CreateAsync(user, register.Password);
-        if (!result.Succeeded)
-            return BadRequest(result.Errors);
-        return Ok("Пользователь создан успешно");
+            var user = await _userService.CreateUser(register.UserName, register.DisplayName, register.Email, register.Password);
+            return CreatedAtAction(nameof(GetMe), null, new SafeUserDto
+            {
+                Id =  user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+            });
+        }
+        catch (UserException e)
+        {
+            if (e is { ErrorType: UserException.UserError.FieldError, Errors: not null })
+            {
+                return BadRequest(new ProblemDetails
+                {
+                    Detail = e.Errors.First().Description
+                });
+            }
+            return BadRequest(new ProblemDetails
+            {
+                Detail = e.Message,
+            });
+        }
     }
 
-    [HttpPost("authorization")]
+    [HttpPost("authentication")]
+    [ProducesResponseType(typeof(Token), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult> Login([FromBody] LoginDto model)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
-        if (user == null || !await _userManager.CheckPasswordAsync(user, model.Password))
-            return Unauthorized();
-
-        var authClaims = new List<Claim>
+        try
         {
-            new(ClaimTypes.NameIdentifier, user.Id),
-        };
-
-        var token = GetToken(authClaims);
-
-        return Ok(new JwtSecurityTokenHandler().WriteToken(token));
+            var token = await _userService.Login(model.Email, model.Password);
+            return Ok(token);
+        }
+        catch (UserException e)
+        {
+            if (e is { ErrorType: UserException.UserError.InvalidCredentials })
+            {
+                return Unauthorized(new ProblemDetails
+                {
+                    Detail = "Invalid email or password",
+                });
+            }
+            return BadRequest(new ProblemDetails
+            { 
+                Detail = e.Message,
+            });
+        }
     }
 
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize]
     [HttpGet("me")]
+    [ProducesResponseType(typeof(MeDto), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetMe()
     {
-       var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        if (string.IsNullOrEmpty(userId))
-            return Unauthorized("User ID not found in claims");
-
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
-            return NotFound("User not found in database");
-
-        return Ok(new
+        IdentityUser user;
+        try
         {
-            UserId = userId,
-            Email = user.Email,
+           user = await _userService.GetUserByClaims(User);
+        }
+        catch (UserException e)
+        {
+           return BadRequest(new ProblemDetails
+           {
+               Detail = e.Message,
+           });
+        }
+        Profile profile = await _profileService.GetProfileByUserId(user.Id);
+        return Ok(new MeDto()
+        {
+            UserId = user.Id,
+            Email = user.Email!,
+            UserName = user.UserName!,
+            ProfileId = profile.Id,
         });
     }
 
-    private JwtSecurityToken GetToken(List<Claim> authClaims)
+    [HttpPut("{userId}")]
+    public async Task<ActionResult> UpdateUser(string userId, [FromBody] UpdateUserDto updateUser)
     {
-        var token = new JwtSecurityToken(
-            issuer: _jwtConfig.Issuer,
-            audience: _jwtConfig.Audience,
-            expires: DateTime.Now.AddDays(7),
-            claims: authClaims,
-            signingCredentials: new SigningCredentials(_jwtConfig.SymmetricSecurityKey, SecurityAlgorithms.HmacSha256)
-        );
-        return token;
+        try
+        {
+            await _userService.UpdateUser(userId, updateUser.UserName);
+            return Accepted();
+        }
+        catch (UserException e)
+        {
+            if (e is { ErrorType: UserException.UserError.FieldError, Errors: not null })
+            {
+                return BadRequest(new ProblemDetails
+                {
+                    Detail = e.Errors.First().Description
+                });
+            }
+            return BadRequest(new ProblemDetails
+            {
+                Detail = e.Message,
+            });
+        }
     }
 }
 

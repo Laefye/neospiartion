@@ -18,15 +18,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure the database context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<IArtistRepository, ArtistRepository>();
-builder.Services.AddScoped<IArtRepository, ArtRepository>();
+
 builder.Services.AddScoped<IPictureRepository, PictureRepository>();
+builder.Services.AddScoped<IProfileRepository, ProfileRepository>();
+builder.Services.AddScoped<IArtRepository, ArtRepository>();
+builder.Services.AddScoped<ICommentRepository, CommentRepository>();
+builder.Services.AddScoped<ITierRepository, TierRepository>();
+builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
+builder.Services.AddScoped<IStoragedFileRepository, StoragedFileRepository>();
+builder.Services.AddScoped<ICommissionRepository, CommissionRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+
 
 // Configure the identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(jwtOptions =>
     {
         var config = new JwtConfig(builder.Configuration);
@@ -49,8 +61,16 @@ builder.Services.AddProblemDetails();
 builder.Services.AddControllers();
 
 // Add services to the container.
-builder.Services.AddScoped<IArtistService, ArtistService>();
+builder.Services.AddScoped<IProfileService, ProfileService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IStorageService, StorageService>();
 builder.Services.AddScoped<IArtService, ArtService>();
+builder.Services.AddScoped<ICommentService, CommentService>();
+builder.Services.AddScoped<ITierService, TierService>();
+builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
+builder.Services.AddScoped<ICommissionService, CommissionService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
+
 builder.Services.AddHttpClient<VKService>();
 builder.Services.AddScoped<IVKService, VKService>(VKService.CreateFactory(builder.Configuration));
 builder.Services.AddScoped<IImportService, ImportService>();

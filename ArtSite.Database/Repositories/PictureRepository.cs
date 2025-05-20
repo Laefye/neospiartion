@@ -14,15 +14,28 @@ public class PictureRepository : IPictureRepository
         _context = context;
     }
 
-    public async Task<Picture> AddPicture(int artId, string url)
+    public async Task<Picture> AddPicture(int artId, int storagedFileId)
     {
-        var picture = await _context.Pictures.AddAsync(new DbPicture { ArtId = artId, Url = url });
+        var picture = await _context.Pictures.AddAsync(new DbPicture { ArtId = artId, StoragedFileId = storagedFileId });
         await _context.SaveChangesAsync();
-        return picture.Entity.ConvertToDTO();
+        return picture.Entity.ConvertToDto();
+    }
+
+    public Task<Picture?> GetPicture(int pictureId)
+    {
+        return _context.Pictures.Where(p => p.Id == pictureId).Select(p => p.ConvertToDto()).FirstOrDefaultAsync();
     }
 
     public async Task<List<Picture>> GetPictures(int artId)
     {
-        return await _context.Pictures.Where(p => p.ArtId == artId).Select(p => p.ConvertToDTO()).ToListAsync();
+        return await _context.Pictures.Where(p => p.ArtId == artId).Select(p => p.ConvertToDto()).ToListAsync();
+    }
+
+    public async Task DeletePicture(int pictureId)
+    {
+        var picture = await _context.Pictures.FindAsync(pictureId);
+        if (picture == null) return;
+        _context.Pictures.Remove(picture);
+        await _context.SaveChangesAsync();
     }
 }

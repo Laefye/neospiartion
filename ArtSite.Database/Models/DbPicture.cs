@@ -6,13 +6,15 @@ namespace ArtSite.Database.Models;
 public class DbPicture
 {
     public int Id { get; set; }
-    public required int ArtId { get; set; }
-    public required string Url { get; set; }
+    public int ArtId { get; set; }
+    public int StoragedFileId { get; set; } 
 
-    public Picture ConvertToDTO() => new Picture
+    public DbArt Art { get; set; } = null!;
+
+    public Picture ConvertToDto() => new()
     {
         Id = Id,
         ArtId = ArtId,
-        Url = Url,
+        StoragedFileId = StoragedFileId,
     };
 }
