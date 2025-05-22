@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { CommentController } from '../../services/CommentController';
 import api from '../../services/api';
 import type { Comment } from '../../services/types';
+import Button from './Button';
 
 function ArtComments({ artId }: { artId: number }) {
     const [comments, setComments] = useState<Comment[]>([]);
@@ -104,13 +105,14 @@ function ArtComments({ artId }: { artId: number }) {
                     placeholder="Добавьте ваш комментарий..."
                     rows={3}
                 />
-                <button
+                <Button
                     type="submit"
                     disabled={!newComment.trim()}
-                    className="mt-2 bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 disabled:opacity-50"
+                    variant="primary"
+                    className="mt-2"
                 >
                     Отправить
-                </button>
+                </Button>
             </form>
             
             {loading ? (
@@ -138,38 +140,39 @@ function ArtComments({ artId }: { artId: number }) {
                                         rows={3}
                                     />
                                     <div className="flex space-x-2 mt-2">
-                                        <button
+                                        <Button
                                             type="submit"
                                             disabled={!editingComment.text.trim()}
-                                            className="text-sm bg-green-600 text-white py-1 px-3 rounded-md hover:bg-green-700"
+                                            variant="primary"
+                                            className="flex-1"
                                         >
                                             Сохранить
-                                        </button>
-                                        <button
-                                            type="button"
+                                        </Button>
+                                        <Button
                                             onClick={cancelEditing}
-                                            className="text-sm border border-gray-300 py-1 px-3 rounded-md hover:bg-gray-100"
+                                            variant="secondary"
+                                            className="flex-1"
                                         >
                                             Отмена
-                                        </button>
+                                        </Button>
                                     </div>
                                 </form>
                             ) : (
                                 <>
                                     <p className="mt-2">{comment.text}</p>
                                     <div className="mt-2 flex space-x-3">
-                                        <button
+                                        <Button
                                             onClick={() => startEditing(comment)}
-                                            className="text-sm text-blue-500"
+                                            className="text-sm py-1 px-2"
                                         >
                                             Редактировать
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
                                             onClick={() => handleDeleteComment(comment.id)}
                                             className="text-sm text-red-500"
                                         >
                                             Удалить
-                                        </button>
+                                        </Button>
                                     </div>
                                 </>
                             )}

@@ -1,5 +1,6 @@
 import { X } from 'lucide-react';
 import { useEffect, useRef } from 'react';
+import Button from './Button';
 
 interface NotificationWindowProps {
     isOpen: boolean;
@@ -35,12 +36,13 @@ export default function NotificationWindow({ isOpen, onClose }: NotificationWind
             >
                 <div className="flex justify-between items-center p-4 border-b border-purple-900/30">
                     <h2 className="text-xl font-bold text-white">Уведомления</h2>
-                    <button 
+                    <Button 
                         onClick={onClose}
-                        className="text-gray-400 hover:text-white transition-colors"
+                        variant="white"
+                        className="p-2 rounded-full hover:bg-purple-900/20 transition-colors duration-200"
                     >
                         <X size={24} />
-                    </button>
+                    </Button>
                 </div>
                 
                 <div className="p-6 h-[calc(600px-70px)] overflow-y-auto">
