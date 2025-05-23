@@ -97,7 +97,8 @@ export class ArtController implements IArtController {
     async getAllArts(offset: number = 0, limit: number = 10): Promise<types.Art[]> {
         try {
             const response = await this.api.get(`/api/arts`, {
-                params: { offset, limit }
+                params: { offset, limit },
+                skipAuthRefresh: true 
             });
             
             return response.data.map((art: any) => ({

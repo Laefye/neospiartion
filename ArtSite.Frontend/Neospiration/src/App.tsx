@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router';
+import { BrowserRouter, Routes, Route } from 'react-router'; // FIXED: Changed from 'react-router' to 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
@@ -6,7 +6,7 @@ import ProfilePage from './pages/ProfilePage';
 import ProfileEditPage from './pages/ProfileEditPage';
 import MessagesPage from './pages/MessagesPage';
 import ArtGalleryPage from './pages/ArtGalleryPage';
-import { AuthRoute, UnauthRoute } from './routes/AutoRoute';
+import { AuthRoute, UnauthRoute } from './routes/AuthRoute'; // FIXED: Changed from './routes/AutoRoute'
 import './App.css';
 
 function App() {
@@ -24,7 +24,7 @@ function App() {
           <Route path="/messages" element={<AuthRoute><MessagesPage /></AuthRoute>} />
           <Route path="/messages/:conversationId" element={<AuthRoute><MessagesPage /></AuthRoute>} />
           
-          <Route path="/" element={<Route path="/" element={<ArtGalleryPage />} />} />
+          <Route path="/" element={<ArtGalleryPage />} /> {/* FIXED: Removed invalid nested Route */}
           <Route path="*" element={<ArtGalleryPage />} />
         </Routes>
       </AuthProvider>

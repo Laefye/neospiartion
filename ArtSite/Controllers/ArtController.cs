@@ -27,12 +27,12 @@ public class ArtController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
+    //[Authorize]
     [ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAllArts([FromQuery] int offset = 0, [FromQuery] int limit = 10)
     {
         try {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            string? userId = User.Identity?.IsAuthenticated == true ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null;
             return Ok(await _artService.GetAllArts(userId, offset, limit));
         } catch (Exception) {
             throw;

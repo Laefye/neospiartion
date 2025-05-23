@@ -32,27 +32,24 @@ export default function ArtGalleryPage() {
             }
             
             setArts(prevArts => offset === 0 ? fetchedArts : [...prevArts, ...fetchedArts]);
-            
+
             const profileIds = new Set(fetchedArts.map(art => art.profileId));
             const profilePromises = Array.from(profileIds).map(id => 
-                profileController.getProfile(id).then(profile => ({ id, profile }))
+                profileController.getProfile(id)
+                    .then(profile => ({ id, profile }))
+                    .catch(() => ({ id, profile: null }))
             );
             
             const profiles = await Promise.all(profilePromises);
             const profileMap = profiles.reduce((acc, { id, profile }) => {
-                acc[id] = profile;
+                if (profile) acc[id] = profile;
                 return acc;
             }, {} as Record<number, Profile>);
             
             setArtistProfiles(prev => ({ ...prev, ...profileMap }));
-            
         } catch (err) {
             console.error("Error fetching arts:", err);
-            if (err instanceof Error) {
-                setError(err.message);
-            } else {
-                setError('Не удалось загрузить работы');
-            }
+            setError(err instanceof Error ? err.message : 'Failed to load artwork');
         } finally {
             setLoading(false);
         }
@@ -79,7 +76,7 @@ export default function ArtGalleryPage() {
             <Nav />
             
             <div className="max-w-7xl mx-auto px-4 py-8">
-                <Header title="Галерея искусства" />
+                <Header title="Галерея" />
                 
                 {error && (
                     <div className="bg-red-900/20 border border-red-500 text-red-200 p-4 rounded-md mb-6">
@@ -164,7 +161,7 @@ export default function ArtGalleryPage() {
                     </div>
                 )}
                 
-                {!loading && hasMore && (
+                {!loading || hasMore && (
                     <div className="flex justify-center mt-8">
                         <Button 
                             onClick={loadMore}
