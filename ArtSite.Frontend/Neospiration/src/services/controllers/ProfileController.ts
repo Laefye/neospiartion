@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
-import type { Client } from "./api";
-import type * as types from "./types";
-import { ProfileNotFoundException, type IProfileController } from "./interfaces/IProfileController";
+import type { Client } from "../api";
+import type * as types from "../types";
+import { ProfileNotFoundException, type IProfileController } from "../interfaces/IProfileController";
 
 export class ProfileController implements IProfileController {
     api: Client;

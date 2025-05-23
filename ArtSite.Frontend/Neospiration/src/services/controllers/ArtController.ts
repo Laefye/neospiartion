@@ -1,7 +1,7 @@
-import type { DefaultClient } from "./api";
-import type * as types from "./types";
-import { ArtNotFoundException, ArtNotAvailableForProfileException } from "./interfaces/IArtController";
-import type { IArtController } from "./interfaces/IArtController";
+import type { DefaultClient } from "../api";
+import type * as types from "../types";
+import { ArtNotFoundException, ArtNotAvailableForProfileException } from "../interfaces/IArtController";
+import type { IArtController } from "../interfaces/IArtController";
 
 export class ArtController implements IArtController {
     private api: DefaultClient;
@@ -92,5 +92,26 @@ export class ArtController implements IArtController {
 
     getPictureUrl(pictureId: number): string {
         return this.api.url + `/pictures/${pictureId}/view`;
+    }
+
+    async getAllArts(offset: number = 0, limit: number = 10): Promise<types.Art[]> {
+        try {
+            const response = await this.api.get(`/api/arts`, {
+                params: { offset, limit }
+            });
+            
+            return response.data.map((art: any) => ({
+                ...art,
+                uploadedAt: new Date(art.uploadedAt),
+                description: art.description || ''
+            }));
+        }
+        catch (err: any) 
+        {
+            if (err.response && err.response.status === 404) {
+                throw new ArtNotFoundException();
+            }
+            throw err;
+        }
     }
 }

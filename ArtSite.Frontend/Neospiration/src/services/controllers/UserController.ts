@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
-import type { Client } from "./api";
-import { AlreadyUsedException, InvalidRegistrationDataException, InvalidTokenException, type IUserController } from "./interfaces/IUserController";
-import type { Register, SafeUser, Login, Token, Me, UpdateUser } from "./types";
+import type { Client } from "../api";
+import { AlreadyUsedException, InvalidRegistrationDataException, InvalidTokenException, type IUserController } from "../interfaces/IUserController";
+import type { Register, SafeUser, Login, Token, Me, UpdateUser } from "../types";
 
 export class UserController implements IUserController {
     api: Client;

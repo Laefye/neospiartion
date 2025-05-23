@@ -1,67 +1,59 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
+import { UserController } from '../services/controllers/UserController';
 import api from '../services/api';
-import { useNavigate } from 'react-router';
-import { UserController } from '../services/UserController';
-import { InvalidTokenException } from '../services/interfaces/IUserController';
 import type { Me } from '../services/types';
 
-type AuthContextType = {
-    me: Me | null,
+interface AuthContextType {
+    me: Me | null;
+    loading: boolean;
+    setMe: (me: Me | null) => void;
+    logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+    me: null,
+    loading: true,
+    setMe: () => {},
+    logout: () => {},
+});
 
-export function AuthProvider({ children, requirement }: { children: ReactNode, requirement: 'any' | 'auth' }) {
-    const navigate = useNavigate();
-    const [done, setDone] = useState(false);
+export function AuthProvider({ children }: { children: ReactNode }) {
     const [me, setMe] = useState<Me | null>(null);
+    const [loading, setLoading] = useState(true);
+
     useEffect(() => {
-        (async () => {
-            if (!api.tokenStorage.isAuthenticated() && requirement == 'auth') {
-                navigate('/login');
-                return;
-            }
+        const loadUser = async () => {
+        try {
+            if (api.tokenStorage.getToken()) {
             const userController = new UserController(api);
-            try {
-                const me = await userController.me();
-                setMe(me);
-                setDone(true);
-            } catch (error) {
-                if (error instanceof InvalidTokenException) {
-                    if (requirement == 'auth') {
-                        api.tokenStorage.removeToken();
-                        navigate('/login');
-                        return;
-                    } else {
-                        setDone(true);
-                    }
-                } else if (error instanceof Error) {
-                    alert(error.message);
-                }
-                throw error;
+            const userData = await userController.me();
+            setMe(userData);
             }
-        })();
-    }, [requirement]);
+        } catch (error) {
+            console.error('Failed to load user:', error);
+            api.tokenStorage.removeToken();
+        } finally {
+            setLoading(false);
+        }
+        };
+
+        loadUser();
+    }, []);
+
+    const logout = () => {
+        api.tokenStorage.removeToken();
+        setMe(null);
+        window.location.href = '/login';
+    };
+
     return (
-        <AuthContext.Provider value={{ me: me }}>
-            {done && children}
-            {!done && (
-                <div className="flex flex-col items-center justify-center min-h-screen w-full px-4 py-6 sm:py-12">
-                    <div className="w-full max-w-md space-y-8 px-4 sm:px-0">
-                        <h1 className="text-center text-3xl font-bold text-art-text-primary">
-                            Загрузка...
-                        </h1>
-                    </div>
-                </div>)}
+        <AuthContext.Provider value={{ me, loading, setMe, logout }}>
+        {children}
         </AuthContext.Provider>
     );
 }
 
-export const useAuth = () => {
-    const context = useContext(AuthContext);
-    if (context === undefined) {
-        throw new Error('useAuth must be used within an AuthProvider');
-    }
-    return context;
-};
+export function useAuth() {
+    return useContext(AuthContext);
+}

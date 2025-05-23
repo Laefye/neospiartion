@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Plus, X } from 'lucide-react';
-import { ArtController } from '../../services/ArtController';
-import { ProfileController } from '../../services/ProfileController';
+import { ArtController } from '../../services/controllers/ArtController';
+import { ProfileController } from '../../services/controllers/ProfileController';
 import api from '../../services/api';
 import Button from './Button';
 import Container from './Container';

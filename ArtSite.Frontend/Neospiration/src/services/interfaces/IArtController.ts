@@ -26,4 +26,5 @@ export interface IArtController {
     addComment(artId: number, text: string): Promise<types.Comment>;
     uploadPicture(artId: number, file: File): Promise<types.Picture>;
     getPictureUrl(pictureId: number): string;
+    getAllArts(offset: number, limit: number): Promise<types.Art[]>
 }

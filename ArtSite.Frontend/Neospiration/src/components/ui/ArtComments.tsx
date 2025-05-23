@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { CommentController } from '../../services/CommentController';
+import { CommentController } from '../../services/controllers/CommentController';
 import api from '../../services/api';
 import type { Comment } from '../../services/types';
 import Button from './Button';

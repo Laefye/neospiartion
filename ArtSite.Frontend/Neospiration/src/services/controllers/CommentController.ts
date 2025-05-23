@@ -1,8 +1,8 @@
 import { AxiosError } from "axios";
-import type { Client } from "./api";
-import type * as types from "./types";
-import type { ICommentController } from "./interfaces/ICommentController";
-import { CommentNotFoundException, CommentNotAuthorException, CommentNotCreatedException } from "./interfaces/ICommentController";
+import type { Client } from "../api";
+import type * as types from "../types";
+import type { ICommentController } from "../interfaces/ICommentController";
+import { CommentNotFoundException, CommentNotAuthorException, CommentNotCreatedException } from "../interfaces/ICommentController";
 
 export class CommentController implements ICommentController {
     api: Client;

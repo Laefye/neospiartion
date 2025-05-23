@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { Art, Picture } from "../../services/types";
 import Container from "./Container";
-import { ArtController } from "../../services/ArtController";
+import { ArtController } from "../../services/controllers/ArtController";
 import api from "../../services/api";
 
 const convertDateToString = (date: Date): string => {

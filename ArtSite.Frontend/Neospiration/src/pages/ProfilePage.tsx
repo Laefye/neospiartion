@@ -1,19 +1,18 @@
-import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router'; // Fixed import
-import { ProfileController } from '../services/ProfileController';
-import { ArtController } from '../services/ArtController';
+import { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
+import { ProfileController } from '../services/controllers/ProfileController';
+import { ArtController } from '../services/controllers/ArtController';
 import api from '../services/api';
 import type { Profile, Art } from '../services/types';
 import Seperator from '../components/ui/Seperator';
-import { MessageSquare, PencilLine, Home, Bell, Plus } from 'lucide-react';
+import { MessageSquare, PencilLine } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import ButtonLink from '../components/ui/ButtonLink';
 import Container from '../components/ui/Container';
-import NotificationWindow from '../components/ui/NotificationWindow';
 import ArtPublishModal from '../components/ui/ArtPublishModal';
-import ArtComments from '../components/ui/ArtComments';
-import Nav from '../components/ui/Nav';
 import ArtComponent from '../components/ui/ArtComponent';
+import Nav from '../components/ui/Nav';
+import Header from '../components/ui/Header';
 
 export default function ProfilePage() {
     const { id } = useParams();
@@ -22,12 +21,7 @@ export default function ProfilePage() {
     const [error, setError] = useState<string | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-    const [showCreatePostForm, setShowCreatePostForm] = useState(false);
-    const [postDescription, setPostDescription] = useState('');
-    const [uploading, setUploading] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
     const [arts, setArts] = useState<Art[]>([]);
-    const [isPublishModalOpen, setIsPublishModalOpen] = useState(false);
     
     const profileController = new ProfileController(api);
 
@@ -64,11 +58,32 @@ export default function ProfilePage() {
             loadProfile();
         }
     }, [id]);
+
+    const getProfileActions = () => {
+        if (!profile) return null;
+        
+        if (auth.me?.userId === profile.userId) {
+            return (
+                <ButtonLink variant='outline' href={`/profile/${profile.id}/edit`}>
+                    <PencilLine className='me-2' />
+                    <span>Редактировать</span>
+                </ButtonLink>
+            );
+        } else if (auth.me) {
+            return (
+                <ButtonLink variant='outline' href={`/conversation/${profile.id}`}>
+                    <MessageSquare className='me-2' />
+                    <span>Сообщения</span>
+                </ButtonLink>
+            );
+        }
+        return null;
+    };
     
     return (
         <>
             <Nav/>
-            <div className='w-full flex flex-col items-center'>
+            <div className='min-h-screen bg-gradient-to-b from-[#25022A] to-[#320425] w-full flex flex-col items-center'>
                 {error && <div className='p-2.5 rounded-lg bg-white space-y-2.5'>{error}</div>}
                 {loading && (
                     <div className='w-max-container w-full py-5'>
@@ -98,18 +113,7 @@ export default function ProfilePage() {
                                 )}
                                 <span className='ml-4 text-2xl'>{profile.displayName}</span>
                                 <div className='grow'></div>
-                                {auth.me != null && profile.userId != auth.me.userId && (
-                                    <ButtonLink variant='outline' href={'/conversation/' + profile.id}>
-                                        <MessageSquare className='me-2' />
-                                        <span>Сообщения</span>
-                                    </ButtonLink>
-                                )}
-                                {profile.userId == auth.me?.userId && (
-                                    <ButtonLink variant='outline' href={'/profile/' + profile.id + '/edit'}>
-                                        <PencilLine className='me-2' />
-                                        <span>Редактировать</span>
-                                    </ButtonLink>
-                                )}
+                                {getProfileActions()}
                             </div>
                             {profile.description && (
                                 <>
@@ -120,8 +124,7 @@ export default function ProfilePage() {
                         </Container>
                         
                         {profile.userId === auth.me?.userId && (
-                            <ArtPublishModal
-                                onPublished={updateArts} profileId={parseInt(id!)}/>
+                            <ArtPublishModal onPublished={updateArts} profileId={parseInt(id!)}/>
                         )}
                         
                         {arts.length > 0 && arts.map((art) => (<ArtComponent key={art.id} art={art}/>))}

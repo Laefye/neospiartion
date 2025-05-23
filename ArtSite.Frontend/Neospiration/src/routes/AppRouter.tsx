@@ -6,6 +6,7 @@ import FeedPage from '../pages/FeedPage';
 import { AuthProvider } from '../contexts/AuthContext';
 import ProfilePage from '../pages/ProfilePage';
 import ProfileEditPage from '../pages/ProfileEditPage';
+import MessagesPage from '../pages/MessagesPage';
 
 export function AppRouter() {
   return (
@@ -16,7 +17,8 @@ export function AppRouter() {
       <Route path="/feed" element={<AuthProvider requirement='auth'><FeedPage /></AuthProvider>} />
       <Route path="/profile/:id" element={<AuthProvider requirement='any'><ProfilePage /></AuthProvider>} />
       <Route path="/profile/:id/edit" element={<AuthProvider requirement='auth'><ProfileEditPage /></AuthProvider>} />
-      {/* Add your other routes here */}
+      <Route path="/messages" element={<MessagesPage />} />
+      <Route path="/messages/:conversationId" element={<MessagesPage />} />
       <Route path="*" element={<LoginPage />} />
     </Routes>
   );

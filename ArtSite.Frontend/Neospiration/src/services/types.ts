@@ -72,3 +72,20 @@ export type Comment = {
     updatedAt: Date;
     profileId: number;
 }
+
+export type Message = {
+    id: number;
+    text: string;
+    senderId: number;
+    receiverId: number;
+    createdAt: Date;
+    isRead: boolean;
+}
+
+export type Conversation = {
+    id: number;
+    participants: Profile[];
+    lastMessage?: Message;
+    unreadCount: number;
+    updatedAt: Date;
+}
