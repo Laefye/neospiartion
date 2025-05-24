@@ -8,6 +8,7 @@ public interface IArtService
     IArtService Apply(ITierService tierService);
     IArtService Apply(ICommentService commentService);
     IArtService Apply(IView view);
+    IArtService Apply(ILikeService likeService);
 
     /// <summary>
     /// Создание нового произведения искусства.

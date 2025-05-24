@@ -10,5 +10,7 @@ public interface ILikeRepository
 
     Task DeleteLike(int profileId, int artId);
 
+    Task DeleteAllLikesInArt(int artId);
+
     Task<bool> IsLiked(int profile, int artId);
 }

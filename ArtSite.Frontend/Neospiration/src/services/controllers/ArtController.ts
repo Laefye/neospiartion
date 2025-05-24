@@ -9,6 +9,21 @@ export class ArtController implements IArtController {
     constructor(api: DefaultClient) {
         this.api = api;
     }
+
+    async deleteArt(artId: number): Promise<void> {
+        try {
+            await this.api.delete(`/arts/${artId}`);
+        } catch (err: any) {
+            if (err.response && err.response.status === 404) {
+                throw new ArtNotFoundException();
+            }
+            if (err.response && err.response.status === 403) {
+                throw new ArtNotAvailableForProfileException();
+            }
+            throw err;
+        }
+    }
+    
     async likeArt(artId: number): Promise<void> {
         try {
             await this.api.post(`/arts/${artId}/like`);

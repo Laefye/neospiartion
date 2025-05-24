@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router';
 import { ProfileController } from '../services/controllers/ProfileController';
-import { ArtController } from '../services/controllers/ArtController';
 import api from '../services/api';
 import type { Profile, Art } from '../services/types';
 import Seperator from '../components/ui/Seperator';
@@ -12,7 +11,6 @@ import Container from '../components/ui/Container';
 import ArtPublishModal from '../components/ui/ArtPublishModal';
 import Publication from '../components/ui/Publication';
 import Nav from '../components/ui/Nav';
-import Header from '../components/ui/Header';
 import Avatar from '../components/ui/Avatar';
 
 export default function ProfilePage() {
@@ -114,7 +112,7 @@ export default function ProfilePage() {
                             <ArtPublishModal onPublished={updateArts} profileId={parseInt(id!)}/>
                         )}
                         
-                        {arts.length > 0 && arts.map((art) => (<Publication key={art.id} art={art}/>))}
+                        {arts.length > 0 && arts.map((art) => (<Publication key={art.id} art={art} settings={{onDeleted: () => updateArts()}}/>))}
                     </div>
                 )}
             </div>

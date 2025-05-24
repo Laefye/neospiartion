@@ -4,7 +4,7 @@ import Container from "./Container";
 import { ArtController } from "../../services/controllers/ArtController";
 import api from "../../services/api";
 import Avatar from "./Avatar";
-import { Heart } from "lucide-react";
+import { Heart, Settings, Trash } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 
 const convertDateToString = (date: Date): string => {
@@ -24,12 +24,13 @@ const convertDateToString = (date: Date): string => {
     return result;
 }
 
-export default function Publication({ art, profile }: { art: Art, profile?: Profile }) {
+export default function Publication({ art, profile, settings }: { art: Art, profile?: Profile, settings?: { onDeleted: () => void } }) {
     const [pictures, setPictures] = useState<Picture[] | null>(null);
     const [loading, setLoading] = useState(true);
     const [imageLoaded, setImageLoaded] = useState(false);
     const [liked, setLiked] = useState(art.isLiked || false);
     const [likeCount, setLikeCount] = useState(art.likeCount || 0);
+    const [isOpenedContextMenu, setIsOpenedContextMenu] = useState(false);
     const artController = useMemo(() => new ArtController(api), [api]);
     const auth = useAuth();
     
@@ -44,6 +45,14 @@ export default function Publication({ art, profile }: { art: Art, profile?: Prof
         setLiked(!liked);
     };
 
+    const deleteButtonHandle = async () => {
+        if (settings && settings.onDeleted) {
+            await artController.deleteArt(art.id);
+            setIsOpenedContextMenu(false);
+            settings.onDeleted();
+        }
+    };
+
     useEffect(() => {
         const fetchPictureUrls = async () => {
             const pictures = await artController.getPictures(art.id);
@@ -55,8 +64,23 @@ export default function Publication({ art, profile }: { art: Art, profile?: Prof
     
     return (
         <Container withoutPadding className="overflow-hidden h-min">
-            <div className="p-3">
-                <p className="line-clamp-2 text-art-text-hint">{convertDateToString(art.uploadedAt)}</p>
+            <div className="p-3 flex">
+                <p className="line-clamp-2 text-art-text-hint grow">{convertDateToString(art.uploadedAt)}</p>
+                { auth.me && auth.me.profileId === art.profileId && settings != null && (
+                    <button className="text-art-text-hint" onClick={() => setIsOpenedContextMenu(!isOpenedContextMenu)}>
+                        <Settings/>
+                    </button>
+                )}
+                {isOpenedContextMenu && (
+                    <div className="relative">
+                        <div className="absolute right-0 top-8 bg-white shadow-lg rounded-md p-2 flex flex-col">
+                            <button className="w-full text-red-500 flex space-x-1.5" onClick={deleteButtonHandle}>
+                                <Trash className="inline mr-1" />
+                                <span>Удалить</span>
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
             { profile && (
                 <div className="flex items-center gap-2 px-2">

@@ -13,6 +13,19 @@ public class LikeRepository : ILikeRepository
     {
         _context = context;
     }
+
+    public async Task DeleteAllLikesInArt(int artId)
+    {
+        var likes = await _context.Likes
+            .Where(l => l.ArtId == artId)
+            .ToListAsync();
+        if (likes.Any())
+        {
+            _context.Likes.RemoveRange(likes);
+            await _context.SaveChangesAsync();
+        }
+    }
+
     public async Task DeleteLike(int profileId, int artId)
     {
         var like = await _context.Likes

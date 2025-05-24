@@ -30,4 +30,6 @@ export interface IArtController {
 
     likeArt(artId: number): Promise<void>;
     unlikeArt(artId: number): Promise<void>;
+
+    deleteArt(artId: number): Promise<void>;
 }

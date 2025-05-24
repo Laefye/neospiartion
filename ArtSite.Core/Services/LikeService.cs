@@ -46,4 +46,9 @@ public class LikeService : ILikeService
     {
         return _likeRepository.GetLikes(artId);
     }
+
+    public async Task DeleteAllLikesInArt(int artId)
+    {
+        await _likeRepository.DeleteAllLikesInArt(artId);
+    }
 }

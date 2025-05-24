@@ -11,4 +11,6 @@ public interface ILikeService
     Task<bool> IsArtLikedAsync(string userId, int artId);
 
     Task<int> GetLikeCountAsync(int artId);
+
+    Task DeleteAllLikesInArt(int artId);
 }
