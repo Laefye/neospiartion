@@ -119,9 +119,6 @@ export default function ProfileEditPage() {
     if (auth.me?.profileId != id) {
         navigate('/profile/' + auth.me?.profileId);
     }
-    if (!profile) {
-        return <div className="flex items-center justify-center min-h-screen">Загрузка...</div>;
-    }
     return (
         <>
             <Nav />
@@ -147,8 +144,8 @@ export default function ProfileEditPage() {
                                 id="displayName" 
                                 label="Выводимая имя" 
                                 disabled={loading} 
-                                value={profile.displayName} 
-                                onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
+                                value={profile?.displayName} 
+                                onChange={(e) => setProfile({ ...profile!, displayName: e.target.value })}
                                 className="primary"
                             />
                             <TextArea 
@@ -156,8 +153,8 @@ export default function ProfileEditPage() {
                                 label="Описание" 
                                 className="outline"
                                 disabled={loading} 
-                                value={profile.description}
-                                onChange={(e) => setProfile({ ...profile, description: e.target.value })}
+                                value={profile?.description}
+                                onChange={(e) => setProfile({ ...profile!, description: e.target.value })}
                             />
                             <Button 
                                 isLoading={loading} 
@@ -172,7 +169,7 @@ export default function ProfileEditPage() {
                             <div>
                                 <h3 className="text-lg mb-3">Аватар</h3>
                                 <div className="flex items-center mb-4">
-                                    <Avatar profile={profile} size={64} />
+                                    {profile?.avatar && (<Avatar profile={profile} size={64} />)}
                                 </div>
                             </div>
                             <FileSelect 
@@ -186,7 +183,7 @@ export default function ProfileEditPage() {
                                 <Button 
                                     type="button"
                                     isLoading={loading} 
-                                    disabled={loading || profile.avatar == null}
+                                    disabled={loading || profile?.avatar == null}
                                     variant="outline"
                                     onClick={deleteAvatarHandler}
                                 >

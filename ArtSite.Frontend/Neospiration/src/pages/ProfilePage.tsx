@@ -130,7 +130,7 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
                 </Container>
             </div>
         )}
-        <Container className='flex flex-col items-center justify-between h-min min-w-[400px]' withoutPadding>
+        <Container className='flex flex-col items-center justify-between h-min md:min-w-[400px]' withoutPadding>
             <div className='flex w-full'>
                 <div className='grow border-b-2 border-art-secondary'>
                     <Button variant='submenu' className='w-full'>Уровни подписки</Button>
