@@ -21,4 +21,5 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     public DbSet<DbSubscription> Subscriptions { get; set; }
     public DbSet<DbStoragedFile> StoragedFiles { get; set; }
     public DbSet<DbCommission> Commissions { get; set; }
+    public DbSet<DbLike> Likes { get; set; }
 }

@@ -3,6 +3,7 @@ using System.Security.Claims;
 using ArtSite.Core.DTO;
 using ArtSite.Core.Exceptions;
 using ArtSite.Core.Interfaces.Services;
+using ArtSite.DTO;
 using ArtSite.Utils;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,35 +18,51 @@ public class ArtController : ControllerBase
     private readonly IProfileService _profileService;
     private readonly ICommentService _commentService;
     private readonly ISubscriptionService _subscriptionService;
+    private readonly ILikeService _likeService;
+    private readonly DtoConvertor _dtoConvertor;
 
-    public ArtController(IArtService artService, IProfileService profileService, ICommentService commentService, ISubscriptionService subscriptionService)
+    public ArtController(IArtService artService, IProfileService profileService, ICommentService commentService, ISubscriptionService subscriptionService, ILikeService likeService)
     {
         _artService = artService;
         _profileService = profileService;
         _commentService = commentService;
         _subscriptionService = subscriptionService;
+        _likeService = likeService;
+        _dtoConvertor = new DtoConvertor(likeService);
     }
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<Countable<Art>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<Countable<FullArtDto>>), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAllArts([FromQuery] int offset = 0, [FromQuery] int limit = 10)
     {
         try {
-            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return Ok(await _artService.GetAllArts(userId, offset, limit));
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var arts = await _artService.GetAllArts(userId, offset, limit);
+            var fullArts = new List<FullArtDto>();
+            foreach (var art in arts.Items)
+            {
+                var fullArt = await _dtoConvertor.GetFullArtDto(userId, art);
+                fullArts.Add(fullArt);
+            }
+            return Ok(new Countable<FullArtDto>
+            {
+                Items = fullArts,
+                Count = arts.Count
+            });
         } catch (Exception) {
             throw;
         }
     }
 
+    
     [HttpGet("{artId}")]
-    [ProducesResponseType(typeof(Art), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(FullArtDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetArt(int artId)
     {
         try {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            return Ok(await _artService.GetArt(userId, artId));
+            return Ok(await _dtoConvertor.GetFullArtDto(userId, await _artService.GetArt(userId, artId)));
         } catch (ArtException.NotFoundArt e) {
             return NotFound(new ProblemDetails
             {
@@ -167,6 +184,55 @@ public class ArtController : ControllerBase
             throw;
         }
     }
+
+    [HttpPost("{artId}/like")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult> LikeArt(int artId)
+    {
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            if (await _likeService.LikeArtAsync(userId, artId)) {
+                return CreatedAtAction(nameof(GetArt), new { artId }, null);
+            } else {
+                return Forbid();
+            }
+        } catch (ArtException.NotFoundArt e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }
+    }
+
+    [HttpDelete("{artId}/like")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status202Accepted)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    public async Task<ActionResult> UnlikeArt(int artId)
+    {
+        try {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            if (await _likeService.UnlikeArtAsync(userId, artId)) {
+                return Accepted();
+            } else {
+                return Forbid();
+            }
+        } catch (ArtException.NotFoundArt e) {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        } catch (Exception) {
+            throw;
+        }
+    }
+
 
     public class AddingComment
     {

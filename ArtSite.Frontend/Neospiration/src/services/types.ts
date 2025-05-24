@@ -56,6 +56,9 @@ export type Art = {
     uploadedAt: Date;
     profileId: number;
     tierId?: number;
+    likeCount: number;
+    commentCount: number;
+    isLiked?: boolean;
 }
 
 export type CreationArt = {

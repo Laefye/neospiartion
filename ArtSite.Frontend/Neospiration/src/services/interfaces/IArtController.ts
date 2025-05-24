@@ -27,4 +27,7 @@ export interface IArtController {
     uploadPicture(artId: number, file: File): Promise<types.Picture>;
     getPictureUrl(pictureId: number): string;
     getAllArts(offset: number, limit: number): Promise<types.Countable<types.Art>>
+
+    likeArt(artId: number): Promise<void>;
+    unlikeArt(artId: number): Promise<void>;
 }

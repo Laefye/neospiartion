@@ -28,6 +28,7 @@ builder.Services.AddScoped<ISubscriptionRepository, SubscriptionRepository>();
 builder.Services.AddScoped<IStoragedFileRepository, StoragedFileRepository>();
 builder.Services.AddScoped<ICommissionRepository, CommissionRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<ILikeRepository, LikeRepository>();
 
 // CORS
 builder.Services.AddCors(options =>
@@ -82,6 +83,7 @@ builder.Services.AddScoped<ITierService, TierService>();
 builder.Services.AddScoped<ISubscriptionService, SubscriptionService>();
 builder.Services.AddScoped<ICommissionService, CommissionService>();
 builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<ILikeService, LikeService>();
 
 builder.Services.AddHttpClient<VKService>();
 builder.Services.AddScoped<IVKService, VKService>(VKService.CreateFactory(builder.Configuration));

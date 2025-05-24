@@ -20,8 +20,10 @@ public class ProfileController : ControllerBase
     private readonly ISubscriptionService _subscriptionService;
     private readonly ICommissionService _commissionService;
     private readonly IMessageService _messageService;
+    private readonly ILikeService _likeService;
+    private readonly DtoConvertor _dtoConvertor;
 
-    public ProfileController(IProfileService artistService, IArtService artService, ITierService tierService, ISubscriptionService subscriptionService, ICommissionService commissionService, IMessageService messageService)
+    public ProfileController(IProfileService artistService, IArtService artService, ITierService tierService, ISubscriptionService subscriptionService, ICommissionService commissionService, IMessageService messageService, ILikeService likeService)
     {
         _profileService = artistService;
         _artService = artService;
@@ -29,6 +31,8 @@ public class ProfileController : ControllerBase
         _subscriptionService = subscriptionService;
         _commissionService = commissionService;
         _messageService = messageService.Apply(commissionService);
+        _likeService = likeService;
+        _dtoConvertor = new DtoConvertor(likeService);
     }
 
     [HttpGet("{profileId}")]
@@ -80,13 +84,20 @@ public class ProfileController : ControllerBase
     }
 
     [HttpGet("{profileId}/arts")]
-    [ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<FullArtDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetArts(int profileId)
     {
         try {
+            string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var arts = await _profileService.GetArts(profileId);
-            return Ok(arts);
+            var artsWithLikes = new List<FullArtDto>();
+            foreach (var art in arts)
+            {
+                var fullArtDto = await _dtoConvertor.GetFullArtDto(userId, art);
+                artsWithLikes.Add(fullArtDto);
+            }
+            return Ok(artsWithLikes);
         } catch (ProfileException.NotFoundProfile e) {
             return NotFound(new ProblemDetails
             {
