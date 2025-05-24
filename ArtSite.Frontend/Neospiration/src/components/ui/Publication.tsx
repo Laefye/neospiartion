@@ -53,7 +53,6 @@ export default function Publication({ art, profile }: { art: Art, profile?: Prof
         fetchPictureUrls();
     }, [art])
     
-    console.log(pictures && pictures.length > 0 ? artController.getPictureUrl(pictures[0].id) : '');
     return (
         <Container withoutPadding className="overflow-hidden h-min">
             <div className="p-3">
@@ -71,17 +70,6 @@ export default function Publication({ art, profile }: { art: Art, profile?: Prof
             <div className="p-3">
                 <p className="line-clamp-2 text-lg">{art.description}</p>
             </div>
-            {/* {(loading || !pictures || pictures.length === 0) ? (
-                <div className="flex items-center justify-center h-64">
-                    <p className="text-art-text-hint">Загрузка...</p>
-                </div>
-            ) : (
-                <img 
-                    src={pictures && pictures.length > 0 ? artController.getPictureUrl(pictures[0].id) : ''} 
-                    alt={art.description || 'Artwork'} 
-                    className="w-full"
-                />
-            )} */}
             {loading || (!imageLoaded && pictures && pictures.length > 0) && (
                 <div className="flex items-center justify-center h-64 bg-gray-200 animate-pulse">
                     <p className="text-art-text-hint">Загрузка...</p>

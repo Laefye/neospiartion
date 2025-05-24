@@ -38,8 +38,6 @@ export default function Nav() {
         setIsDropdownOpen(false);
     };
 
-    console.log("Auth state in Nav:", auth.me);
-
     return (
         <header className="bg-[#320425] py-3 px-4">
             <div className="max-w-7xl mx-auto flex items-center justify-between">

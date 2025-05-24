@@ -180,7 +180,6 @@ export default function ProfileEditPage() {
                                 id="avatar" 
                                 label="Выберите изображение" 
                                 disabled={loading} 
-                                onChange={(e) => console.log(e.target.files)} 
                                 className="white"
                             />
                             <div className="flex gap-3">
