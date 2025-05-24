@@ -2,7 +2,7 @@ import type { ButtonHTMLAttributes, ReactNode } from 'react';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'white' | 'outline' | 'secondary' | 'ghost';
+  variant?: 'primary' | 'white' | 'outline' | 'secondary' | 'ghost' | 'submenu' | 'danger' | 'success' | 'warning' | 'accept';
   children: ReactNode;
   isLoading?: boolean;
 }
@@ -19,6 +19,7 @@ export const variantStyles = {
   warning: "text-yellow-600 bg-yellow-100 hover:bg-yellow-200 border-transparent py-3 px-4",
   ghost: "text-gray-900 bg-transparent hover:bg-gray-100 border-transparent py-3 px-4",
   accept: "text-green-600 bg-green-100 hover:bg-green-200 border-transparent py-3 px-4",
+  submenu: "py-2 rounded-none"
 };
 
 export function Button({ 

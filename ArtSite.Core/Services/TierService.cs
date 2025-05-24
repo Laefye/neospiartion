@@ -43,7 +43,8 @@ public class TierService : ITierService
             throw new TierException.NotFoundTier();
         if (tier.ProfileId != profile.Id)
             throw new TierException.NotOwnerTier();
-        // TODO: Все тиры которые зависят от этого тира тоже удалить (или выдать ошибку)
+        if ((await _tierRepository.GetChildTiers(id)).Count > 0)
+            throw new TierException.HasChildTiers();
         if (tier.Avatar != null)
         {
             var file = await _storageService.Apply(_profileService).GetFile(tier.Avatar.Value);
@@ -82,7 +83,7 @@ public class TierService : ITierService
 
     public Task<List<Tier>> GetTiers(int artistId)
     {
-        return _tierRepository.GetTiersByArtist(artistId);
+        return _tierRepository.GetTiersByProfile(artistId);
     }
 
     public async Task UpdateAvatar(string userId, int tierId, IFileUploader fileUploader)

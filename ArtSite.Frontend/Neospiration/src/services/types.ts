@@ -97,3 +97,20 @@ export type Conversation = {
     unreadCount: number;
     updatedAt: Date;
 }
+
+export type Tier = {
+    id: number;
+    name: string;
+    description: string;
+    price: number;
+    avatar: number | null;
+    extends: number | null;
+    profileId: number;
+};
+
+export type AddingTierDto = {
+    name: string;
+    description: string;
+    price: number;
+    extends?: number | null;
+}

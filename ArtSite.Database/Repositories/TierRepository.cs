@@ -28,10 +28,10 @@ public class TierRepository(ApplicationDbContext context) : ITierRepository
         return tier?.ConvertToDto();
     }
 
-    public async Task<List<Tier>> GetTiersByArtist(int artistId)
+    public async Task<List<Tier>> GetTiersByProfile(int profileId)
     {
         var tiers = await context.Tiers
-            .Where(t => t.ProfileId == artistId)
+            .Where(t => t.ProfileId == profileId)
             .ToListAsync();
         return tiers.Select(t => t.ConvertToDto()).ToList();
     }
@@ -57,5 +57,13 @@ public class TierRepository(ApplicationDbContext context) : ITierRepository
             context.Tiers.Remove(tier);
             await context.SaveChangesAsync();
         }
+    }
+
+    public async Task<List<Tier>> GetChildTiers(int parentId)
+    {
+        var childTiers = await context.Tiers
+            .Where(t => t.Extends == parentId)
+            .ToListAsync();
+        return childTiers.Select(t => t.ConvertToDto()).ToList();
     }
 }

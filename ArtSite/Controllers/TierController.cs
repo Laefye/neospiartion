@@ -70,6 +70,13 @@ public class TierController : ControllerBase
         {
             return Forbid();
         }
+        catch (TierException.HasChildTiers e)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        }
         catch (Exception)
         {
             throw;

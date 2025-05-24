@@ -24,8 +24,8 @@ export interface IProfileController {
     // postMessage(profileId: number, value: types.AddingMessageDto): Promise<types.Message>;
     // getConversations(profileId: number, limit?: number, offset?: number): Promise<types.Conversation[]>;
 
-    // getTiers(profileId: number): Promise<types.Tier[]>;
-    // createTier(profileId: number, value: types.AddingTierDto): Promise<types.Tier>;
+    getTiers(profileId: number): Promise<types.Tier[]>;
+    createTier(profileId: number, value: types.AddingTierDto): Promise<types.Tier>;
 
     getAvatarUrl(profileId: number): Promise<string>;
     postAvatar(profileId: number, avatarFile: File): Promise<void>;

@@ -11,6 +11,16 @@ export class ProfileController implements IProfileController {
         this.api = api;
     }
     
+    async getTiers(profileId: number): Promise<types.Tier[]> {
+        const { data } = await this.api.get(this.prefix + '/' + profileId + '/tiers');
+        return data;
+    }
+
+    async createTier(profileId: number, value: types.AddingTierDto): Promise<types.Tier> {
+        const { data } = await this.api.post(this.prefix + '/' + profileId + '/tiers', value);
+        return data;
+    }
+    
     async postArt(profileId: number, value: types.CreationArt): Promise<types.Art> {
         const { data } = await this.api.post(`/profiles/${profileId}/arts`, value);
         return data;

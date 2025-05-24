@@ -24,4 +24,11 @@ public class TierException : Exception
         {
         }
     }
+
+    public class HasChildTiers : Exception
+    {
+        public HasChildTiers() : base("This tier has child tiers")
+        {
+        }
+    }
 }

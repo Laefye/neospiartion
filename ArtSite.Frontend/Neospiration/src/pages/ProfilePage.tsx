@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import { ProfileController } from '../services/controllers/ProfileController';
 import api from '../services/api';
-import type { Profile, Art } from '../services/types';
+import type { Profile, Art, Tier } from '../services/types';
 import Seperator from '../components/ui/Seperator';
 import { MessageSquare, PencilLine } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,6 +12,173 @@ import ArtPublishModal from '../components/ui/ArtPublishModal';
 import Publication from '../components/ui/Publication';
 import Nav from '../components/ui/Nav';
 import Avatar from '../components/ui/Avatar';
+import Button from '../components/ui/Button';
+import { FormInput } from '../components/ui/FormInput';
+import { TextArea } from '../components/ui/TextArea';
+import { FileSelect } from '../components/ui/FileSelect';
+import Header from '../components/ui/Header';
+import ErrorMessage from '../components/ui/ErrorMessage';
+import { TierController } from '../services/controllers/TierController';
+import { FormList } from '../components/ui/FormList';
+
+
+function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tier[], onTiersUpdated?: () => void}) {
+    const auth = useAuth();
+    const [loading, setLoading] = useState(false);
+    const [creatingForm, setCreatingForm] = useState(false);
+    const nameRef = useRef<HTMLInputElement | null>(null);
+    const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
+    const priceRef = useRef<HTMLInputElement | null>(null);
+    const extendsRef = useRef<HTMLSelectElement | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const icon = useRef<HTMLInputElement | null>(null);
+    const profileController = useMemo(() => new ProfileController(api), [api]);
+    const tierController = useMemo(() => new TierController(api), [api]);
+
+    const handleCreateTier = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!nameRef.current?.value || !descriptionRef.current?.value || !icon.current?.files?.length) {
+            return;
+        }
+        setLoading(true);
+        try {
+            const iconFile = icon.current.files[0];
+            const extendsValue = extendsRef.current?.value ? parseInt(extendsRef.current.value) : null;
+            const tier = await profileController.createTier(profile.id, {
+                name: nameRef.current.value,
+                description: descriptionRef.current.value,
+                price: parseFloat(priceRef.current?.value || '0'),
+                extends: extendsValue == 0 ? null : extendsValue
+            });
+            await tierController.updateAvatar(tier.id, iconFile);
+            if (nameRef.current) {
+                nameRef.current.value = '';
+            }
+            if (descriptionRef.current) {
+                descriptionRef.current.value = '';
+            }
+            if (priceRef.current) {
+                priceRef.current.value = '';
+            }
+            if (icon.current) {
+                icon.current.value = '';
+            }
+            if (extendsRef.current) {
+                extendsRef.current.value = '';
+            }
+            setCreatingForm(false);
+            if (onTiersUpdated) {
+                onTiersUpdated();
+            }
+        } catch (error) {
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError('Неизвестная ошибка');
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    const deleteTier = async (tierId: number) => {
+        if (window.confirm('Вы уверены, что хотите удалить этот уровень подписки?')) {
+            try {
+                await tierController.deleteTier(tierId);
+            } catch (error) {
+                if (error instanceof Error) {
+                    alert(error.message);
+                }
+                else {
+                    alert('Неизвестная ошибка при удалении уровня подписки');
+                }
+            }
+            if (onTiersUpdated) {
+                onTiersUpdated();
+            }
+        }
+    }
+
+    const getParentTiers = (extendsId: number | null): Tier[] => {
+        if (!extendsId) return [];
+        const parentTier = tiers.find(tier => tier.id === extendsId);
+        if (!parentTier) return [];
+        return [parentTier, ...getParentTiers(parentTier.extends)];
+    }
+
+    return <>
+        {creatingForm && (
+            <div className='fixed left-0 top-0 w-full h-full backdrop-blur-sm bg-black/50' onClick={(e) => {
+                if (e.target === e.currentTarget) {
+                    setCreatingForm(false);
+                }
+            }}>
+                <Container className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-5 w-full max-w-[500px]'>
+                    <form className='flex flex-col gap-3' onSubmit={handleCreateTier}>
+                        <Header title="Создание уровня подписки"/>
+                        {error && <ErrorMessage>{error}</ErrorMessage>}
+                        <FormInput required disabled={loading} id='name' label='Название' inputRef={nameRef}/>
+                        <TextArea required disabled={loading} id='description' label='Описание' inputRef={descriptionRef} rows={3}/>
+                        <FormInput required disabled={loading} id='price' label='Цена (₽)' type='number' min={1} inputRef={priceRef}/>
+                        <FileSelect id='icon' label='Иконка' accept='image/*' ref={icon} />
+                        <FormList id='extends' label='Наследование' options={<><option value="0">Ничего</option>{tiers.map(tier => <option value={tier.id} key={tier.id}>{tier.name}</option>)}</>} inputRef={extendsRef} className='w-full' placeholder='Не наследовать'/>
+                        <div className='flex gap-3'>
+                            <Button disabled={loading} isLoading={loading} type='submit' className='grow'>Создать</Button>
+                            <Button disabled={loading} variant='outline' type='button' onClick={() => setCreatingForm(false)}>Отмена</Button>
+                        </div>
+                    </form>
+                </Container>
+            </div>
+        )}
+        <Container className='flex flex-col items-center justify-between h-min min-w-[400px]' withoutPadding>
+            <div className='flex w-full'>
+                <div className='grow border-b-2 border-art-secondary'>
+                    <Button variant='submenu' className='w-full'>Уровни подписки</Button>
+                </div>
+                <div className='grow border-b-2 border-art-text-hint'>
+                    <Button variant='submenu' className='w-full'>Заказы</Button>
+                </div>
+            </div>
+            <div className="p-3 w-full">
+                <div className='flex flex-col gap-2 w-full'>
+                    {tiers.length > 0 ? tiers.map((tier) => (
+                        <div key={tier.id} className='flex flex-col gap-1 items-center'>
+                            <span className='text-sm text-art-text-hint w-full'>{tier.price} ₽ в Месяц</span>
+                            { tier.avatar && (
+                                <img src={tierController.getAvatarUrl(tier.id)} width={96} height={96} className='rounded-lg'/>
+                            )}
+                            <span className='text-lg'>{tier.name}</span>
+                            <p className='text-center text-art-text-hint'>{tier.description}</p>
+                            {auth.me?.userId === profile.userId && (
+                                <Button variant='danger' onClick={() => deleteTier(tier.id)}>Удалить</Button>
+                            )}
+                            {tier.extends && (
+                                <div className='flex flex-col items-center'>
+                                    <span className='text-sm text-art-text-hint'>Наследует от:</span>
+                                    <ul className='list-disc list-inside text-center'>
+                                        {getParentTiers(tier.extends).map((parentTier) => (
+                                            <li key={parentTier.id} className='text-sm'>{parentTier.name}</li>
+                                        )).reverse()}
+                                    </ul>
+                                </div>
+                            )}
+                            {auth.me && auth.me.userId !== profile.userId && (
+                                <Button variant='outline'>Подписаться</Button>
+                            )}
+                        </div>
+                    )) : (
+                        <p className='text-center text-art-text-hint'>Уровни подписки отсутствуют</p>
+                    )}
+                    {auth.me?.userId === profile.userId && (
+                        <Button variant='outline' className='w-full mt-3' onClick={() => setCreatingForm(true)}>
+                            Создать уровень подписки
+                        </Button>
+                    )}
+                </div>
+            </div>
+        </Container>
+    </>
+}
 
 export default function ProfilePage() {
     const { id } = useParams();
@@ -19,13 +186,18 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
+    const [tiers, setTiers] = useState<Tier[]>([]);
     const [arts, setArts] = useState<Art[]>([]);
     
-    const profileController = new ProfileController(api);
+    const profileController = useMemo(() => new ProfileController(api), [api]);
 
     const updateArts = async () => {
         const arts = await profileController.getArts(parseInt(id!));
         setArts(arts);
+    }
+
+    const updateTiers = async () => {
+        setTiers(await profileController.getTiers(parseInt(id!)));
     }
 
     useEffect(() => {
@@ -33,16 +205,15 @@ export default function ProfilePage() {
             try {
                 const profile = await profileController.getProfile(parseInt(id!));
                 setProfile(profile);
-                
                 await updateArts();
-                
-                setLoading(false);
+                await updateTiers();
             } catch (err) {
                 if (err instanceof Error) {
                     setError(err.message);
                 } else {
                     setError('Неизвестная ошибка');
                 }
+            } finally {
                 setLoading(false);
             }
         };
@@ -73,12 +244,11 @@ export default function ProfilePage() {
         return null;
     };
     
-    return (
-        <>
-            <Nav/>
-            <div className='min-h-screen bg-gradient-to-b from-[#25022A] to-[#320425] w-full flex flex-col items-center'>
-                {error && <div className='p-2.5 rounded-lg bg-white space-y-2.5'>{error}</div>}
-                {loading && (
+    if (loading) {
+        return (
+            <>
+                <Nav/>
+                <div className='min-h-screen bg-gradient-to-b from-[#25022A] to-[#320425] w-full flex flex-col items-center'>
                     <div className='w-max-container w-full py-5'>
                         <div className='p-2.5 rounded-lg bg-white space-y-2.5'>
                             <div className='flex items-center'>
@@ -90,8 +260,17 @@ export default function ProfilePage() {
                             <div className='w-full h-6 animate-pulse bg-gray-200 rounded'></div>
                         </div>
                     </div>
-                )}
-                {profile && !loading && (
+                </div>
+            </>
+        );
+    }
+
+    return (
+        <>
+            <Nav/>
+            <div className='min-h-screen bg-gradient-to-b from-[#25022A] to-[#320425] w-full flex flex-col items-center'>
+                {error && <div className='p-2.5 rounded-lg bg-white space-y-2.5'>{error}</div>}
+                {profile && (
                     <div className='w-max-container w-full py-5 space-y-5'>
                         <Container className='space-y-2.5'>
                             <div className='flex items-center'>
@@ -112,7 +291,12 @@ export default function ProfilePage() {
                             <ArtPublishModal onPublished={updateArts} profileId={parseInt(id!)}/>
                         )}
                         
-                        {arts.length > 0 && arts.map((art) => (<Publication key={art.id} art={art} settings={{onDeleted: () => updateArts()}}/>))}
+                        <div className='flex flex-col gap-4 md:flex-row-reverse'>
+                            <Submenu profile={profile} tiers={tiers} onTiersUpdated={() => updateTiers()}/>
+                            <div className='flex flex-col gap-4 grow'>
+                                {arts.length > 0 && arts.map((art) => (<Publication key={art.id} art={art} settings={{onDeleted: () => updateArts()}}/>))}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>

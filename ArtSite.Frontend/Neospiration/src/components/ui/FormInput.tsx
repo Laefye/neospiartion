@@ -12,7 +12,7 @@ export const classNames = {
 }
 
 
-export function FormInput({ label, id, className = '', variant = 'primary', ...rest }: React.InputHTMLAttributes<HTMLInputElement> & { label?: string; id: string, variant?: Variant }) {
+export function FormInput({ label, id, className = '', variant = 'primary', ...rest }: React.InputHTMLAttributes<HTMLInputElement> & { label?: string; id: string, variant?: Variant, inputRef?: React.Ref<HTMLInputElement> }) {
     return (
         <div>
             {label && (
@@ -21,6 +21,7 @@ export function FormInput({ label, id, className = '', variant = 'primary', ...r
                 </label>
             )}
             <input
+                ref={rest.inputRef}
                 id={id}
                 className={`${classNames[variant].input} ${className}`}
                 {...rest}
