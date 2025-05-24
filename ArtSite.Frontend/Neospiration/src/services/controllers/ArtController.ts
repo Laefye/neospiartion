@@ -42,7 +42,7 @@ export class ArtController implements IArtController {
 
     async getComments(artId: number): Promise<types.Comment[]> {
         try {
-            const response = await this.api.get(`/api/arts/${artId}/comments`);
+            const response = await this.api.get(`/arts/${artId}/comments`);
             return response.data;
         } catch (err: any) {
             if (err.response && err.response.status === 404) {
@@ -54,7 +54,7 @@ export class ArtController implements IArtController {
 
     async addComment(artId: number, text: string): Promise<types.Comment> {
         try {
-            const response = await this.api.post(`/api/arts/${artId}/comments`, { text });
+            const response = await this.api.post(`/arts/${artId}/comments`, { text });
             return response.data;
         } catch (err: any) {
             if (err.response && err.response.status === 404) {
@@ -94,18 +94,17 @@ export class ArtController implements IArtController {
         return this.api.url + `/pictures/${pictureId}/view`;
     }
 
-    async getAllArts(offset: number = 0, limit: number = 10): Promise<types.Art[]> {
+    async getAllArts(offset: number = 0, limit: number = 10): Promise<types.Countable<types.Art>> {
         try {
-            const response = await this.api.get(`/api/arts`, {
-                params: { offset, limit },
+            const response = await this.api.get(`/arts`, {
+                offset, limit,
                 skipAuthRefresh: true 
             });
             
-            return response.data.map((art: any) => ({
-                ...art,
-                uploadedAt: new Date(art.uploadedAt),
-                description: art.description || ''
-            }));
+            return {
+                count: response.data.count,
+                items: response.data.items.map((art: any) => ({ ...art, uploadedAt: new Date(art.uploadedAt) }))
+            }
         }
         catch (err: any) 
         {

@@ -51,7 +51,7 @@ export default function LoginPage() {
     <div className="flex flex-col items-center justify-center min-h-screen w-full px-4 py-6 sm:py-12 bg-gradient-to-b from-[#320425] to-[#25022A]">
       <div className="w-full max-w-md space-y-8 px-4 sm:px-0">
         <Header 
-          title="Войдите или зарегистрируйтесь"
+          title={(<span className='text-white'>Войдите или зарегистрируйтесь</span>)}
           className="text-center mb-8"
         />
         

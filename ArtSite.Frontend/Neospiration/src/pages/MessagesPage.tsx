@@ -7,8 +7,6 @@ import type { Profile, Conversation, Message } from '../services/types';
 import { useAuth } from '../contexts/AuthContext';
 import Nav from '../components/ui/Nav';
 import { Send, MessageSquare } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { ru } from 'date-fns/locale';
 import Button from '../components/ui/Button';
 import Header from '../components/ui/Header';
 
@@ -108,7 +106,7 @@ export default function MessagesPage() {
     };
 
     const formatMessageTime = (date: Date) => {
-        return formatDistanceToNow(date, { addSuffix: true, locale: ru });
+        return 'test'
     };
 
     if (!auth.me) {

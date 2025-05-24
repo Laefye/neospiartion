@@ -10,6 +10,11 @@ export type Login = {
     password: string;
 }
 
+export type Countable<T> = {
+    count: number;
+    items: T[];
+}
+
 export type SafeUser = {
     id: string;
     userName: string;

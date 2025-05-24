@@ -27,12 +27,11 @@ public class ArtController : ControllerBase
     }
 
     [HttpGet]
-    //[Authorize]
-    [ProducesResponseType(typeof(IEnumerable<Art>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(IEnumerable<Countable<Art>>), StatusCodes.Status200OK)]
     public async Task<ActionResult> GetAllArts([FromQuery] int offset = 0, [FromQuery] int limit = 10)
     {
         try {
-            string? userId = User.Identity?.IsAuthenticated == true ? User.FindFirstValue(ClaimTypes.NameIdentifier) : null;
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return Ok(await _artService.GetAllArts(userId, offset, limit));
         } catch (Exception) {
             throw;
@@ -58,7 +57,6 @@ public class ArtController : ControllerBase
     }
 
     [HttpDelete("{artId}")]
-    [Authorize(Policy = "Artist")]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status202Accepted)]

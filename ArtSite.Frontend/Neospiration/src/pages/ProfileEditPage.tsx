@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router"; // Fix the import
 import { useAuth } from "../contexts/AuthContext"
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Container from "../components/ui/Container";
 import { FormInput } from "../components/ui/FormInput";
 import { TextArea } from "../components/ui/TextArea";
@@ -14,17 +14,23 @@ import ButtonLink from "../components/ui/ButtonLink";
 import { ChevronLeft } from "lucide-react";
 import Nav from "../components/ui/Nav";
 import Header from "../components/ui/Header";
+import Avatar from "../components/ui/Avatar";
+import type { Profile } from "../services/types";
 
 export default function ProfileEditPage() {
     const { id } = useParams();
     const auth = useAuth();
     const [loading, setLoading] = useState(true);
-    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const [displayName, setDisplayName] = useState<string>('');
-    const [description, setDescription] = useState<string>('');
+    const [profile, setProfile] = useState<Profile | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const navigate = useNavigate();
+
+    const updateProfile = useCallback(async () => {
+        const profileController = new ProfileController(api);
+        const profileData = await profileController.getProfile(parseInt(id!));
+        setProfile(profileData);
+    }, [id]);
 
     const submitHandler = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -33,9 +39,10 @@ export default function ProfileEditPage() {
         try {
             const profileController = new ProfileController(api);
             await profileController.updateProfile(parseInt(id!), {
-                description,
-                displayName
+                displayName: profile!.displayName,
+                description: profile!.description,
             });
+            updateProfile();
         } catch (error) {
             if (error instanceof Error) {
                 setError(error.message);
@@ -58,8 +65,7 @@ export default function ProfileEditPage() {
         try {
             const profileController = new ProfileController(api);
             await profileController.postAvatar(parseInt(id!), fileInputRef.current?.files![0]);
-            const avatarUrl = await profileController.getAvatarUrl(parseInt(id!));
-            setAvatarUrl(avatarUrl);
+            updateProfile();
         } catch (error) {
             if (error instanceof Error) {
                 setError(error.message);
@@ -78,7 +84,7 @@ export default function ProfileEditPage() {
         try {
             const profileController = new ProfileController(api);
             await profileController.deleteAvatar(parseInt(id!));
-            setAvatarUrl(null);
+            updateProfile();
         } catch (error) {
             if (error instanceof Error) {
                 setError(error.message);
@@ -96,16 +102,8 @@ export default function ProfileEditPage() {
                 setError('Профиль не найден');
                 return;
             }
-            const profileController = new ProfileController(api);
             try {
-                // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-                const profile = await profileController.getProfile(auth.me?.profileId!);
-                setDisplayName(profile.displayName);
-                setDescription(profile.description);
-                if (profile.avatar) {
-                    const avatarUrl = await profileController.getAvatarUrl(profile.id);
-                    setAvatarUrl(avatarUrl);
-                }
+                updateProfile();
             } catch (error) {
                 if (error instanceof Error) {
                     setError(error.message);
@@ -121,7 +119,9 @@ export default function ProfileEditPage() {
     if (auth.me?.profileId != id) {
         navigate('/profile/' + auth.me?.profileId);
     }
-
+    if (!profile) {
+        return <div className="flex items-center justify-center min-h-screen">Загрузка...</div>;
+    }
     return (
         <>
             <Nav />
@@ -147,8 +147,8 @@ export default function ProfileEditPage() {
                                 id="displayName" 
                                 label="Выводимая имя" 
                                 disabled={loading} 
-                                value={displayName} 
-                                onChange={(e) => setDisplayName(e.target.value)}
+                                value={profile.displayName} 
+                                onChange={(e) => setProfile({ ...profile, displayName: e.target.value })}
                                 className="primary"
                             />
                             <TextArea 
@@ -156,8 +156,8 @@ export default function ProfileEditPage() {
                                 label="Описание" 
                                 className="outline"
                                 disabled={loading} 
-                                value={description} 
-                                onChange={(e) => setDescription(e.target.value)}
+                                value={profile.description}
+                                onChange={(e) => setProfile({ ...profile, description: e.target.value })}
                             />
                             <Button 
                                 isLoading={loading} 
@@ -168,23 +168,11 @@ export default function ProfileEditPage() {
                             </Button>
                         </form>
                         <Seperator/>
-                        <form className='space-y-4 flex flex-col' onSubmit={submitAvatarHandler}>
+                        <form className='space-y-2 flex flex-col' onSubmit={submitAvatarHandler}>
                             <div>
-                                <h3 className="text-white text-lg mb-3">Аватар</h3>
+                                <h3 className="text-lg mb-3">Аватар</h3>
                                 <div className="flex items-center mb-4">
-                                    {avatarUrl ? (
-                                        <img
-                                            src={avatarUrl}
-                                            alt={displayName}
-                                            className='ghost w-45 h-45'
-                                        />
-                                    ) : (
-                                        <div className='w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center'>
-                                            <span className="text-gray-500 text-lg font-bold">
-                                                {displayName ? displayName[0].toUpperCase() : "?"}
-                                            </span>
-                                        </div>
-                                    )}
+                                    <Avatar profile={profile} size={64} />
                                 </div>
                             </div>
                             <FileSelect 
@@ -197,21 +185,21 @@ export default function ProfileEditPage() {
                             />
                             <div className="flex gap-3">
                                 <Button 
-                                    type="submit"
-                                    isLoading={loading} 
-                                    disabled={loading}
-                                    variant="outline"
-                                >
-                                    Загрузить
-                                </Button>
-                                <Button 
                                     type="button"
                                     isLoading={loading} 
-                                    disabled={loading || avatarUrl == null} 
+                                    disabled={loading || profile.avatar == null}
+                                    variant="outline"
                                     onClick={deleteAvatarHandler}
-                                    className="primary hover:accept text-white flex-1"
                                 >
                                     Удалить
+                                </Button>
+                                <Button 
+                                    type="submit"
+                                    isLoading={loading} 
+                                    disabled={loading} 
+                                    className="primary hover:accept text-white flex-1"
+                                >
+                                    Загрузить
                                 </Button>
                             </div>
                         </form>

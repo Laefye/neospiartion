@@ -10,9 +10,10 @@ import { useAuth } from '../contexts/AuthContext';
 import ButtonLink from '../components/ui/ButtonLink';
 import Container from '../components/ui/Container';
 import ArtPublishModal from '../components/ui/ArtPublishModal';
-import ArtComponent from '../components/ui/ArtComponent';
+import Publication from '../components/ui/Publication';
 import Nav from '../components/ui/Nav';
 import Header from '../components/ui/Header';
+import Avatar from '../components/ui/Avatar';
 
 export default function ProfilePage() {
     const { id } = useParams();
@@ -20,7 +21,6 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
-    const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [arts, setArts] = useState<Art[]>([]);
     
     const profileController = new ProfileController(api);
@@ -35,11 +35,6 @@ export default function ProfilePage() {
             try {
                 const profile = await profileController.getProfile(parseInt(id!));
                 setProfile(profile);
-                
-                if (profile.avatar) {
-                    const avatarUrl = await profileController.getAvatarUrl(profile.id);
-                    setAvatarUrl(avatarUrl);
-                }
                 
                 await updateArts();
                 
@@ -102,15 +97,7 @@ export default function ProfilePage() {
                     <div className='w-max-container w-full py-5 space-y-5'>
                         <Container className='space-y-2.5'>
                             <div className='flex items-center'>
-                                {avatarUrl ? (
-                                    <img
-                                        src={avatarUrl}
-                                        alt={profile.displayName}
-                                        className='w-16 h-16 rounded-full'
-                                    />
-                                ) : (
-                                    <div className='w-16 h-16 rounded-full bg-gray-200'></div>
-                                )}
+                                <Avatar profile={profile} size={64} />
                                 <span className='ml-4 text-2xl'>{profile.displayName}</span>
                                 <div className='grow'></div>
                                 {getProfileActions()}
@@ -127,7 +114,7 @@ export default function ProfilePage() {
                             <ArtPublishModal onPublished={updateArts} profileId={parseInt(id!)}/>
                         )}
                         
-                        {arts.length > 0 && arts.map((art) => (<ArtComponent key={art.id} art={art}/>))}
+                        {arts.length > 0 && arts.map((art) => (<Publication key={art.id} art={art}/>))}
                     </div>
                 )}
             </div>

@@ -44,16 +44,15 @@ public class ArtRepository : IArtRepository
             .ToListAsync();
     }
 
-    public async Task<List<Art>> GetAllArtsWithPictures(int offset, int limit)
+    public async Task<Countable<Art>> GetAllArtsWithPictures(int offset, int limit)
     {
-        return await _context.Arts
+        var request = _context.Arts
             .Include(art => art.Pictures)
             .Where(art => art.Pictures.Count > 0)
             .OrderByDescending(art => art.UploadedAt)
             .Select(art => art.ConvertToDto())
-            .Skip(offset)
-            .Take(limit)
-            .ToListAsync();
+            .Skip(offset);
+        return new Countable<Art> { Count = await request.CountAsync(), Items = await request.Take(limit).ToListAsync() };
     }
 
     public async Task<Art?> GetArt(int id)

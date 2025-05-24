@@ -78,9 +78,9 @@ public class ArtService : IArtService
         await _artRepository.DeleteArt(art.Id);
     }
 
-    public async Task<List<Art>> GetAllArts(string userId, int offset, int limit)
+    public async Task<Countable<Art>> GetAllArts(string? userId, int offset, int limit)
     {
-        var profile = await _profileService.GetProfileByUserId(userId);
+        //var profile = await _profileService.GetProfileByUserId(userId);
         return await _artRepository.GetAllArtsWithPictures(offset, limit);
     }
 

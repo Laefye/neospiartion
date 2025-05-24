@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { Home, Bell, MessageSquare, ChevronDown, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -44,27 +44,27 @@ export default function Nav() {
         <header className="bg-[#320425] py-3 px-4">
             <div className="max-w-7xl mx-auto flex items-center justify-between">
                 <div className="flex items-center">
-                    <a href="/gallery" className="text-white text-xl font-bold">
+                    <Link to="/gallery" className="text-white text-xl font-bold">
                         NEOspiration
-                    </a>
+                    </Link>
                 </div>
 
                 <div className="flex items-center space-x-4">
-                    <a href="/gallery" className="text-white hover:text-gray-200">
+                    <Link to="/gallery" className="text-white hover:text-gray-200">
                         <Home size={24} />
-                    </a>
+                    </Link>
                     
                     {auth.me && (
                         <>
-                            <a href="/messages" className="text-white hover:text-gray-200">
+                            <Link to="/messages" className="text-white hover:text-gray-200">
                                 <MessageSquare size={24} />
-                            </a>
-                            <button 
+                            </Link>
+                            {/* <button 
                                 className="text-white hover:text-gray-200"
                                 onClick={() => navigate('/notifications')}
                             >
                                 <Bell size={24} />
-                            </button>
+                            </button> */}
                         </>
                     )}
 

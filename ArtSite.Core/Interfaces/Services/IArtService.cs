@@ -26,7 +26,7 @@ public interface IArtService
     /// <param name="offset">Смещение.</param>
     /// <param name="limit">Лимит.</param>
     /// <returns>Список произведений искусства.</returns>
-    Task<List<Art>> GetAllArts(string userId, int offset, int limit);
+    Task<Countable<Art>> GetAllArts(string? userId, int offset, int limit);
 
     /// <summary>
     /// Возвращает произведение искусства по идентификатору.
