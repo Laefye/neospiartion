@@ -89,7 +89,7 @@ public class StorageService : IStorageService
             filePath,
             FileMode.Open,
             fileAccess,
-            FileShare.None,
+            FileShare.Read,
             bufferSize: 4096,
             useAsync: true
         );
