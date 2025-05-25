@@ -92,4 +92,11 @@ public class ProfileService : IProfileService
         await _profileRepository.UpdateProfile(profile);
         return profile;
     }
+
+    public async Task<IEnumerable<Profile>> SearchProfilesByDisplayName(string query)
+    {
+        if (string.IsNullOrEmpty(query) || query.Length < 1)
+            return new List<Profile>();
+        return await _profileRepository.SearchProfilesByDisplayName(query);
+    }
 }

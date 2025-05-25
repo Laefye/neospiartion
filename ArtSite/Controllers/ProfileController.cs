@@ -40,13 +40,15 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetProfile(int profileId)
     {
-        try {
+        try
+        {
             var profile = await _profileService.GetProfile(profileId);
             return Ok(profile);
         }
         catch (ProfileException.NotFoundProfile e)
         {
-            return NotFound(new ProblemDetails {
+            return NotFound(new ProblemDetails
+            {
                 Detail = e.Message,
             });
         }
@@ -71,13 +73,15 @@ public class ProfileController : ControllerBase
         }
         catch (ProfileException.NotFoundProfile e)
         {
-            return NotFound(new ProblemDetails {
+            return NotFound(new ProblemDetails
+            {
                 Detail = e.Message,
             });
         }
         catch (ProfileException.NotOwnerProfile e)
         {
-            return BadRequest(new ProblemDetails {
+            return BadRequest(new ProblemDetails
+            {
                 Detail = e.Message,
             });
         }
@@ -88,7 +92,8 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetArts(int profileId)
     {
-        try {
+        try
+        {
             string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var arts = await _profileService.GetArts(profileId);
             var artsWithLikes = new List<FullArtDto>();
@@ -98,12 +103,16 @@ public class ProfileController : ControllerBase
                 artsWithLikes.Add(fullArtDto);
             }
             return Ok(artsWithLikes);
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -114,20 +123,29 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> PostArt(int profileId, [FromBody] ArtDto body)
     {
-        try {
+        try
+        {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var art = await _artService.Apply(_tierService).CreateArt(userId, profileId, body.Description, body.TierId);
             return CreatedAtAction(nameof(ArtController.GetArt), "Art", new { artId = art.Id }, art);
-        } catch (ArtException.UnauthorizedArtistAccess) {
+        }
+        catch (ArtException.UnauthorizedArtistAccess)
+        {
             return Forbid();
-        } catch (TierException.NotFoundTier e) {
+        }
+        catch (TierException.NotFoundTier e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (TierException.NotOwnerTier) {
+        }
+        catch (TierException.NotOwnerTier)
+        {
             return Forbid();
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -138,18 +156,25 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetMessages(int profileId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
     {
-        try {
+        try
+        {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var messages = await _messageService.GetMessages(userId, profileId, limit, offset);
             return Ok(messages);
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (MessageException.SelfMessage) {
+        }
+        catch (MessageException.SelfMessage)
+        {
             return Forbid();
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -165,23 +190,32 @@ public class ProfileController : ControllerBase
         {
             return BadRequest("Text is required.");
         }
-        try {
+        try
+        {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var message = await _messageService.CreateMessage(userId, profileId, addingMessage.Text, addingMessage.CommissionId);
             return CreatedAtAction(nameof(MessageController.GetMessage), "Message", new { messageId = message.Id }, message);
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (MessageException.SelfMessage) {
+        }
+        catch (MessageException.SelfMessage)
+        {
             return Forbid();
-        } catch (MessageException.NotFoundCommission e) {
+        }
+        catch (MessageException.NotFoundCommission e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -192,20 +226,29 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetConversations(int profileId, [FromQuery] int limit = 10, [FromQuery] int offset = 0)
     {
-        try {
+        try
+        {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var conversations = await _messageService.GetConversations(userId, profileId, limit, offset);
             return Ok(conversations);
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (MessageException.SelfMessage) {
+        }
+        catch (MessageException.SelfMessage)
+        {
             return Forbid();
-        } catch (MessageException.NotOwner) {
+        }
+        catch (MessageException.NotOwner)
+        {
             return Forbid();
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -215,15 +258,20 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetTiers(int profileId)
     {
-        try {
+        try
+        {
             var tiers = await _tierService.GetTiers(profileId);
             return Ok(tiers);
-        } catch (ProfileException.NotFoundProfile e) { // Но пока что она в любом случае не пойдет в Exception
+        }
+        catch (ProfileException.NotFoundProfile e)
+        { // Но пока что она в любом случае не пойдет в Exception
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -236,23 +284,32 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> CreateTier(int profileId, [FromBody] AddingTierDto addingTier)
     {
-        try {
+        try
+        {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var tier = await _tierService.CreateTier(userId, addingTier.Name, addingTier.Description, profileId, addingTier.Price, addingTier.Extends);
             return CreatedAtAction(nameof(TierController.GetTier), "Tier", new { tierId = tier.Id }, tier);
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (TierException.NotOwnerTier) {
+        }
+        catch (TierException.NotOwnerTier)
+        {
             return Forbid();
-        } catch (TierException.NotFoundTier e) {
+        }
+        catch (TierException.NotFoundTier e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -262,20 +319,27 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetAvatar(int profileId)
     {
-        try {
+        try
+        {
             var avatar = await _profileService.GetAvatar(profileId);
             return File(avatar.Stream, avatar.MimeType);
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (ProfileException.NotFoundAvatar e) {
+        }
+        catch (ProfileException.NotFoundAvatar e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -292,18 +356,25 @@ public class ProfileController : ControllerBase
         {
             return BadRequest("Avatar file is required.");
         }
-        try {
+        try
+        {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             await _profileService.UpdateAvatar(userId, profileId, new FileUploader(avatarFile));
             return Accepted();
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (ProfileException.NotOwnerProfile) {
+        }
+        catch (ProfileException.NotOwnerProfile)
+        {
             return Forbid();
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -315,18 +386,25 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> DeleteAvatar(int profileId)
     {
-        try {
+        try
+        {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             await _profileService.DeleteAvatar(userId, profileId);
             return Accepted();
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (ProfileException.NotOwnerProfile) {
+        }
+        catch (ProfileException.NotOwnerProfile)
+        {
             return Forbid();
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -337,18 +415,25 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetSubscriptions(int profileId)
     {
-        try {
+        try
+        {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var subscriptions = await _subscriptionService.GetSubscriptions(userId, profileId);
             return Ok(subscriptions);
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (SubscriptionException.NotOwned) {
+        }
+        catch (SubscriptionException.NotOwned)
+        {
             return Forbid();
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -358,15 +443,20 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetCommissions(int profileId)
     {
-        try {
+        try
+        {
             var commissions = await _commissionService.GetCommissionsByProfileId(profileId);
             return Ok(commissions);
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
     }
@@ -379,19 +469,43 @@ public class ProfileController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> PostCommission(int profileId, [FromBody] CommissionDto commissionDto)
     {
-        try {
+        try
+        {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
             var commission = await _commissionService.CreateCommission(userId, profileId, commissionDto.Name, commissionDto.Description, commissionDto.Price);
             return CreatedAtAction(nameof(CommissionController.GetCommission), "Commission", new { commissionId = commission.Id }, commission);
-        } catch (ProfileException.NotFoundProfile e) {
+        }
+        catch (ProfileException.NotFoundProfile e)
+        {
             return NotFound(new ProblemDetails
             {
                 Detail = e.Message
             });
-        } catch (CommissionException.NotOwner) {
+        }
+        catch (CommissionException.NotOwner)
+        {
             return Forbid();
-        } catch (Exception) {
+        }
+        catch (Exception)
+        {
             throw;
         }
+    }
+
+    [HttpGet("search")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<Profile>>> SearchProfiles([FromQuery] string query)
+    {
+        if (string.IsNullOrWhiteSpace(query) || query.Length < 1)
+        {
+            return BadRequest(new ProblemDetails
+            {
+                Detail = "Search query must be at least 1 character"
+            });
+        }
+
+        var profiles = await _profileService.SearchProfilesByDisplayName(query);
+        return Ok(profiles);
     }
 }

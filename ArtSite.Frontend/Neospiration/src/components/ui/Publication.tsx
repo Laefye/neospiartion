@@ -113,6 +113,7 @@ export default function Publication({ art, profile, settings }: { art: Art, prof
             )}
             <div className="p-3">
                 <button disabled={auth.me == null} onClick={likeButtonHandle} className={"flex items-center space-x-1.5 " + (liked === true && "text-red-500")}><Heart/><span>{likeCount}</span></button>
+                <button className="ml-3 text-art-text-hint" disabled={auth.me == null} onClick={() => alert("Комментирование пока не реализовано")}>Комментировать</button>
             </div>
 
         </Container>

@@ -57,4 +57,13 @@ public class ProfileRepository(ApplicationDbContext context) : IProfileRepositor
             await context.SaveChangesAsync();
         }
     }
+
+    public async Task<IEnumerable<Profile>> SearchProfilesByDisplayName(string query)
+    {
+        return await context.Profiles
+            .Where(p => p.DisplayName.ToLower().Contains(query.ToLower()))
+            .Take(15)
+            .Select(p => p.ConvertToDto())
+            .ToListAsync();
+    }
 }

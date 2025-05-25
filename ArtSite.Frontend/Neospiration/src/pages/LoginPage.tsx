@@ -80,7 +80,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="E-Mail"
-              className="w-full p-3 bg-[#FFF2BF] border-transparent focus:border-purple-500 focus:ring-0 rounded-md"
+              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
             />
             <FormInput
               type="password"
@@ -90,7 +90,7 @@ export default function LoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               required
               placeholder="Пароль"
-              className="w-full p-3 bg-[#FFF2BF] border-transparent focus:border-purple-500 focus:ring-0 rounded-md"
+              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
             />
             
             <Button

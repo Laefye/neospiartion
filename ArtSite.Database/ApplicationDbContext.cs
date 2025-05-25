@@ -22,4 +22,14 @@ public class ApplicationDbContext : IdentityDbContext<IdentityUser>
     public DbSet<DbStoragedFile> StoragedFiles { get; set; }
     public DbSet<DbCommission> Commissions { get; set; }
     public DbSet<DbLike> Likes { get; set; }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.HasPostgresExtension("pg_trgm");
+        modelBuilder.Entity<DbProfile>()
+            .HasIndex(p => p.DisplayName)
+            .HasMethod("gin")
+            .HasOperators("gin_trgm_ops");
+    }
 }

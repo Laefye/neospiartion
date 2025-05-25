@@ -67,4 +67,17 @@ export class ProfileController implements IProfileController {
             description: art.description || '',
         } as types.Art));
     }
+
+    async searchProfiles(query: string): Promise<types.Profile[]> {
+        try {
+            const response = await this.api.get('/api/profiles/search', {
+                params: { query },
+                skipAuthRefresh: true
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error searching profiles:", error);
+            return [];
+        }
+    }
 }

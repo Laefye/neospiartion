@@ -31,6 +31,8 @@ export interface IProfileController {
     postAvatar(profileId: number, avatarFile: File): Promise<void>;
     deleteAvatar(profileId: number): Promise<void>;
 
+    searchProfiles(query: string): Promise<types.Profile[]>;
+
     // getSubscriptions(profileId: number): Promise<types.Subscription[]>;
     // getCommissions(profileId: number): Promise<types.Commission[]>;
     // postCommission(profileId: number, value: types.CommissionDto): Promise<types.Commission>;
