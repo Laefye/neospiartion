@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
-import { Plus, X } from 'lucide-react';
+import { Plus, X, ChevronDown } from 'lucide-react';
 import { ArtController } from '../../services/controllers/ArtController';
 import { ProfileController } from '../../services/controllers/ProfileController';
 import api from '../../services/api';
 import Button from './Button';
 import Container from './Container';
+import type { Tier } from '../../services/types';
 
 interface ArtPublishModalProps {
     profileId: number;
@@ -18,9 +19,32 @@ export default function ArtPublishModal({ profileId, onPublished }: ArtPublishMo
     const [showBlurOverlay, setShowBlurOverlay] = useState(false);
     const [animateModal, setAnimateModal] = useState(false);
     const [postDescription, setPostDescription] = useState('');
+    const [selectedTierId, setSelectedTierId] = useState<number | null>(null);
+    const [tiers, setTiers] = useState<Tier[]>([]);
+    const [tiersLoading, setTiersLoading] = useState(false);
+
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const modalRef = useRef<HTMLDivElement>(null);
     const blurOverlayRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (showCreatePostForm) {
+            loadTiers();
+        }
+    }, [showCreatePostForm]);
+
+    const loadTiers = async () => {
+        try {
+            setTiersLoading(true);
+            const profileController = new ProfileController(api);
+            const fetchedTiers = await profileController.getTiers(profileId);
+            setTiers(fetchedTiers);
+        } catch (err) {
+            console.error('Ошибка при загрузке уровней подписки:', err);
+        } finally {
+            setTiersLoading(false);
+        }
+    };
     
     const openModal = () => {
         setShowBlurOverlay(true);
@@ -30,18 +54,22 @@ export default function ArtPublishModal({ profileId, onPublished }: ArtPublishMo
             requestAnimationFrame(() => {
                 setAnimateModal(true);
             });
-        }, 1000);
+        }, 250);
     };
     
     const closeModal = () => {
         if (uploading) return;
         setAnimateModal(false);
+        setPostDescription('');
+        setSelectedTierId(null);
+        setError(null);
+        
         setTimeout(() => {
             setShowCreatePostForm(false);
             setTimeout(() => {
                 setShowBlurOverlay(false);
-            }, 300);
-        }, 500);
+            }, 200);
+        }, 300);
     };
 
     useEffect(() => {
@@ -73,20 +101,24 @@ export default function ArtPublishModal({ profileId, onPublished }: ArtPublishMo
 
     const handleCreatePost = async (e: React.FormEvent) => {
         e.preventDefault();
+        
         if (!fileInputRef.current?.files?.length) {
             setError('Пожалуйста, выберите файл для загрузки');
             return;
         }
+        
         setUploading(true);
         setError(null);
+        
         try {
             const artController = new ArtController(api);
             const profileController = new ProfileController(api);
+            
             const art = await profileController.postArt(
                 profileId, 
                 { 
                     description: postDescription,
-                    tierId: null,
+                    tierId: selectedTierId
                 }
             );
             
@@ -96,6 +128,7 @@ export default function ArtPublishModal({ profileId, onPublished }: ArtPublishMo
             );
             
             setPostDescription('');
+            setSelectedTierId(null);
             closeModal();
             if (fileInputRef.current) fileInputRef.current.value = '';
             onPublished();
@@ -135,9 +168,7 @@ export default function ArtPublishModal({ profileId, onPublished }: ArtPublishMo
             )}
 
             {showCreatePostForm && (
-                <div 
-                    className="fixed inset-0 z-50 flex items-center justify-center"
-                >
+                <div className="fixed inset-0 z-50 flex items-center justify-center">
                     <div 
                         ref={modalRef}
                         style={{
@@ -193,13 +224,61 @@ export default function ArtPublishModal({ profileId, onPublished }: ArtPublishMo
                                 </div>
                             </div>
                             
-                            <div className="flex gap-4 justify-end pt-4">
+                            <div className="space-y-2">
+                                <label htmlFor="tierSelect" className="block text-base font-medium text-white">
+                                    Уровень подписки
+                                </label>
+                                <div className="relative">
+                                    <select
+                                        id="tierSelect"
+                                        value={selectedTierId || ''}
+                                        onChange={(e) => setSelectedTierId(e.target.value ? parseInt(e.target.value) : null)}
+                                        disabled={uploading || tiersLoading}
+                                        className="w-full p-4 border border-purple-900/30 rounded-lg bg-purple-900/20 text-white focus:outline-none focus:ring-2 focus:ring-purple-500 text-base appearance-none cursor-pointer"
+                                    >
+                                        <option value="" className="bg-purple-900 text-white">
+                                            Общедоступно (без подписки)
+                                        </option>
+                                        {tiers.map((tier) => (
+                                            <option 
+                                                key={tier.id} 
+                                                value={tier.id} 
+                                                className="bg-purple-900 text-white"
+                                            >
+                                                {tier.name} ({tier.price} ₽/месяц)
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+                                        <ChevronDown className="h-5 w-5 text-gray-400" />
+                                    </div>
+                                </div>
+
+                                {tiersLoading ? (
+                                    <p className="text-sm text-gray-400">Загрузка уровней подписки...</p>
+                                ) : selectedTierId ? (
+                                    <p className="text-sm text-purple-300">
+                                        Работа будет доступна только подписчикам выбранного уровня и выше.
+                                        Вы как автор всегда будете иметь доступ к своей работе.
+                                    </p>
+                                ) : tiers.length === 0 ? (
+                                    <p className="text-sm text-gray-400">
+                                        У вас пока нет уровней подписки. Работа будет общедоступной.
+                                    </p>
+                                ) : (
+                                    <p className="text-sm text-gray-400">
+                                        Выберите уровень подписки для ограничения доступа к работе.
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="flex gap-4 justify-end pt-2">
                                 <Button 
                                     type="button"
                                     onClick={closeModal}
                                     disabled={uploading}
                                     variant="outline"
-                                    className="px-8 py-2.5 text-base"
+                                    className="px-6 py-2.5"
                                 >
                                     Отмена
                                 </Button>
@@ -208,7 +287,7 @@ export default function ArtPublishModal({ profileId, onPublished }: ArtPublishMo
                                     type="submit"
                                     isLoading={uploading}
                                     variant="primary"
-                                    className="px-8 py-2.5 text-base"
+                                    className="px-6 py-2.5"
                                 >
                                     Опубликовать
                                 </Button>
