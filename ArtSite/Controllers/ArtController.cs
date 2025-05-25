@@ -147,7 +147,7 @@ public class ArtController : ControllerBase
     }
 
     [HttpGet("{artId}/comments")]
-    [ProducesResponseType(typeof(IEnumerable<Comment>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(Countable<Comment>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> GetComments(int artId, [FromQuery] int offset = 0, [FromQuery] int limit = 10)
     {

@@ -53,14 +53,19 @@ public class CommentRepository(ApplicationDbContext context) : ICommentRepositor
             .CountAsync(c => c.ArtId == artId);
     }
 
-    public async Task<List<Comment>> GetComments(int artId, int offset, int limit)
+    public async Task<Countable<Comment>> GetComments(int artId, int offset, int limit)
     {
-        var comments = await context.Comments
+        var query = context.Comments
             .Where(c => c.ArtId == artId)
-            .OrderByDescending(c => c.UploadedAt)
+            .OrderByDescending(c => c.UploadedAt);
+    
+        var count = await query.CountAsync();
+        var items = await query
             .Skip(offset)
             .Take(limit)
+            .Select(c => c.ConvertToDto())
             .ToListAsync();
-        return comments.Select(c => c.ConvertToDto()).ToList();
+    
+        return new Countable<Comment> { Count = count, Items = items };
     }
 }

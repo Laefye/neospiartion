@@ -3,7 +3,7 @@ import Nav from "../components/ui/Nav";
 import { Link, useNavigate, useParams } from "react-router";
 import { ArtController } from "../services/controllers/ArtController";
 import api from "../services/api";
-import type { Art, Picture, Profile, Comment } from "../services/types";
+import type { Art, Picture, Profile, Comment, Countable } from "../services/types";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Container from "../components/ui/Container";
 import { convertDateToString } from "../components/ui/Publication";
@@ -18,21 +18,30 @@ import BigText from "../components/ui/BigText";
 import { CommentController } from "../services/controllers/CommentController";
 
 export function ArtComments({ art }: { art: Art }) {
+    const PAGE_SIZE = 10;
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [offset, setOffset] = useState(0);
+    const [hasMore, setHasMore] = useState(true);
     const commentRef = useRef<HTMLInputElement>(null);
     const [posting, setPosting] = useState(false);
     const artController = useMemo(() => new ArtController(api), [api]);
     const profileController = useMemo(() => new ProfileController(api), [api]);
     const auth = useAuth();
 
-    const fetchComments = useCallback(async () => {
+    const fetchComments = useCallback(async (currentOffset = 0, replace = false) => {
         setLoading(true);
         setError(null);
         try {
-            const commentsData = await artController.getComments(art.id);
-            setComments(commentsData);
+            // Предполагается, что getComments теперь поддерживает offset и limit
+            const commentsData = await artController.getComments(art.id, currentOffset, PAGE_SIZE);
+            if (replace) {
+                setComments(commentsData.items);
+            } else {
+                setComments(prev => [...prev, ...commentsData.items]);
+            }
+            setHasMore(commentsData.count > currentOffset + commentsData.items.length);
         } catch (err) {
             setError("Не удалось загрузить комментарии");
         } finally {
@@ -41,8 +50,18 @@ export function ArtComments({ art }: { art: Art }) {
     }, [art.id, artController]);
 
     useEffect(() => {
-        fetchComments();
+        setOffset(0);
+        setHasMore(true);
+        fetchComments(0, true);
     }, [art.id, artController]);
+
+    const loadMore = () => {
+        if (!loading && hasMore) {
+            const newOffset = offset + PAGE_SIZE;
+            setOffset(newOffset);
+            fetchComments(newOffset);
+        }
+    };
 
     const handlePostComment = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -64,10 +83,10 @@ export function ArtComments({ art }: { art: Art }) {
     return (
         <Container withoutPadding className="border-t border-art-border p-3 max-w-[700px] w-full flex flex-col">
             <h3 className="font-semibold mb-2 flex items-center gap-2">
-                <MessageCircle size={18} /> Комментарии ({loading ? art.commentCount : comments.length})
+                <MessageCircle size={18} /> Комментарии ({art.commentCount})
             </h3>
             {error && <ErrorMessage>{error}</ErrorMessage>}
-            {loading ? (
+            {loading && offset === 0 ? (
                 <div className="text-art-text-hint">Загрузка комментариев...</div>
             ) : (
             <div className="space-y-3 mb-3">
@@ -78,6 +97,11 @@ export function ArtComments({ art }: { art: Art }) {
                     }} />
                 ))}
             </div>
+            )}
+            {hasMore && !loading && (
+                <Button onClick={loadMore} className="w-full mb-2" variant="secondary">
+                    Загрузить еще
+                </Button>
             )}
             <Seperator/>
             {auth.me ? (

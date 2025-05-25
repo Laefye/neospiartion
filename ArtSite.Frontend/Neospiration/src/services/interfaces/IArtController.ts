@@ -22,7 +22,7 @@ export class ArtNotAvailableForProfileException extends ArtException {
 export interface IArtController {
     getArt(artId: number): Promise<types.Art>;
     // createArt(profileId: number, description: string, tierId?: number): Promise<types.Art>;
-    getComments(artId: number): Promise<types.Comment[]>;
+    getComments(artId: number, offset: number, limit: number): Promise<types.Countable<types.Comment>>;
     addComment(artId: number, text: string): Promise<types.Comment>;
     uploadPicture(artId: number, file: File): Promise<types.Picture>;
     getPictureUrl(pictureId: number): string;

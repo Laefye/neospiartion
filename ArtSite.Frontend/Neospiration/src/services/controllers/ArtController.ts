@@ -64,13 +64,19 @@ export class ArtController implements IArtController {
         }
     }
 
-    async getComments(artId: number): Promise<types.Comment[]> {
+    async getComments(artId: number, offset: number, limit: number): Promise<types.Countable<types.Comment>> {
         try {
-            const response = await this.api.get(`/arts/${artId}/comments`);
-            return response.data.map((comment: any) => ({
-                ...comment,
-                uploadedAt: new Date(comment.uploadedAt),
-            }));
+            const response = await this.api.get(`/arts/${artId}/comments`, {
+                offset,
+                limit,
+            });
+            return {
+                count: response.data.count,
+                items: response.data.items.map((comment: any) => ({
+                    ...comment,
+                    uploadedAt: new Date(comment.uploadedAt),
+                }))
+            };
         } catch (err: any) {
             if (err.response && err.response.status === 404) {
                 throw new ArtNotFoundException();
