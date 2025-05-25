@@ -14,7 +14,7 @@ export class CommentController implements ICommentController {
     
     async deleteComment(commentId: number): Promise<void> {
         try {
-            await this.api.delete(`/api/comments/${commentId}`);
+            await this.api.delete(`/comments/${commentId}`);
         } catch (err: any) {
             if (err.response) {
                 if (err.response.status === 404) {
@@ -22,18 +22,6 @@ export class CommentController implements ICommentController {
                 } else if (err.response.status === 403) {
                     throw new CommentNotAuthorException();
                 }
-            }
-            throw err;
-        }
-    }
-    
-    async getComments(artId: number): Promise<types.Comment[]> {
-        try {
-            const response = await this.api.get(`/api/arts/${artId}/comments`);
-            return response.data;
-        } catch (err: any) {
-            if (err.response && err.response.status === 404) {
-                return [];
             }
             throw err;
         }
@@ -48,18 +36,6 @@ export class CommentController implements ICommentController {
                 if (error.response?.status === 404) {
                     throw new CommentNotFoundException();
                 }
-            }
-            throw error;
-        }
-    }
-
-    async addComment(artId: number, text: string): Promise<types.Comment> {
-        try {
-            const response = await this.api.post(`/api/arts/${artId}/comments`, { text });
-            return response.data;
-        } catch (error: any) {
-            if (error.response && error.response.status === 404) {
-                throw new Error("Произведение не найдено");
             }
             throw error;
         }

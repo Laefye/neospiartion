@@ -26,9 +26,7 @@ export class CommentNotCreatedException extends CommentException {
 }
 
 export interface ICommentController {
-    getComments(artId: number): Promise<types.Comment[]>;
     getComment(commentId: number): Promise<types.Comment>;
-    addComment(artId: number, text: string): Promise<types.Comment>;
     deleteComment(commentId: number): Promise<void>;
     updateComment(commentId: number, text: string): Promise<types.Comment>;
 }

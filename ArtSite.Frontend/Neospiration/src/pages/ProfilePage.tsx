@@ -20,6 +20,7 @@ import Header from '../components/ui/Header';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import { TierController } from '../services/controllers/TierController';
 import { FormList } from '../components/ui/FormList';
+import BigText from '../components/ui/BigText';
 
 
 function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tier[], onTiersUpdated?: () => void}) {
@@ -282,7 +283,7 @@ export default function ProfilePage() {
                             {profile.description && (
                                 <>
                                     <Seperator/>
-                                    <p className='text-lg'>{profile.description}</p>
+                                    <BigText className='text-lg' textArea={profile.description}/>
                                 </>
                             )}
                         </Container>

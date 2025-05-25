@@ -9,4 +9,5 @@ public interface ICommentRepository
     Task<List<Comment>> GetComments(int artId, int offset, int limit);
     Task DeleteComment(int id);
     Task DeleteAllComments(int artId);
+    Task<int> GetCommentCount(int artId);
 }

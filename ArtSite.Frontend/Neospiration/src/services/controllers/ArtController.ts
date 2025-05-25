@@ -33,8 +33,11 @@ export class ArtController implements IArtController {
 
     async getArt(artId: number): Promise<types.Art> {
         try {
-            const response = await this.api.get(`/arts/${artId}`);
-            return response.data;
+            const { data } = await this.api.get(`/arts/${artId}`);
+            return {
+                ...data,
+                uploadedAt: new Date(data.uploadedAt),
+            };
         } catch (err: any) {
             if (err.response && err.response.status === 404) {
                 throw new ArtNotFoundException();
@@ -67,7 +70,6 @@ export class ArtController implements IArtController {
             return response.data.map((comment: any) => ({
                 ...comment,
                 uploadedAt: new Date(comment.uploadedAt),
-                updatedAt: comment.updatedAt ? new Date(comment.updatedAt) : undefined
             }));
         } catch (err: any) {
             if (err.response && err.response.status === 404) {
@@ -79,11 +81,10 @@ export class ArtController implements IArtController {
 
     async addComment(artId: number, text: string): Promise<types.Comment> {
         try {
-            const response = await this.api.post(`/api/arts/${artId}/comments`, { text });
+            const response = await this.api.post(`/arts/${artId}/comments`, { text });
             return {
                 ...response.data,
                 uploadedAt: new Date(response.data.uploadedAt),
-                updatedAt: response.data.updatedAt ? new Date(response.data.updatedAt) : undefined
             };
         } catch (err: any) {
             if (err.response && err.response.status === 404) {

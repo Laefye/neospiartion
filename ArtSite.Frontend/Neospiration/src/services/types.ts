@@ -77,7 +77,6 @@ export type Comment = {
     text: string;
     artId: number;
     uploadedAt: Date;
-    updatedAt: Date;
     profileId: number;
 }
 

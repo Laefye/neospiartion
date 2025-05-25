@@ -10,4 +10,5 @@ public interface ICommentService
     Task<List<Comment>> GetComments(string? userId, int artId, int offset, int limit);
     Task DeleteComment(string userId, int id);
     Task ForceDeleteAllComments(int artId);
+    Task<int> GetCommentCount(int artId);
 }

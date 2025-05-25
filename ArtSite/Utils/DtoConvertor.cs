@@ -8,10 +8,12 @@ namespace ArtSite.Utils;
 public class DtoConvertor
 {
     private readonly ILikeService _likeService;
+    private readonly ICommentService _commentService;
 
-    public DtoConvertor(ILikeService likeService)
+    public DtoConvertor(ILikeService likeService, ICommentService commentService)
     {
         _likeService = likeService;
+        _commentService = commentService;
     }
 
     public async Task<FullArtDto> GetFullArtDto(string? userId, Art art)
@@ -25,7 +27,7 @@ public class DtoConvertor
             TierId = art.TierId,
             IsLiked = userId != null ? await _likeService.IsArtLikedAsync(userId, art.Id) : null,
             LikeCount = await _likeService.GetLikeCountAsync(art.Id),
-            CommentCount = -1, // Comment count will be set later
+            CommentCount = await _commentService.GetCommentCount(art.Id),
         };
         return fullArt;
     }

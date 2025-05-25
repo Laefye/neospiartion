@@ -46,7 +46,13 @@ public class CommentRepository(ApplicationDbContext context) : ICommentRepositor
             .FirstOrDefaultAsync(c => c.Id == id);
         return comment?.ConvertToDto();
     }
-    
+
+    public Task<int> GetCommentCount(int artId)
+    {
+        return context.Comments
+            .CountAsync(c => c.ArtId == artId);
+    }
+
     public async Task<List<Comment>> GetComments(int artId, int offset, int limit)
     {
         var comments = await context.Comments

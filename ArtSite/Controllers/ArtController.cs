@@ -28,7 +28,7 @@ public class ArtController : ControllerBase
         _commentService = commentService;
         _subscriptionService = subscriptionService;
         _likeService = likeService;
-        _dtoConvertor = new DtoConvertor(likeService);
+        _dtoConvertor = new DtoConvertor(likeService, commentService);
     }
 
     [HttpGet]

@@ -8,6 +8,7 @@ import MessagesPage from './pages/MessagesPage';
 import ArtGalleryPage from './pages/ArtGalleryPage';
 import { AuthRoute, UnauthRoute } from './routes/AuthRoute'; // FIXED: Changed from './routes/AutoRoute'
 import './App.css';
+import ArtPage from './pages/ArtPage';
 
 function App() {
   return (
@@ -24,6 +25,8 @@ function App() {
           <Route path="/messages" element={<AuthRoute><MessagesPage /></AuthRoute>} />
           <Route path="/messages/:conversationId" element={<AuthRoute><MessagesPage /></AuthRoute>} />
           
+          <Route path="/art/:artId" element={<ArtPage/>} />
+
           <Route path="/" element={<ArtGalleryPage />} /> {/* FIXED: Removed invalid nested Route */}
           <Route path="*" element={<ArtGalleryPage />} />
         </Routes>

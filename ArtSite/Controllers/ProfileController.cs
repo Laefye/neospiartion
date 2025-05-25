@@ -23,7 +23,7 @@ public class ProfileController : ControllerBase
     private readonly ILikeService _likeService;
     private readonly DtoConvertor _dtoConvertor;
 
-    public ProfileController(IProfileService artistService, IArtService artService, ITierService tierService, ISubscriptionService subscriptionService, ICommissionService commissionService, IMessageService messageService, ILikeService likeService)
+    public ProfileController(IProfileService artistService, IArtService artService, ITierService tierService, ISubscriptionService subscriptionService, ICommissionService commissionService, IMessageService messageService, ILikeService likeService, ICommentService commentService)
     {
         _profileService = artistService;
         _artService = artService;
@@ -32,7 +32,7 @@ public class ProfileController : ControllerBase
         _commissionService = commissionService;
         _messageService = messageService.Apply(commissionService);
         _likeService = likeService;
-        _dtoConvertor = new DtoConvertor(likeService);
+        _dtoConvertor = new DtoConvertor(likeService, commentService);
     }
 
     [HttpGet("{profileId}")]

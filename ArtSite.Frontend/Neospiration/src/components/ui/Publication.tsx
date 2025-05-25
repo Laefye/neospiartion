@@ -4,10 +4,12 @@ import Container from "./Container";
 import { ArtController } from "../../services/controllers/ArtController";
 import api from "../../services/api";
 import Avatar from "./Avatar";
-import { Heart, Settings, Trash } from "lucide-react";
+import { Heart, MessageCircle, Settings, Trash } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
+import { Link, useNavigate } from "react-router";
+import BigText from "./BigText";
 
-const convertDateToString = (date: Date): string => {
+export const convertDateToString = (date: Date): string => {
     const now = new Date();
     const day = date.getDate();
     const monthNames = [
@@ -31,6 +33,7 @@ export default function Publication({ art, profile, settings }: { art: Art, prof
     const [liked, setLiked] = useState(art.isLiked || false);
     const [likeCount, setLikeCount] = useState(art.likeCount || 0);
     const [isOpenedContextMenu, setIsOpenedContextMenu] = useState(false);
+    const navigate = useNavigate();
     const artController = useMemo(() => new ArtController(api), [api]);
     const auth = useAuth();
     
@@ -83,17 +86,18 @@ export default function Publication({ art, profile, settings }: { art: Art, prof
                 )}
             </div>
             { profile && (
-                <div className="flex items-center gap-2 px-2">
+                <Link to={`/profile/${profile.id}`} className="flex items-center gap-2 px-2">
                     <Avatar profile={profile} size={40} />
                     <div className="flex flex-col">
                         <p className="text-lg font-semibold">{profile.displayName}</p>
                         <p className="text-art-text-hint text-sm">{profile.description}</p>
                     </div>
-                </div>
+                </Link>
             )}
-            <div className="p-3">
-                <p className="line-clamp-2 text-lg">{art.description}</p>
-            </div>
+            { art.description && (<div className="p-3">
+                <BigText className="line-clamp-2 text-lg" textArea={art.description}/>
+            </div>)
+            }
             {loading || (!imageLoaded && pictures && pictures.length > 0) && (
                 <div className="flex items-center justify-center h-64 bg-gray-200 animate-pulse">
                     <p className="text-art-text-hint">Загрузка...</p>
@@ -111,9 +115,14 @@ export default function Publication({ art, profile, settings }: { art: Art, prof
                     <p className="text-art-text-hint">Нет изображений для отображения</p>
                 </div>
             )}
-            <div className="p-3">
+            <div className="flex gap-3 p-3">
                 <button disabled={auth.me == null} onClick={likeButtonHandle} className={"flex items-center space-x-1.5 " + (liked === true && "text-red-500")}><Heart/><span>{likeCount}</span></button>
-                <button className="ml-3 text-art-text-hint" disabled={auth.me == null} onClick={() => alert("Комментирование пока не реализовано")}>Комментировать</button>
+                <button className="flex items-center space-x-1.5" onClick={() => navigate(`/art/${art.id}`)}>
+                    <MessageCircle />
+                    <span>
+                        {art.commentCount}
+                    </span>
+                </button>
             </div>
 
         </Container>
