@@ -5,6 +5,8 @@ namespace ArtSite.Core.Interfaces.Services;
 
 public interface ITierService
 {
+    ITierService Apply(ISubscriptionService storageService);
+
     Task<Tier> CreateTier(string userId, string name, string description, int profileId, int price, int? extends);
     Task<Tier> GetTier(int id);
     Task<List<Tier>> GetTiers(int profileId);

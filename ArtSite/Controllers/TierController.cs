@@ -56,7 +56,7 @@ public class TierController : ControllerBase
         try
         {
             string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
-            await _tierService.DeleteTier(userId, tierId);
+            await _tierService.Apply(_subscriptionService).DeleteTier(userId, tierId);
             return Accepted();
         }
         catch (TierException.NotFoundTier e)

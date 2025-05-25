@@ -3,7 +3,7 @@ import Nav from "../components/ui/Nav";
 import { Link, useNavigate, useParams } from "react-router";
 import { ArtController } from "../services/controllers/ArtController";
 import api from "../services/api";
-import type { Art, Picture, Profile, Comment, Countable } from "../services/types";
+import type { Art, Picture, Profile, Comment, Countable, Tier } from "../services/types";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Container from "../components/ui/Container";
 import { convertDateToString } from "../components/ui/Publication";
@@ -16,6 +16,8 @@ import Button from "../components/ui/Button";
 import { FormInput } from "../components/ui/FormInput";
 import BigText from "../components/ui/BigText";
 import { CommentController } from "../services/controllers/CommentController";
+import { ArtNotAvailableForProfileException } from "../services/interfaces/IArtController";
+import { TierController } from "../services/controllers/TierController";
 
 export function ArtComments({ art }: { art: Art }) {
     const PAGE_SIZE = 10;
@@ -186,15 +188,25 @@ export function ArtDetails({ art: oldArt }: { art: Art }) {
     const navigate = useNavigate();
     const artController = useMemo(() => new ArtController(api), [api]);
     const profileController = useMemo(() => new ProfileController(api), [api]);
+    const [needTier, setNeedTier] = useState<boolean>(false);
+    const tierController = useMemo(() => new TierController(api), [api]);
+    const [tier, setTier] = useState<null | Tier>(null);
     
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const profileData = await profileController.getProfile(oldArt.profileId);
                 setProfile(profileData);
+                if (oldArt.tierId != null) {
+                    const tierData = await tierController.getTier(oldArt.tierId);
+                    setTier(tierData);
+                }
                 const picturesData = await artController.getPictures(oldArt.id);
                 setPictures(picturesData);
             } catch (error) {
+                if (error instanceof ArtNotAvailableForProfileException) {
+                    setNeedTier(true);
+                }
                 console.error("Error fetching profile:", error);
             } finally {
                 setLoading(false);
@@ -264,21 +276,29 @@ export function ArtDetails({ art: oldArt }: { art: Art }) {
                     <BigText className="line-clamp-2 text-lg" textArea={oldArt.description}/>
                 </div>
             )}
-            {loading || (!imageLoaded && pictures && pictures.length > 0) && (
-                <div className="flex items-center justify-center h-64 bg-gray-200 animate-pulse">
-                    <p className="text-art-text-hint">Загрузка...</p>
-                </div>)}
-            {!loading && pictures && pictures.length > 0 && (
-                <img 
-                    src={pictures && pictures.length > 0 ? artController.getPictureUrl(pictures[0].id) : ''} 
-                    alt={oldArt.description || 'Artwork'} 
-                    onLoad={() => setImageLoaded(true)}
-                    className={"w-full" + (imageLoaded ? '' : ' hidden')}
-                />
-            )}
-            {!loading && pictures && pictures.length == 0 && (
-                <div className="flex items-center justify-center h-64 bg-gray-200">
-                    <p className="text-art-text-hint">Нет изображений для отображения</p>
+            {!needTier && (<>
+                {loading || (!imageLoaded && pictures && pictures.length > 0) && (
+                    <div className="flex items-center justify-center h-64 bg-gray-200 animate-pulse">
+                        <p className="text-art-text-hint">Загрузка...</p>
+                    </div>)}
+                {!loading && pictures && pictures.length > 0 && (
+                    <img 
+                        src={pictures && pictures.length > 0 ? artController.getPictureUrl(pictures[0].id) : ''} 
+                        alt={oldArt.description || 'Artwork'} 
+                        onLoad={() => setImageLoaded(true)}
+                        className={"w-full" + (imageLoaded ? '' : ' hidden')}
+                    />
+                )}
+                {!loading && pictures && pictures.length == 0 && (
+                    <div className="flex items-center justify-center h-64 bg-gray-200">
+                        <p className="text-art-text-hint">Нет изображений для отображения</p>
+                    </div>
+                )}
+            </>)}
+            {needTier && (
+                <div className="flex items-center justify-center h-64 bg-gray-200 flex-col space-y-2">
+                    <p className="text-art-text-hint">Это произведение доступно только для подписчиков</p>
+                    <p className="text-art-text-hint">Необходимый уровень: {tier?.name}</p>
                 </div>
             )}
             <div className="flex gap-3 p-3">

@@ -115,9 +115,9 @@ public class ArtService : IArtService
         var picture = await _pictureRepository.GetPicture(pictureId);
         if (picture == null)
             throw new ArtException.NotFoundPicture();
-        var art = await GetArt(userId, picture.ArtId);
-        if (!await _view.CanView(userId, art))
-            throw new ArtException.UnauthorizedArtistAccess();
+        // var art = await GetArt(userId, picture.ArtId);
+        // if (!await _view.CanView(userId, art))
+        //     throw new ArtException.UnauthorizedArtistAccess();
         return picture;
     }
 

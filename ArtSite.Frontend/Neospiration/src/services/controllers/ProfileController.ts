@@ -11,6 +11,7 @@ export class ProfileController implements IProfileController {
         this.api = api;
     }
     
+    
     async getTiers(profileId: number): Promise<types.Tier[]> {
         const { data } = await this.api.get(this.prefix + '/' + profileId + '/tiers');
         return data;
@@ -79,5 +80,14 @@ export class ProfileController implements IProfileController {
             console.error("Error searching profiles:", error);
             return [];
         }
+    }
+
+    async getSubscriptions(profileId: number): Promise<types.Subscription[]> {
+        const { data } = await this.api.get(this.prefix + '/' + profileId + '/subscriptions');
+        return data.map((subscription: any) => ({
+            ...subscription,
+            createdAt: new Date(subscription.createdAt),
+            expiresAt: new Date(subscription.expiresAt),
+        } as types.Subscription));
     }
 }

@@ -28,4 +28,6 @@ export interface ITierController {
     updateAvatar(tierId: number, avatarFile: File): Promise<void>;
 
     getAvatarUrl(tierId: number): string;
+
+    subscribeToTier(tierId: number): Promise<void>;
 }

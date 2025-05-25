@@ -113,3 +113,11 @@ export type AddingTierDto = {
     price: number;
     extends?: number | null;
 }
+
+export type Subscription = {
+    id: number;
+    profileId: number;
+    tierId: number;
+    createdAt: Date;
+    expiresAt: Date;
+};

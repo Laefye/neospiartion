@@ -64,4 +64,29 @@ public class ArtRepository : IArtRepository
     {
         return await _context.Arts.OrderByDescending(art => art.UploadedAt).Where(art => art.ProfileId == artistId).Select(art => art.ConvertToDto()).ToListAsync();
     }
+
+    public async Task<List<Art>> GetArtsByTierId(int tierId)
+    {
+        return await _context.Arts
+            .Where(art => art.TierId == tierId)
+            .OrderByDescending(art => art.UploadedAt)
+            .Select(art => art.ConvertToDto())
+            .ToListAsync();
+    }
+
+    public async Task<Art> UpdateArt(Art art)
+    {
+        var dbArt = await _context.Arts.FindAsync(art.Id);
+        if (dbArt == null)
+            return art;
+
+        dbArt.Description = art.Description;
+        dbArt.TierId = art.TierId;
+        dbArt.UploadedAt = art.UploadedAt;
+
+        _context.Arts.Update(dbArt);
+        await _context.SaveChangesAsync();
+
+        return dbArt.ConvertToDto();
+    }
 }

@@ -9,6 +9,7 @@ export class TierController implements ITierController {
     constructor(api: DefaultClient) {
         this.api = api;
     }
+    
     async getTier(tierId: number): Promise<types.Tier> {
         const response = await this.api.get(`/tiers/${tierId}`);
         return response.data;
@@ -37,5 +38,12 @@ export class TierController implements ITierController {
 
     getAvatarUrl(tierId: number): string {
         return `${this.api.url}/tiers/${tierId}/avatar?timestamp=${Date.now()}`;
+    }
+
+    async subscribeToTier(tierId: number): Promise<void> {
+        const response = await this.api.post(`/tiers/${tierId}/subscriptions`);
+        if (response.status !== 201) {
+            throw new Error("Не удалось подписаться на уровень");
+        }
     }
 }

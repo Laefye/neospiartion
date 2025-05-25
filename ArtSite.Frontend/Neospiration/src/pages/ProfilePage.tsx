@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router';
 import { ProfileController } from '../services/controllers/ProfileController';
 import api from '../services/api';
-import type { Profile, Art, Tier } from '../services/types';
+import type { Profile, Art, Tier, Subscription } from '../services/types';
 import Seperator from '../components/ui/Seperator';
 import { MessageSquare, PencilLine } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -28,13 +28,33 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
     const [loading, setLoading] = useState(false);
     const [creatingForm, setCreatingForm] = useState(false);
     const nameRef = useRef<HTMLInputElement | null>(null);
-    const descriptionRef = useRef<HTMLTextAreaElement | null>(null);
+    const descriptionRef = useRef<HTMLInputElement | null>(null);
     const priceRef = useRef<HTMLInputElement | null>(null);
     const extendsRef = useRef<HTMLSelectElement | null>(null);
     const [error, setError] = useState<string | null>(null);
     const icon = useRef<HTMLInputElement | null>(null);
     const profileController = useMemo(() => new ProfileController(api), [api]);
     const tierController = useMemo(() => new TierController(api), [api]);
+    const [userSubscriptions, setUserSubscriptions] = useState<Subscription[]>([]);
+
+    const isSubcribed = userSubscriptions.some(sub => sub.tierId && tiers.some(tier => tier.id === sub.tierId));
+
+    useEffect(() => {
+        const loadSubscriptions = async () => {
+            if (!auth.me) return;
+            try {
+                const subscriptions = await profileController.getSubscriptions(auth.me.profileId!);
+                setUserSubscriptions(subscriptions);
+            } catch (error) {
+                if (error instanceof Error) {
+                    setError(error.message);
+                } else {
+                    setError('Неизвестная ошибка при загрузке подписок');
+                }
+            }
+        }
+        loadSubscriptions();
+    }, [auth.me, profileController]);
 
     const handleCreateTier = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -107,6 +127,23 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
         return [parentTier, ...getParentTiers(parentTier.extends)];
     }
 
+    const subscribeToTier = async (tierId: number) => {
+        if (!auth.me) {
+            alert('Вы должны быть авторизованы для подписки на уровень');
+            return;
+        }
+        try {
+            await tierController.subscribeToTier(tierId);
+            alert('Вы успешно подписались на уровень');
+        } catch (error) {
+            if (error instanceof Error) {
+                alert(error.message);
+            } else {
+                alert('Неизвестная ошибка при подписке на уровень');
+            }
+        }
+    };
+
     return <>
         {creatingForm && (
             <div className='fixed left-0 top-0 w-full h-full backdrop-blur-sm bg-black/50' onClick={(e) => {
@@ -119,7 +156,7 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
                         <Header title="Создание уровня подписки"/>
                         {error && <ErrorMessage>{error}</ErrorMessage>}
                         <FormInput required disabled={loading} id='name' label='Название' inputRef={nameRef}/>
-                        <TextArea required disabled={loading} id='description' label='Описание' inputRef={descriptionRef} rows={3}/>
+                        <FormInput required disabled={loading} id='description' label='Описание' inputRef={descriptionRef} />
                         <FormInput required disabled={loading} id='price' label='Цена (₽)' type='number' min={1} inputRef={priceRef}/>
                         <FileSelect id='icon' label='Иконка' accept='image/*' ref={icon} />
                         <FormList id='extends' label='Наследование' options={<><option value="0">Ничего</option>{tiers.map(tier => <option value={tier.id} key={tier.id}>{tier.name}</option>)}</>} inputRef={extendsRef} className='w-full' placeholder='Не наследовать'/>
@@ -164,7 +201,7 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
                                 </div>
                             )}
                             {auth.me && auth.me.userId !== profile.userId && (
-                                <Button variant='outline'>Подписаться</Button>
+                                <Button disabled={isSubcribed} variant='outline' onClick={() => subscribeToTier(tier.id)}>{ isSubcribed ? "Вы уже подписаны" : "Подписатся"}</Button>
                             )}
                         </div>
                     )) : (

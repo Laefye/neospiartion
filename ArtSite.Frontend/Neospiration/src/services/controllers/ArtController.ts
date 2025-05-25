@@ -107,7 +107,9 @@ export class ArtController implements IArtController {
         } catch (err: any) {
             if (err.response && err.response.status === 404) {
                 throw new ArtNotFoundException();
-            }
+            } else if (err.response && err.response.status === 403) {
+                throw new ArtNotAvailableForProfileException();
+            };
             throw err;
         }
     }

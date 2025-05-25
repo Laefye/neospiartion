@@ -33,7 +33,7 @@ export interface IProfileController {
 
     searchProfiles(query: string): Promise<types.Profile[]>;
 
-    // getSubscriptions(profileId: number): Promise<types.Subscription[]>;
+    getSubscriptions(profileId: number): Promise<types.Subscription[]>;
     // getCommissions(profileId: number): Promise<types.Commission[]>;
     // postCommission(profileId: number, value: types.CommissionDto): Promise<types.Commission>;
 }
