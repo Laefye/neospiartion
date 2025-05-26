@@ -259,7 +259,6 @@ export default function ArtPublishModal({ profileId, onPublished }: ArtPublishMo
                                 ) : selectedTierId ? (
                                     <p className="text-sm text-purple-300">
                                         Работа будет доступна только подписчикам выбранного уровня и выше.
-                                        Вы как автор всегда будете иметь доступ к своей работе.
                                     </p>
                                 ) : tiers.length === 0 ? (
                                     <p className="text-sm text-gray-400">

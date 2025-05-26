@@ -31,5 +31,10 @@ public class SubscriptionException(string message) : Exception(message)
         public NotOwned()
             : base("Not owned subscription") { }
     }
-}
 
+    public class NotSubscribed : SubscriptionException
+    {
+        public NotSubscribed()
+            : base("Not subscribed to this tier") { }
+    }
+}

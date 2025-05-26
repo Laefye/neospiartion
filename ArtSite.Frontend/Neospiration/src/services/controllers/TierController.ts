@@ -46,4 +46,17 @@ export class TierController implements ITierController {
             throw new Error("Не удалось подписаться на уровень");
         }
     }
+
+    async unsubscribeFromTier(tierId: number): Promise<void> {
+        try {
+            const response = await this.api.delete(`/api/tiers/${tierId}/subscriptions/${id}`);
+            if (response.status !== 204 && response.status !== 200) {
+                throw new Error("Не удалось отписаться от уровня");
+            }
+        } catch (error) {
+            console.error("Error unsubscribing from tier:", error);
+            throw new Error("Не удалось отписаться от уровня: " + 
+                (error instanceof Error ? error.message : "неизвестная ошибка"));
+        }
+    }
 }

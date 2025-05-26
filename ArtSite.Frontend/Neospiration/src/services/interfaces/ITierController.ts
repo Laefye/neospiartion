@@ -30,4 +30,6 @@ export interface ITierController {
     getAvatarUrl(tierId: number): string;
 
     subscribeToTier(tierId: number): Promise<void>;
+
+    unsubscribeFromTier(tierId: number): Promise<void>;
 }
