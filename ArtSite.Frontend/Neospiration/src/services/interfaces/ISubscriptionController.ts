@@ -14,8 +14,5 @@ export class SubscriptionNotFoundException extends SubscriptionException {
 }
 
 export interface ISubscriptionController {
-    getSubscriptions(profileId: number): Promise<types.Subscription[]>;
-    subscribe(tierId: number): Promise<types.Subscription>;
     unsubscribe(subscriptionId: number): Promise<void>;
-    getSubscriptionForTier(profileId: number, tierId: number): Promise<types.Subscription | null>;
 }

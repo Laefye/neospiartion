@@ -21,6 +21,7 @@ import ErrorMessage from '../components/ui/ErrorMessage';
 import { TierController } from '../services/controllers/TierController';
 import { FormList } from '../components/ui/FormList';
 import BigText from '../components/ui/BigText';
+import { SubscriptionController } from '../services/controllers/SubscriptionController';
 
 function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tier[], onTiersUpdated?: () => void}) {
     const auth = useAuth();
@@ -34,6 +35,7 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
     const icon = useRef<HTMLInputElement | null>(null);
     const profileController = useMemo(() => new ProfileController(api), [api]);
     const tierController = useMemo(() => new TierController(api), [api]);
+    const subscriptionController = useMemo(() => new SubscriptionController(api), [api]);
     const [userSubscriptions, setUserSubscriptions] = useState<Subscription[]>([]);
 
     const isTierSubscribed = (tierId: number) => {
@@ -150,9 +152,9 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
             return;
         }
         try {
-            await tierController.unsubscribeFromTier(tierId);
+            await subscriptionController.unsubscribe(userSubscriptions.find(sub => sub.tierId === tierId)?.id!);
             const subscriptions = await profileController.getSubscriptions(auth.me.profileId!);
-        setUserSubscriptions(subscriptions);
+            setUserSubscriptions(subscriptions);
             alert('Вы успешно отписались от уровня');
         } catch (error) {
             if (error instanceof Error) {

@@ -115,6 +115,6 @@ public class SubscriptionService : ISubscriptionService
         var subscription = await _subscriptionRepository.GetSubscription(subscriptionId);
         if (subscription == null || subscription.ProfileId != profile.Id)
             throw new SubscriptionException.NotFound();
-        await _subscriptionRepository.DeleteAllSubscriptionsInTier(subscription.TierId);
+        await _subscriptionRepository.DeleteSubscription(subscriptionId);
     }
 }

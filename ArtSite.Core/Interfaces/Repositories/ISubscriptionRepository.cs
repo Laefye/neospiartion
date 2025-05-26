@@ -18,4 +18,6 @@ public interface ISubscriptionRepository
     Task<Subscription?> GetSubscriptionOfProfileIdInArtist(int profileId, int artistId);
 
     Task DeleteAllSubscriptionsInTier(int tierId);
+
+    Task DeleteSubscription(int subscriptionId);
 }
