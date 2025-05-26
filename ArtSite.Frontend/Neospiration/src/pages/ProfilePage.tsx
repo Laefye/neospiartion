@@ -22,7 +22,6 @@ import { TierController } from '../services/controllers/TierController';
 import { FormList } from '../components/ui/FormList';
 import BigText from '../components/ui/BigText';
 
-
 function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tier[], onTiersUpdated?: () => void}) {
     const auth = useAuth();
     const [loading, setLoading] = useState(false);
@@ -37,8 +36,9 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
     const tierController = useMemo(() => new TierController(api), [api]);
     const [userSubscriptions, setUserSubscriptions] = useState<Subscription[]>([]);
 
-    const isSubcribed = userSubscriptions.some(sub => sub.tierId && tiers.some(tier => tier.id === sub.tierId));
-
+    const isTierSubscribed = (tierId: number) => {
+        return userSubscriptions.some(sub => sub.tierId === tierId);
+    };
     useEffect(() => {
         const loadSubscriptions = async () => {
             if (!auth.me) return;
@@ -144,6 +144,25 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
         }
     };
 
+    const unsubscribeFromTier = async (tierId: number) => {
+        if (!auth.me) {
+            alert('Вы должны быть авторизованы для отписки от уровня');
+            return;
+        }
+        try {
+            await tierController.unsubscribeFromTier(tierId);
+            const subscriptions = await profileController.getSubscriptions(auth.me.profileId!);
+        setUserSubscriptions(subscriptions);
+            alert('Вы успешно отписались от уровня');
+        } catch (error) {
+            if (error instanceof Error) {
+                alert(error.message);
+            } else {
+                alert('Неизвестная ошибка при отписке от уровня');
+            }
+        }
+    };
+
     return <>
         {creatingForm && (
             <div className='fixed left-0 top-0 w-full h-full backdrop-blur-sm bg-black/50' onClick={(e) => {
@@ -201,7 +220,13 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
                                 </div>
                             )}
                             {auth.me && auth.me.userId !== profile.userId && (
-                                <Button disabled={isSubcribed} variant='outline' onClick={() => subscribeToTier(tier.id)}>{ isSubcribed ? "Вы уже подписаны" : "Подписатся"}</Button>
+                                <Button 
+                                    variant={isTierSubscribed(tier.id) ? 'danger' : 'outline'} 
+                                    onClick={() => isTierSubscribed(tier.id) ? unsubscribeFromTier(tier.id) : subscribeToTier(tier.id)}
+                                    className="w-full"
+                                >
+                                    {isTierSubscribed(tier.id) ? "Отписаться" : "Подписаться"}
+                                </Button>
                             )}
                         </div>
                     )) : (

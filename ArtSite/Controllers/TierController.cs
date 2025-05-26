@@ -129,6 +129,45 @@ public class TierController : ControllerBase
         }
     }
 
+    [HttpDelete("{tierId}/subscriptions/{id}")]
+    [Authorize]
+    [ProducesResponseType(typeof(Subscription), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> UnsubscribeFromTier(int tierId)
+    {
+        try
+        {
+            string userId = User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+            await _subscriptionService.UnscribeAll(tierId);
+            return Ok();
+        }
+        catch (TierException.NotFoundTier e)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        }
+        catch (TierException.NotOwnerTier)
+        {
+            return Forbid();
+        }
+        catch (SubscriptionException.NotFound e)
+        {
+            return NotFound(new ProblemDetails
+            {
+                Detail = e.Message
+            });
+        }
+        catch (Exception)
+        {
+            throw;
+        }
+    }
+
     [HttpGet("{tierId}/avatar")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -201,6 +240,4 @@ public class TierController : ControllerBase
             throw;
         }
     }
-
 }
-

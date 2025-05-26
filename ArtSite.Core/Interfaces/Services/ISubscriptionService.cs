@@ -13,7 +13,8 @@ public interface ISubscriptionService : IView
     Task<Subscription> GetSubscription(string userId, int subscriptionId);
 
     Task<Subscription> Subscribe(string userId, int tierId);
-    
-    Task UnscribeAll(int tierId);
-}
 
+    Task UnscribeAll(int tierId);
+
+    Task Unsubscribe(string userId, int subscriptionId);
+}

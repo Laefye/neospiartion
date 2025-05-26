@@ -19,4 +19,3 @@ public interface ISubscriptionRepository
 
     Task DeleteAllSubscriptionsInTier(int tierId);
 }
-
