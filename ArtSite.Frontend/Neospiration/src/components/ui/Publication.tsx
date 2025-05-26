@@ -110,7 +110,7 @@ export default function Publication({ art, profile, settings }: { art: Art, prof
                 )}
             </div>
             { profile && (
-                <Link to={`/profile/${profile.id}`} className="flex items-center gap-2 px-2">
+                <Link to={`/profile/${profile.id}`} className="flex items-center gap-2 p-2">
                     <Avatar profile={profile} size={40} />
                     <div className="flex flex-col">
                         <p className="text-lg font-semibold">{profile.displayName}</p>
