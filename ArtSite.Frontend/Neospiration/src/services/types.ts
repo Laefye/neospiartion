@@ -87,6 +87,7 @@ export type Message = {
     receiverId: number;
     createdAt: Date;
     isRead: boolean;
+    commissionId?: number;
 }
 
 export type AddingMessage = {

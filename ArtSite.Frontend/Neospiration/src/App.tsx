@@ -4,7 +4,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import ProfileEditPage from './pages/ProfileEditPage';
-// import MessagesPage from './pages/MessagesPage';
+import MessagesPage from './pages/MessagesPage';
 import ArtGalleryPage from './pages/ArtGalleryPage';
 import { AuthRoute, UnauthRoute } from './routes/AuthRoute'; // FIXED: Changed from './routes/AutoRoute'
 import './App.css';
@@ -22,8 +22,7 @@ function App() {
           
           <Route path="/profile/:id" element={<ProfilePage />} />
           <Route path="/profile/:id/edit" element={<AuthRoute><ProfileEditPage /></AuthRoute>} />
-          {/* <Route path="/messages" element={<AuthRoute><MessagesPage /></AuthRoute>} />
-          <Route path="/messages/:conversationId" element={<AuthRoute><MessagesPage /></AuthRoute>} /> */}
+          <Route path="/messages/:profileId?" element={<MessagesPage />} />
           
           <Route path="/art/:artId" element={<ArtPage/>} />
 

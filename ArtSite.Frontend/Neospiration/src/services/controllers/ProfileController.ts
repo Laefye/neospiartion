@@ -2,7 +2,7 @@ import { AxiosError } from "axios";
 import type { Client } from "../api";
 import type * as types from "../types";
 import { ProfileNotFoundException, type IProfileController } from "../interfaces/IProfileController";
-import { ConversationNotFoundException } from "../interfaces/IMessageController";
+import { ConversationNotFoundException, MessageException } from "../interfaces/IMessageController";
 
 export class ProfileController implements IProfileController {
     api: Client;
@@ -68,27 +68,24 @@ export class ProfileController implements IProfileController {
         }
     }
 
-    async postMessage(profileId: number, value: types.AddingMessage): Promise<types.Message> {
+    async postMessage(profileId: number, message: types.AddingMessage): Promise<types.Message> {
         try {
-            const { data } = await this.api.post(`${this.prefix}/${profileId}/messages`, value);
+            const { data } = await this.api.post(`/profiles/${profileId}/messages`, message);
             
             return {
                 ...data,
                 createdAt: new Date(data.createdAt)
-            } as types.Message;
+            };
         } catch (error) {
             if (error instanceof AxiosError) {
                 if (error.response?.status === 404) {
-                    throw new ProfileNotFoundException();
+                    throw new MessageException('Профиль не найден');
                 }
                 if (error.response?.status === 403) {
-                    throw new Error("Сообщение самому себе невозможно");
-                }
-                if (error.response?.status === 400) {
-                    throw new Error("Некорректные данные сообщения");
+                    throw new MessageException('Нельзя отправить сообщение самому себе');
                 }
             }
-            throw error;
+            throw new MessageException(`Ошибка при отправке сообщения: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
         }
     }
 

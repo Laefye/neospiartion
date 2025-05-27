@@ -15,4 +15,5 @@ export class ConversationNotFoundException extends MessageException {
 
 export interface IMessageController {
     getMessage(messageId: number): Promise<types.Message>;
+    getProfileMessages(profileId: number, limit?: number, offset?: number): Promise<types.Message[]>;
 }
