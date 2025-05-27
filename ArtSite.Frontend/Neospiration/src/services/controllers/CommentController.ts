@@ -43,7 +43,7 @@ export class CommentController implements ICommentController {
 
     async updateComment(commentId: number, text: string): Promise<types.Comment> {
         try {
-            const response = await this.api.put(`/api/comments/${commentId}`, { text });
+            const response = await this.api.put(`/comments/${commentId}`, { text });
             return response.data;
         }
         catch (error: any) {

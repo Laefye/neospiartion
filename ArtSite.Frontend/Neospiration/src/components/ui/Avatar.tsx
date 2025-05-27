@@ -4,9 +4,9 @@ import api from "../../services/api";
 import type { Profile } from "../../services/types";
 
 export default function Avatar({ profile, size = 40 }: { profile: Profile, size?: number }) {
-    let [src, setSrc] = useState<string | null>(null);
-    let [loading, setLoading] = useState<boolean>(true);
-    let profileController = useMemo(() => new ProfileController(api), [api]);
+    const [src, setSrc] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
+    const profileController = useMemo(() => new ProfileController(api), [api]);
     useEffect(() => {
         if (!profile.avatar) {
             setSrc(null);

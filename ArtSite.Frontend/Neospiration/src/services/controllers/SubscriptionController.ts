@@ -1,4 +1,3 @@
-// src/services/controllers/SubscriptionController.ts
 import { AxiosError } from "axios";
 import type { Client } from "../api";
 import { SubscriptionNotFoundException } from "../interfaces/ISubscriptionController";

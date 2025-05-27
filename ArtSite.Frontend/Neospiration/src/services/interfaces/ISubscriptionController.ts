@@ -1,5 +1,3 @@
-import type * as types from "../types";
-
 export class SubscriptionException extends Error {
     constructor(message: string) {
         super(message);

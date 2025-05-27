@@ -20,9 +20,9 @@ export interface IProfileController {
     getArts(profileId: number): Promise<types.Art[]>;
     postArt(profileId: number, value: types.CreationArt): Promise<types.Art>;
 
-    // getMessages(profileId: number, limit?: number, offset?: number): Promise<types.Message[]>;
-    // postMessage(profileId: number, value: types.AddingMessageDto): Promise<types.Message>;
-    // getConversations(profileId: number, limit?: number, offset?: number): Promise<types.Conversation[]>;
+    getMessages(profileId: number, limit?: number, offset?: number): Promise<types.Message[]>;
+    postMessage(profileId: number, value: types.AddingMessage): Promise<types.Message>;
+    getConversations(profileId: number, limit: number, offset: number): Promise<types.Conversation[]>;
 
     getTiers(profileId: number): Promise<types.Tier[]>;
     createTier(profileId: number, value: types.AddingTierDto): Promise<types.Tier>;
@@ -31,9 +31,9 @@ export interface IProfileController {
     postAvatar(profileId: number, avatarFile: File): Promise<void>;
     deleteAvatar(profileId: number): Promise<void>;
 
-    searchProfiles(query: string): Promise<types.Profile[]>;
-
     getSubscriptions(profileId: number): Promise<types.Subscription[]>;
-    // getCommissions(profileId: number): Promise<types.Commission[]>;
-    // postCommission(profileId: number, value: types.CommissionDto): Promise<types.Commission>;
+    getCommissions(profileId: number): Promise<types.Commission[]>;
+    postCommission(profileId: number, value: types.CommissionDto): Promise<types.Commission>;
+
+    searchProfiles(query: string): Promise<types.Profile[]>;
 }

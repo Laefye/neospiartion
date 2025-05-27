@@ -22,12 +22,8 @@ export class TierHasChildrenException extends TierException {
 
 export interface ITierController {
     getTier(tierId: number): Promise<types.Tier>;
-
     deleteTier(tierId: number): Promise<void>;
-
     updateAvatar(tierId: number, avatarFile: File): Promise<void>;
-
     getAvatarUrl(tierId: number): string;
-
     subscribeToTier(tierId: number): Promise<void>;
 }

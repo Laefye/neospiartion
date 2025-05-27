@@ -89,8 +89,14 @@ export type Message = {
     isRead: boolean;
 }
 
+export type AddingMessage = {
+    text: string;
+    receiverId: number;
+}
+
 export type Conversation = {
     id: number;
+    profileId: number;
     participants: Profile[];
     lastMessage?: Message;
     unreadCount: number;
@@ -120,4 +126,22 @@ export type Subscription = {
     tierId: number;
     createdAt: Date;
     expiresAt: Date;
+};
+
+export type Commission = {
+    image: any;
+    id: number;
+    name: string;
+    profileId: number;
+    description: string;
+    price: number;
+    status: "pending" | "accepted" | "rejected" | "completed";
+    createdAt: Date;
+    updatedAt: Date;
+};
+
+export type CommissionDto = {
+    name: string;
+    description: string;
+    price: number;
 };

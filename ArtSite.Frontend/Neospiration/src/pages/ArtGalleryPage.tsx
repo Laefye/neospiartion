@@ -5,7 +5,6 @@ import api from '../services/api';
 import type { Art, Profile } from '../services/types';
 import Nav from '../components/ui/Nav';
 import Header from '../components/ui/Header';
-import { Heart, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import Button from '../components/ui/Button';
 import Publication from '../components/ui/Publication';
@@ -35,7 +34,6 @@ export default function ArtGalleryPage() {
                 replace ? (fetchedArts) : [...prevArts, ...(fetchedArts)]
             );
 
-            // Fetch missing artist profiles
             const missingProfileIds = fetchedArts
                 .map(art => art.profileId)
                 .filter(id => !(id in artistProfiles));
