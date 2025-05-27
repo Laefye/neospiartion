@@ -51,7 +51,7 @@ public class MessageRepository(ApplicationDbContext context) : IMessageRepositor
         return await context.Messages
             .Where(m => (m.SenderId == profileId && m.ReceiverId == otherProfileId) ||
                         (m.SenderId == otherProfileId && m.ReceiverId == profileId))
-            .OrderByDescending(m => m.CreatedAt)
+            .OrderBy(m => m.CreatedAt)
             .Skip(offset)
             .Take(limit)
             .Select(m => m.ConvertToDto())
