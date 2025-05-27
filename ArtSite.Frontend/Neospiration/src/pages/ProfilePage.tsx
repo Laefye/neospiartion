@@ -235,7 +235,7 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
             return;
         }
         try {
-            await subscriptionController.unsubscribe(userSubscriptions.find(sub => sub.tierId === tierId)?.id!);
+            subscriptionController.unsubscribe(userSubscriptions.find(sub => sub.tierId === tierId)?.id!);
             const subscriptions = await profileController.getSubscriptions(auth.me.profileId!);
             setUserSubscriptions(subscriptions);
             alert('Вы успешно отписались от уровня');
@@ -249,26 +249,110 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
     };
 
     const CommissionItem = ({ commission }: { commission: Commission }) => {
-        return (
-            <div key={commission.id} className='flex flex-col gap-1 items-center border-2 border-art-text-hint rounded-lg p-3 w-full'>
-                <span className='text-sm text-art-text-hint w-full'>{commission.price} ₽</span>
-                {commission.image && (
-                    <img 
-                        src={commissionController.getCommissionImageUrl(commission.id)} 
-                        width={96} 
-                        height={96} 
-                        className='rounded-lg object-cover h-24 w-24'
-                        alt={commission.name}
-                    />
-                )}
-                <span className='text-lg'>{commission.name}</span>
-                <p className='text-center text-art-text-hint'>{commission.description}</p>
-                {auth.me?.userId === profile.userId && (
-                    <Button variant='danger' onClick={() => deleteCommission(commission.id)}>Удалить</Button>
-                )}
-            </div>
-        );
+    const [showMessageForm, setShowMessageForm] = useState(false);
+    const [messageText, setMessageText] = useState('');
+    const [sendingMessage, setSendingMessage] = useState(false);
+    const [messageError, setMessageError] = useState<string | null>(null);
+    
+    const handleRequestCommission = () => {
+        setMessageText(`Здравствуйте, я хотел бы заказать "${commission.name}" (№${commission.id}).`);
+        setShowMessageForm(true);
     };
+    
+    const handleSendMessage = async () => {
+        if (!messageText.trim()) return;
+        
+        try {
+            setSendingMessage(true);
+            setMessageError(null);
+            
+            await profileController.postMessage(profile.id, {
+                text: messageText,
+                commissionId: commission.id,
+                receiverId: commission.profileId
+            });
+            
+            setShowMessageForm(false);
+            setMessageText('');
+            alert('Сообщение успешно отправлено!');
+        } catch (error) {
+            if (error instanceof Error) {
+                setMessageError(error.message);
+            } else {
+                setMessageError('Произошла ошибка при отправке сообщения');
+            }
+        } finally {
+            setSendingMessage(false);
+        }
+    };
+    
+    return (
+        <div key={commission.id} className='flex flex-col gap-1 items-center border-2 border-art-text-hint rounded-lg p-3 w-full'>
+            <span className='text-sm text-art-text-hint w-full'>{commission.price} ₽</span>
+            {commission.image && (
+                <img 
+                    src={commissionController.getCommissionImageUrl(commission.id)} 
+                    width={96} 
+                    height={96} 
+                    className='rounded-lg object-cover h-24 w-24'
+                    alt={commission.name}
+                />
+            )}
+            <span className='text-lg'>{commission.name}</span>
+            <p className='text-center text-art-text-hint'>{commission.description}</p>
+            
+            {auth.me?.userId === profile.userId ? (
+                <Button variant='danger' onClick={() => deleteCommission(commission.id)}>Удалить</Button>
+            ) : auth.me && (
+                <Button variant='primary' onClick={handleRequestCommission} className="w-full mt-2">
+                    Заказать
+                </Button>
+            )}
+            
+            {showMessageForm && (
+                <div className='fixed left-0 top-0 w-full h-full backdrop-blur-sm bg-black/50 z-50' onClick={(e) => {
+                    if (e.target === e.currentTarget) {
+                        setShowMessageForm(false);
+                    }
+                }}>
+                    <Container className='absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 p-5 w-full max-w-[500px]'>
+                        <form className='flex flex-col gap-3' onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}>
+                            <Header title="Заказать комиссию" />
+                            {messageError && <ErrorMessage>{messageError}</ErrorMessage>}
+                            <TextArea 
+                                value={messageText} 
+                                onChange={(e) => setMessageText(e.target.value)} 
+                                disabled={sendingMessage}
+                                required
+                                id="commission-message"
+                                label="Сообщение"
+                                rows={5}
+                            />
+                            <div className='flex gap-3'>
+                                <Button 
+                                    disabled={sendingMessage} 
+                                    isLoading={sendingMessage} 
+                                    type='submit' 
+                                    className='grow'
+                                >
+                                    Отправить
+                                </Button>
+                                <Button 
+                                    disabled={sendingMessage} 
+                                    variant='outline' 
+                                    type='button' 
+                                    onClick={() => setShowMessageForm(false)}
+                                >
+                                    Отмена
+                                </Button>
+                            </div>
+                        </form>
+                    </Container>
+                </div>
+            )}
+        </div>
+    );
+};
 
     const renderForms = () => (
         <>
@@ -389,22 +473,24 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
                         )}
                     </div>
                 ) : (
-                    <div className='flex flex-col gap-2 w-full'>
-                        {commissionLoading ? (
-                            <p className='text-center text-art-text-hint'>Загрузка заказов...</p>
-                        ) : commissions.length > 0 ? (
-                            commissions.map(commission => (
-                                <CommissionItem key={commission.id} commission={commission} />
-                            ))
-                        ) : (
-                            <p className='text-center text-art-text-hint'>Заказы отсутствуют</p>
-                        )}
-                        {auth.me?.userId === profile.userId && (
-                            <Button variant='outline' className='w-full mt-3' onClick={() => setCreatingCommission(true)}>
-                                Создать заказ
-                            </Button>
-                        )}
-                    </div>
+                    activeTab === 'commissions' && (
+                        <div className='flex flex-col gap-2 w-full'>
+                            {commissionLoading ? (
+                                <p className='text-center text-art-text-hint'>Загрузка заказов...</p>
+                            ) : commissions.length > 0 ? (
+                                commissions.map(commission => (
+                                    <CommissionItem key={commission.id} commission={commission} />
+                                ))
+                            ) : (
+                                <p className='text-center text-art-text-hint'>Заказы отсутствуют</p>
+                            )}
+                            {auth.me?.userId === profile.userId && (
+                                <Button variant='outline' className='w-full mt-3' onClick={() => setCreatingCommission(true)}>
+                                    Создать заказ
+                                </Button>
+                            )}
+                        </div>
+                    )
                 )}
             </div>
         </Container>

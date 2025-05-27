@@ -91,6 +91,7 @@ export type Message = {
 
 export type AddingMessage = {
     text: string;
+    commissionId?: number;
     receiverId: number;
 }
 

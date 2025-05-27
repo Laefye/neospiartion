@@ -18,7 +18,7 @@ export interface ICommissionController {
     deleteCommission(commissionId: number): Promise<void>;
     updateCommission(commissionId: number, data: types.CommissionDto): Promise<void>;
     
-    getCommissionImageUrl(commissionId: number): Promise<string>;
+    getCommissionImageUrl(commissionId: number): string;
     uploadCommissionImage(commissionId: number, file: File): Promise<void>;
     deleteCommissionImage(commissionId: number): Promise<void>;
     

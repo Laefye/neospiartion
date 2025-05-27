@@ -61,8 +61,8 @@ export class CommissionController implements ICommissionController {
         }
     }
 
-    async getCommissionImageUrl(commissionId: number): Promise<string> {
-        return `${this.api.url}${this.prefix}/${commissionId}/image?timestamp=${Date.now()}`;
+    getCommissionImageUrl(commissionId: number): string {
+        return `${this.api.url}/commissions/${commissionId}/image?timestamp=${Date.now()}`;
     }
 
     async uploadCommissionImage(commissionId: number, file: File): Promise<void> {
