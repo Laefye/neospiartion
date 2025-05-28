@@ -85,14 +85,14 @@ export default function RegisterPage() {
         {error && <ErrorMessage><p>{error}</p>{errorList && <ul className='list-disc ps-3'>{errorList.map((x, i) => <li key={i}>{x}</li>)}</ul>}</ErrorMessage>}
         <div className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
-            <FormInput
+              <FormInput
               type="email"
               id="email"
               name="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
+              className="w-full p-3 bg-[#32052c] text-white placeholder-gray-400 border-primary focus:border-primary-500 focus:ring-0 rounded-md"
               placeholder="E-Mail"
             />
             <FormInput
@@ -102,7 +102,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
+              className="w-full p-3 bg-[#32052c] text-white placeholder-gray-400 border-primary focus:border-primary-500 focus:ring-0 rounded-md"
               placeholder="Пароль"
             />
             <FormInput
@@ -112,8 +112,9 @@ export default function RegisterPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
-              placeholder="Подтверждение пароля"/>
+              className="w-full p-3 bg-[#32052c] text-white placeholder-gray-400 border-primary focus:border-primary-500 focus:ring-0 rounded-md"
+              placeholder="Подтверждение пароля"
+            />
             <FormInput
               type="text"
               id="username"
@@ -121,7 +122,7 @@ export default function RegisterPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
+              className="w-full p-3 bg-[#32052c] text-white placeholder-gray-400 border-primary focus:border-primary-500 focus:ring-0 rounded-md"
               placeholder="Никнейм"
             />
             <FormInput
@@ -131,7 +132,7 @@ export default function RegisterPage() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
-              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
+              className="w-full p-3 bg-[#32052c] text-white placeholder-gray-400 border-primary focus:border-primary-500 focus:ring-0 rounded-md"
               placeholder="Отображаемое имя"
             />
 
