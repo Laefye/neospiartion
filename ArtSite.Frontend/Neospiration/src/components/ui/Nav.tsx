@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { Home, MessageSquare, ChevronDown, LogOut, User } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import SearchBar from './SearchBar';
 
 export default function Nav() {
     const auth = useAuth();
@@ -45,6 +46,9 @@ export default function Nav() {
                     <Link to="/gallery" className="text-white text-xl font-bold">
                         NEOspiration
                     </Link>
+                    <div className="max-w-md w-full">
+                        <SearchBar />
+                    </div>
                 </div>
 
                 <div className="flex items-center space-x-4">
