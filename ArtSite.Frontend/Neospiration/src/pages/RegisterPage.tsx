@@ -92,8 +92,8 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
               placeholder="E-Mail"
-              className="w-full p-3 border-transparent focus:border-purple-500 focus:ring-0 rounded-md"
             />
             <FormInput
               type="password"
@@ -102,7 +102,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full p-3 border-transparent focus:border-purple-500 focus:ring-0 rounded-md"
+              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
               placeholder="Пароль"
             />
             <FormInput
@@ -112,7 +112,7 @@ export default function RegisterPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full p-3 border-transparent focus:border-purple-500 focus:ring-0 rounded-md"
+              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
               placeholder="Подтверждение пароля"/>
             <FormInput
               type="text"
@@ -121,7 +121,7 @@ export default function RegisterPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               required
-              className="w-full p-3 border-transparent focus:border-purple-500 focus:ring-0 rounded-md"
+              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
               placeholder="Никнейм"
             />
             <FormInput
@@ -131,14 +131,15 @@ export default function RegisterPage() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
-              className="w-full p-3 border-transparent focus:border-purple-500 focus:ring-0 rounded-md"
+              className="w-full p-3 bg-[#FFF2BF] border-primary focus:border-primary-500 focus:ring-0 rounded-md"
               placeholder="Отображаемое имя"
             />
 
             <Button
               type="submit"
               isLoading={loading}
-              className="w-full bg-purple-800 hover:bg-purple-700 text-white py-3">
+              variant='primary'
+              className="w-full flex items-center justify-center gap-2">
               {loading ? 'Загрузка...' : 'Продолжить'}
             </Button>
             
