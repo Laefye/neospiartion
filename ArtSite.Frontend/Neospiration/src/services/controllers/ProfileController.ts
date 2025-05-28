@@ -41,7 +41,7 @@ export class ProfileController implements IProfileController {
     }
 
     async postArt(profileId: number, value: types.CreationArt): Promise<types.Art> {
-        const { data } = await this.api.post(`/profiles/${profileId}/arts`, value);
+        const { data } = await this.api.post(`${this.prefix}/${profileId}/arts`, value);
         return data;
     }
     
@@ -135,9 +135,8 @@ export class ProfileController implements IProfileController {
 
     async searchProfiles(query: string): Promise<types.Profile[]> {
         try {
-            const response = await this.api.get('/api/profiles/search', {
-                params: { query },
-                skipAuthRefresh: true
+            const response = await this.api.get(this.prefix + '/search', {
+                query: query,
             });
             return response.data;
         } catch (error) {
