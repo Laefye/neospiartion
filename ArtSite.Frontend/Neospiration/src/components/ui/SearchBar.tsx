@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { Search, X } from "lucide-react";
 import { useNavigate } from "react-router";
 import { ProfileController } from "../../services/controllers/ProfileController";
@@ -26,7 +26,7 @@ export default function SearchBar() {
     const searchRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    const profileController = new ProfileController(api);
+    const profileController = useMemo(() => new ProfileController(api), [api]);
 
     useEffect(() => {
         localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
