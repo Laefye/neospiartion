@@ -23,9 +23,11 @@ export default function MessagesPage() {
     const [conversationProfiles, setConversationProfiles] = useState<Record<number, Profile>>({});
     const [messages, setMessages] = useState<Message[]>([]);
     const [activeProfile, setActiveProfile] = useState<Profile | null>(null);
-    const [newMessage, setNewMessage] = useState('');
     const [sendingMessage, setSendingMessage] = useState(false);
     const [commissions, setCommissions] = useState<Record<number, Commission>>({});
+    // const [messagesOffset, setMessagesOffset] = useState(0);
+    // const [hasMoreMessages, setHasMoreMessages] = useState(true);
+    // const [loadingMoreMessages, setLoadingMoreMessages] = useState(false);
     
     const messageController = useMemo(() => new MessageController(api), []);
     const profileController = useMemo(() => new ProfileController(api), []);
@@ -82,7 +84,7 @@ export default function MessagesPage() {
                 const profile = await profileController.getProfile(targetProfileId);
                 setActiveProfile(profile);
                 
-                const conversationMessages = await messageController.getProfileMessages(targetProfileId);
+                const conversationMessages = await messageController.getProfileMessages(targetProfileId, 500, 0);
                 setMessages(conversationMessages);
                 
                 const commissionIds = conversationMessages
@@ -116,13 +118,18 @@ export default function MessagesPage() {
     const handleSendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
         
-        if (!activeProfile || !newMessage.trim() || !auth.me?.profileId) return;
+        const messageText = messageInputRef.current?.value?.trim() || '';
+        
+        if (!activeProfile || !messageText || !auth.me?.profileId) return;
         
         try {
             setSendingMessage(true);
-            const sentMessage = await profileController.postMessage(activeProfile.id, { text: newMessage.trim() });
+            const sentMessage = await profileController.postMessage(activeProfile.id, { text: messageText });
             setMessages(prev => [...prev, sentMessage]);
-            setNewMessage('');
+            
+            if (messageInputRef.current) {
+                messageInputRef.current.value = '';
+            }
             messageInputRef.current?.focus();
         } catch (error) {
             setError(error instanceof Error ? error.message : 'Не удалось отправить сообщение');
@@ -138,7 +145,7 @@ export default function MessagesPage() {
         
         return (
             <div className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} my-2`}>
-                <div className={`rounded-lg px-4 py-2 max-w-[75%] ${isOwnMessage ? 'bg-purple-800 text-white' : 'bg-gray-100'}`}>
+                <div className={`rounded-lg px-4 py-2 max-w-[75%] ${isOwnMessage ? 'bg-[#6c2769] text-white' : 'bg-gray-100'}`}>
                     {message.text}
                     
                     {commission && (
@@ -190,6 +197,31 @@ export default function MessagesPage() {
             </Link>
         );
     };
+
+    // const loadMoreMessages = async () => {
+    //     if (loadingMoreMessages || !hasMoreMessages || !activeProfile) return;
+        
+    //     try {
+    //         setLoadingMoreMessages(true);
+    //         const nextOffset = messagesOffset + 10;
+    //         const moreMessages = await messageController.getProfileMessages(
+    //             activeProfile.id, 
+    //             10, 
+    //             nextOffset
+    //         );
+            
+    //         if (moreMessages.length < 10) {
+    //             setHasMoreMessages(false);
+    //         }
+            
+    //         setMessages(prevMessages => [...prevMessages, ...moreMessages]);
+    //         setMessagesOffset(nextOffset);
+    //     } catch (error) {
+    //         console.error('Error loading more messages:', error);
+    //     } finally {
+    //         setLoadingMoreMessages(false);
+    //     }
+    // };
     
     return (
         <>
@@ -197,8 +229,8 @@ export default function MessagesPage() {
             <div className='min-h-screen bg-gradient-to-b from-[#25022A] to-[#320425] w-full flex flex-col items-center py-5'>
                 <Container className='flex h-[calc(80vh)] max-h-[700px] overflow-hidden max-w-[1200px] w-full'>
                     <div className="w-1/4 border-r border-gray-200 bg-white overflow-y-auto">
-                        <div className="p-4 font-medium text-lg border-b">
-                            Сообщения
+                        <div className="p-4 font-medium text-lg border-b flex justify-between items-center">
+                            <div>Сообщения</div>
                         </div>
                         <div>
                             {loading && !activeProfile ? (
@@ -235,6 +267,17 @@ export default function MessagesPage() {
                                             <MessageBubble key={message.id} message={message} />
                                         ))
                                     )}
+                                    {/* {hasMoreMessages && (
+                                        <div className="text-center mb-4">
+                                            <button
+                                                onClick={loadMoreMessages}
+                                                disabled={loadingMoreMessages}
+                                                className="px-4 py-2 text-sm bg-gray-200 hover:bg-gray-300 rounded-md"
+                                            >
+                                                {loadingMoreMessages ? 'Загрузка...' : 'Загрузить предыдущие сообщения'}
+                                            </button>
+                                        </div>
+                                    )} */}
                                     <div ref={messagesEndRef} />
                                 </div>
                                 
@@ -243,16 +286,14 @@ export default function MessagesPage() {
                                         type="text"
                                         className="flex-1 border rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                                         placeholder="Сообщение"
-                                        value={newMessage}
-                                        onChange={(e) => setNewMessage(e.target.value)}
                                         ref={messageInputRef}
                                         disabled={sendingMessage}
                                     />
                                     <Button 
                                         type="submit" 
-                                        className="ml-2"
+                                        className="primary ml-2"
                                         isLoading={sendingMessage}
-                                        disabled={!newMessage.trim() || sendingMessage}
+                                        disabled={sendingMessage}
                                     >
                                         <Send size={18} className="mr-1" />
                                         Отправить
