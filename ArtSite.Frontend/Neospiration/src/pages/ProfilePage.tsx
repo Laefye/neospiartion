@@ -268,8 +268,7 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
             
             await profileController.postMessage(profile.id, {
                 text: messageText,
-                commissionId: commission.id,
-                receiverId: commission.profileId
+                commissionId: commission.id
             });
             
             setShowMessageForm(false);
@@ -405,7 +404,6 @@ function Submenu({tiers, profile, onTiersUpdated}: {profile: Profile, tiers: Tie
         </>
     );
     
-
     return <>
         {renderForms()}
         <Container className='flex flex-col items-center justify-between h-min md:min-w-[400px]' withoutPadding>
