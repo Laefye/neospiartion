@@ -1,9 +1,9 @@
-import { use, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Nav from "../components/ui/Nav";
 import { Link, useNavigate, useParams } from "react-router";
 import { ArtController } from "../services/controllers/ArtController";
 import api from "../services/api";
-import type { Art, Picture, Profile, Comment, Countable, Tier } from "../services/types";
+import type { Art, Picture, Profile, Comment, Tier } from "../services/types";
 import ErrorMessage from "../components/ui/ErrorMessage";
 import Container from "../components/ui/Container";
 import { convertDateToString } from "../components/ui/Publication";

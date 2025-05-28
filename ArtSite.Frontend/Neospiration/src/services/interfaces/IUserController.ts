@@ -41,6 +41,4 @@ export interface IUserController {
     authenticate(value: types.Login): Promise<types.Token>;
 
     me(): Promise<types.Me>;
-
-    updateProfile(value: types.UpdateUser): Promise<void>;
 }

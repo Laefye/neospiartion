@@ -5,7 +5,6 @@ import api from '../services/api';
 import type { Art, Profile } from '../services/types';
 import Nav from '../components/ui/Nav';
 import Header from '../components/ui/Header';
-import { useNavigate } from 'react-router';
 import Button from '../components/ui/Button';
 import Publication from '../components/ui/Publication';
 
@@ -18,7 +17,6 @@ export default function ArtGalleryPage() {
     const [offset, setOffset] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [artistProfiles, setArtistProfiles] = useState<Record<number, Profile>>({});
-    const navigate = useNavigate();
     const artController = useMemo(() => new ArtController(api), [api]);
     const profileController = useMemo(() => new ProfileController(api), [api]);
 

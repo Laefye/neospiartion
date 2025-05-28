@@ -118,11 +118,11 @@ export default function SearchBar() {
                                     className="flex items-center p-3 hover:bg-purple-800/50 cursor-pointer"
                                     onClick={() => handleProfileClick(profile)}
                                 >
-                                    <Avatar 
-                                        src={profile.avatar ? `/api/profiles/${profile.id}/avatar` : undefined}
-                                        alt={profile.displayName || ''}
-                                        className="w-8 h-8 rounded-full mr-3"
-                                    />
+                                    <div className="mr-3">
+                                        <Avatar 
+                                            profile={profile}
+                                        />
+                                    </div>
                                     <div className="flex-1">
                                         <div className="text-white">{profile.displayName}</div>
                                         <div className="text-xs text-gray-400">@{profile.id}</div>
@@ -151,11 +151,11 @@ export default function SearchBar() {
                                             className="flex items-center p-3 hover:bg-purple-800/50 cursor-pointer"
                                             onClick={() => handleProfileClick(profile)}
                                         >
-                                            <Avatar 
-                                                src={profile.avatar ? `/api/profiles/${profile.id}/avatar` : undefined}
-                                                alt={profile.displayName || ''}
-                                                className="w-8 h-8 rounded-full mr-3"
-                                            />
+                                            <div className="mr-3">
+                                                <Avatar 
+                                                    profile={profile}
+                                                />
+                                            </div>
                                             <div>
                                                 <div className="text-white">{profile.displayName}</div>
                                                 <div className="text-xs text-gray-400">@{profile.id}</div>

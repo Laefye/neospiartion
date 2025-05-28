@@ -1,7 +1,7 @@
 import { AxiosError } from "axios";
 import type { Client } from "../api";
 import { AlreadyUsedException, InvalidRegistrationDataException, InvalidTokenException, type IUserController } from "../interfaces/IUserController";
-import type { Register, SafeUser, Login, Token, Me, UpdateUser } from "../types";
+import type { Register, SafeUser, Login, Token, Me } from "../types";
 
 export class UserController implements IUserController {
     api: Client;
@@ -72,10 +72,5 @@ export class UserController implements IUserController {
             }
             throw error;
         }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    updateProfile(value: UpdateUser): Promise<void> {
-        throw new Error("Method not implemented.");
     }
 }

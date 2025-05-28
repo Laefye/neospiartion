@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Navigate, useSearchParams } from 'react-router';
 import api from '../services/api';
 import tokenService from '../services/token/TokenStorage';
-import { OldErrorMessage } from '../components/ui/ErrorMessage'
 import { LoadingSpinner } from '../components/ui/LoadingSpinner';
 
 export default function VKCallback() {

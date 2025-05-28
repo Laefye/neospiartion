@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { type Subscription, type Art, type Picture, type Profile, type Tier } from "../../services/types";
+import { type Art, type Picture, type Profile, type Tier } from "../../services/types";
 import Container from "./Container";
 import { ArtController } from "../../services/controllers/ArtController";
 import api from "../../services/api";
@@ -9,7 +9,6 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Link, useNavigate } from "react-router";
 import BigText from "./BigText";
 import { TierController } from "../../services/controllers/TierController";
-import { ProfileController } from "../../services/controllers/ProfileController";
 import { ArtNotAvailableForProfileException } from "../../services/interfaces/IArtController";
 
 export const convertDateToString = (date: Date): string => {
@@ -39,7 +38,6 @@ export default function Publication({ art, profile, settings }: { art: Art, prof
     const navigate = useNavigate();
     const artController = useMemo(() => new ArtController(api), [api]);
     const tierController = useMemo(() => new TierController(api), [api]);
-    const profileController = useMemo(() => new ProfileController(api), [api]);
     const [tier, setTier] = useState<null | Tier>(null);
     const [needTier, setNeedTier] = useState<boolean>(false);
     const auth = useAuth();
