@@ -4,7 +4,6 @@ import { Link, useNavigate } from 'react-router';
 import Button from '../components/ui/Button';
 import { FormInput } from '../components/ui/FormInput';
 import { OldErrorMessage } from '../components/ui/ErrorMessage';
-import { Divider } from '../components/ui/Divider';
 import api from '../services/api';
 import { UserController } from '../services/controllers/UserController';
 import { useAuth } from '../contexts/AuthContext';
@@ -57,7 +56,7 @@ export default function LoginPage() {
         
         {error && <OldErrorMessage message={error} />}
         <div className="space-y-6">
-          <Button
+          {/* <Button
             variant="white" 
             className='w-full flex items-center justify-center gap-2'
             disabled={loading}
@@ -69,7 +68,7 @@ export default function LoginPage() {
             Вход через аккаунт VK
           </Button>
           
-          <Divider text="или" />
+          <Divider text="или" /> */}
           
           <form onSubmit={handleSubmit} className="space-y-4">
             <FormInput
