@@ -3,10 +3,9 @@ version: '3.8'
 services:
   backend:
     build: .
-    ports:
-      - "5000:80"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=db;Database=artsite;Username=postgres;Password=postgres
     volumes:
       - art_uploads:/app/Uploads
     depends_on:
@@ -15,7 +14,7 @@ services:
   frontend:
     build: ArtSite.Frontend/Neospiration
     ports:
-      - "3000:8000"
+      - "3000:80"
     depends_on:
       - backend
 

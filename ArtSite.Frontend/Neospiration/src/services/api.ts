@@ -12,10 +12,17 @@ export interface Client {
     delete(path: string, params?: any): Promise<any>;
 }
 
+const getBaseUrl = (): string => {
+    if (import.meta.env.PROD) {
+        return window.location.origin;
+    }
+    return 'http://localhost:5273';
+}
+
 export class DefaultClient implements Client {
     private api: AxiosInstance;
     tokenStorage: TokenStorage;
-    private baseURL: string = 'http://localhost:5273';
+    private baseURL: string = getBaseUrl();
     private prefix: string = this.baseURL + '/api';
 
     constructor() {
